@@ -1,0 +1,835 @@
+/* Sidequest – en tilfældig heldagsplan til weekenden
+ * Vælger aktiviteter ud fra årstid, særlige dage, vejrudsigten time for time,
+ * solnedgang, budget og alkohol-valg. Udfordringer låses op i løbet af dagen.
+ */
+(() => {
+  'use strict';
+
+  const STORE_KEY = 'sidequest.v1';
+  const POINTS = { done: 100, bonus: 50, mission: 200, joker: 25 };
+  const DEFAULT_LOC = { name: 'København', lat: 55.6761, lon: 12.5683 };
+
+  // Typisk dansk klima pr. måned – bruges hvis vejret ikke kan hentes
+  const CLIMATE = {
+    tmax:    [3, 3, 6, 11, 16, 19, 22, 21, 17, 12, 7, 4],
+    sunrise: [8.6, 7.9, 6.8, 6.4, 5.2, 4.5, 4.7, 5.6, 6.6, 7.6, 7.6, 8.5],
+    sunset:  [16.2, 17.2, 18.2, 20.2, 21.2, 22.0, 21.8, 21.0, 19.7, 18.3, 16.4, 15.8],
+    rain:    [45, 40, 35, 30, 30, 35, 40, 40, 40, 45, 50, 50],
+  };
+
+  const $ = (sel, el = document) => el.querySelector(sel);
+  const app = $('#app');
+
+  /* ───────────── Hjælpere ───────────── */
+  const pad = (n) => String(n).padStart(2, '0');
+  const isoDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const todayISO = () => isoDate(new Date());
+  const parseDate = (iso) => new Date(iso + 'T12:00:00');
+  const mmdd = (iso) => iso.slice(5);
+  const inWin = (md, [a, b]) => (a <= b ? md >= a && md <= b : md >= a || md <= b);
+  const nowHours = () => { const d = new Date(); return d.getHours() + d.getMinutes() / 60; };
+  const hoursToClock = (h) => `${pad(Math.floor(h))}:${pad(Math.round((h % 1) * 60) % 60)}`;
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmtDate = (iso) => parseDate(iso).toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long' });
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const actById = (id) => ACTIVITIES.find((a) => a.id === id);
+
+  function seasonOf(iso) {
+    const m = parseDate(iso).getMonth() + 1;
+    if (m === 12 || m <= 2) return 'vinter';
+    if (m <= 5) return 'forår';
+    if (m <= 8) return 'sommer';
+    return 'efterår';
+  }
+  const SEASON_META = {
+    vinter: { icon: '❄️', label: 'Vinter' },
+    forår: { icon: '🌱', label: 'Forår' },
+    sommer: { icon: '☀️', label: 'Sommer' },
+    efterår: { icon: '🍂', label: 'Efterår' },
+  };
+  const specialOf = (iso) => SPECIAL_DAYS.find((s) => inWin(mmdd(iso), s.win)) || null;
+
+  function weekendOptions() {
+    const now = new Date();
+    const dow = now.getDay(); // 0 søn, 6 lør
+    const add = (n) => { const d = new Date(now); d.setDate(d.getDate() + n); return isoDate(d); };
+    const opts = [];
+    if (dow === 6) { opts.push({ iso: add(0), label: 'I dag (lørdag)' }, { iso: add(1), label: 'I morgen (søndag)' }); }
+    else if (dow === 0) { opts.push({ iso: add(0), label: 'I dag (søndag)' }, { iso: add(6), label: 'Næste lørdag' }); }
+    else {
+      const toSat = 6 - dow;
+      opts.push({ iso: add(0), label: 'I dag' }, { iso: add(toSat), label: 'Lørdag' }, { iso: add(toSat + 1), label: 'Søndag' });
+    }
+    return opts;
+  }
+
+  /* ───────────── Lager ───────────── */
+  const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } };
+  let store = load();
+  store.settings = store.settings || { budget: null, alc: null, date: null, loc: DEFAULT_LOC };
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
+    catch (e) {
+      // Sandsynligvis fuld pga. billeder – fjern det ældste billede og prøv igen
+      const withPhoto = store.plan?.steps.find((s) => s.photo);
+      if (withPhoto) { withPhoto.photo = null; save(); toast('Lageret var fuldt – et ældre billede blev fjernet.'); }
+    }
+  }
+
+  /* ───────────── Vejr ───────────── */
+  const WMO = (code, dark) => {
+    if (code === 0) return dark ? ['🌙', 'Klart'] : ['☀️', 'Klart'];
+    if (code === 1) return dark ? ['🌙', 'Mest klart'] : ['🌤️', 'Mest klart'];
+    if (code === 2) return ['⛅', 'Delvist skyet'];
+    if (code === 3) return ['☁️', 'Overskyet'];
+    if (code === 45 || code === 48) return ['🌫️', 'Tåge'];
+    if (code >= 51 && code <= 57) return ['🌦️', 'Støvregn'];
+    if (code >= 61 && code <= 67) return ['🌧️', 'Regn'];
+    if (code >= 71 && code <= 77) return ['🌨️', 'Sne'];
+    if (code >= 80 && code <= 82) return ['🌧️', 'Byger'];
+    if (code === 85 || code === 86) return ['🌨️', 'Snebyger'];
+    if (code >= 95) return ['⛈️', 'Torden'];
+    return ['🌡️', 'Ukendt'];
+  };
+  const isSnowCode = (c) => (c >= 71 && c <= 77) || c === 85 || c === 86;
+  const toHours = (s) => { const t = s.slice(11, 16).split(':'); return +t[0] + +t[1] / 60; };
+
+  async function fetchWeather(loc, date) {
+    const url = 'https://api.open-meteo.com/v1/forecast?' + new URLSearchParams({
+      latitude: loc.lat, longitude: loc.lon, timezone: 'auto', wind_speed_unit: 'ms',
+      start_date: date, end_date: date,
+      hourly: 'temperature_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m,cloud_cover',
+      daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,wind_speed_10m_max',
+    });
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Vejr-API svarede ' + res.status);
+    const j = await res.json();
+    const H = j.hourly;
+    const hourly = {};
+    H.time.forEach((t, i) => {
+      hourly[+t.slice(11, 13)] = {
+        t: H.temperature_2m[i], pp: H.precipitation_probability[i] ?? 0, pr: H.precipitation[i] ?? 0,
+        code: H.weather_code[i], wind: H.wind_speed_10m[i], cloud: H.cloud_cover[i],
+      };
+    });
+    const D = j.daily;
+    return {
+      fetched: Date.now(), fallback: false,
+      daily: {
+        code: D.weather_code[0], tmax: D.temperature_2m_max[0], tmin: D.temperature_2m_min[0],
+        pp: D.precipitation_probability_max[0] ?? 0, wind: D.wind_speed_10m_max[0],
+        sunrise: toHours(D.sunrise[0]), sunset: toHours(D.sunset[0]),
+      },
+      hourly,
+    };
+  }
+
+  function climateWeather(date) {
+    const m = parseDate(date).getMonth();
+    const tmax = CLIMATE.tmax[m];
+    const hourly = {};
+    for (let h = 0; h < 24; h++) {
+      const t = tmax - 4 + 4 * Math.max(0, Math.sin(((h - 8) / 12) * Math.PI));
+      hourly[h] = { t: Math.round(t), pp: CLIMATE.rain[m], pr: 0, code: 2, wind: 5, cloud: 60 };
+    }
+    return {
+      fetched: Date.now(), fallback: true,
+      daily: { code: 2, tmax, tmin: tmax - 5, pp: CLIMATE.rain[m], wind: 6, sunrise: CLIMATE.sunrise[m], sunset: CLIMATE.sunset[m] },
+      hourly,
+    };
+  }
+
+  async function getWeather(loc, date) {
+    try { return await fetchWeather(loc, date); }
+    catch (e) { console.warn(e); return climateWeather(date); }
+  }
+
+  function slotWeather(wx, slot) {
+    const h = wx.hourly[Math.floor(slot.h)] || wx.hourly[12];
+    const next = wx.hourly[Math.min(23, Math.floor(slot.h) + 1)] || h;
+    const pp = Math.max(h.pp, next.pp);
+    const pr = h.pr + next.pr;
+    const dark = slot.h + 1 > wx.daily.sunset || slot.h < wx.daily.sunrise;
+    const [icon, text] = WMO(h.code, dark);
+    return {
+      t: Math.round(h.t), pp, pr, wind: Math.round(h.wind), cloud: h.cloud, code: h.code, icon, text, dark,
+      wet: pp >= 55 || pr >= 0.6 || (h.code >= 61 && h.code <= 82),
+      storm: h.wind >= 14 || h.code >= 95,
+      nice: h.t >= 16 && pp < 30 && h.code <= 2,
+      snow: isSnowCode(h.code),
+    };
+  }
+
+  /* ───────────── Planlægning ───────────── */
+  function fits(a, sw, ctx) {
+    if (a.need === 'sne' && !ctx.snowDay) return false;
+    if (a.need === 'klart' && (sw.cloud > 45 || sw.wet)) return false;
+    if (a.need === 'blæst' && (sw.wind < 5 || sw.wind >= 14 || sw.wet)) return false;
+    if (a.env === 'ude') {
+      if (sw.wet || sw.storm || sw.t < (a.minT ?? 5)) return false;
+      if (sw.dark && !a.dark) return false;
+    }
+    if (a.env === 'mix') {
+      if (sw.storm || sw.pr >= 2.5 || sw.t < (a.minT ?? 0)) return false;
+      if (sw.dark && !a.dark) return false;
+    }
+    return true;
+  }
+
+  function eligible(a, slot, ctx) {
+    if (!a.s.includes(slot.id)) return false;
+    if (a.b !== '*' && a.b !== ctx.budget) return false;
+    if (a.alc === 1 && !ctx.alc) return false;
+    if (a.season && !a.season.includes(ctx.season)) return false;
+    if (a.months && !a.months.includes(ctx.month)) return false;
+    if (a.win && !inWin(ctx.md, a.win)) return false;
+    return true;
+  }
+
+  function weight(a, slot, sw, ctx) {
+    let w = 1;
+    if (a.win) w *= 6;
+    if (a.months || a.season) w *= 1.6;
+    if (a.need) w *= 4;
+    if (sw.nice) w *= a.env === 'inde' ? 0.5 : 2;
+    if ((sw.wet || sw.t < 3) && a.env === 'inde') w *= 1.4;
+    if (ctx.alc && ['eftermiddag', 'middag', 'aften'].includes(slot.id)) {
+      if (a.alc === 1) w *= 1.8;
+      if (a.alc === 0) w *= 0.4;
+    }
+    if (ctx.budget === 'dyr' && a.b === 'dyr') w *= 1.6;
+    if (ctx.budget === 'billig' && a.kr === 0) w *= 1.2;
+    return w;
+  }
+
+  function weightedPick(list) {
+    const total = list.reduce((s, x) => s + x.w, 0);
+    let r = Math.random() * total;
+    for (const x of list) { r -= x.w; if (r <= 0) return x.a; }
+    return list[list.length - 1]?.a;
+  }
+
+  function makeCtx(plan) {
+    const d = parseDate(plan.date);
+    const snowDay = isSnowCode(plan.wx.daily.code) || Object.values(plan.wx.hourly).some((h) => isSnowCode(h.code));
+    return { budget: plan.budget, alc: plan.alc, season: seasonOf(plan.date), month: d.getMonth() + 1, md: mmdd(plan.date), snowDay };
+  }
+
+  function chooseFor(slot, plan, used, { indoorOnly = false } = {}) {
+    const ctx = makeCtx(plan);
+    const sw = slotWeather(plan.wx, slot);
+    const specials = plan.steps.filter((st) => actById(st.act)?.win).length;
+    let pool = ACTIVITIES.filter((a) => !used.has(a.id) && eligible(a, slot, ctx) && fits(a, sw, ctx) && (!indoorOnly || a.env === 'inde')
+      && !(a.win && specials >= 2));
+    // Har man valgt alkohol, skal mindst ét af dagens stop have det med
+    if (ctx.alc && !indoorOnly && slot.id === 'aften' && !plan.steps.some((st) => actById(st.act)?.alc === 1)) {
+      const alcPool = pool.filter((a) => a.alc === 1);
+      if (alcPool.length) pool = alcPool;
+    }
+    if (!pool.length) pool = ACTIVITIES.filter((a) => !used.has(a.id) && a.s.includes(slot.id) && a.env === 'inde' && (a.alc !== 1 || ctx.alc));
+    if (!pool.length) return null;
+    return weightedPick(pool.map((a) => ({ a, w: weight(a, slot, sw, ctx) })));
+  }
+
+  function usedIds(plan, except = -1) {
+    const s = new Set();
+    plan.steps.forEach((st, i) => { if (i !== except) { s.add(st.act); if (st.planB) s.add(st.planB); } });
+    return s;
+  }
+
+  function buildPlan({ date, budget, alc, loc, wx }) {
+    const special = specialOf(date);
+    const plan = {
+      date, budget, alc, loc, wx,
+      theme: special ? special.theme : `${pick(THEME_A)} ${pick(THEME_B)}`,
+      mission: pick(MISSIONS), missionDone: false,
+      jokers: 3, notified: [], createdAt: Date.now(), steps: [],
+    };
+    const used = new Set();
+    for (const slot of SLOTS) {
+      const a = chooseFor(slot, plan, used);
+      used.add(a.id);
+      const step = { slot: slot.id, act: a.id, planB: null, status: 'todo', bonus: false, note: '', photo: null, doneAt: null };
+      if (a.env !== 'inde') {
+        const b = chooseFor(slot, plan, used, { indoorOnly: true });
+        if (b) { step.planB = b.id; used.add(b.id); }
+      }
+      plan.steps.push(step);
+    }
+    return plan;
+  }
+
+  /* ───────────── Dagens forløb ───────────── */
+  function dayMode(plan) {
+    const t = todayISO();
+    if (plan.date > t) return 'preview';
+    if (plan.date < t) return 'past';
+    return 'live';
+  }
+
+  function isUnlocked(plan, i) {
+    const mode = dayMode(plan);
+    if (mode === 'past') return true;
+    if (mode === 'preview') return false;
+    if (i === 0) return true;
+    if (plan.steps[i - 1].status !== 'todo') return true;
+    return nowHours() >= SLOTS[i].h;
+  }
+
+  function activeIndex(plan) {
+    if (dayMode(plan) !== 'live') return -1;
+    return plan.steps.findIndex((s, i) => s.status === 'todo' && isUnlocked(plan, i));
+  }
+
+  const missionUnlocked = (plan) => isUnlocked(plan, 2);
+  const allDone = (plan) => plan.steps.every((s) => s.status !== 'todo');
+
+  function points(plan) {
+    let p = 0;
+    plan.steps.forEach((s) => { if (s.status === 'done') p += POINTS.done + (s.bonus ? POINTS.bonus : 0); });
+    if (plan.missionDone) p += POINTS.mission;
+    return p;
+  }
+
+  function totalCost(plan) {
+    return plan.steps.reduce((s, st) => s + (actById(st.act)?.kr || 0), 0);
+  }
+
+  function rank(p) {
+    if (p >= 1000) return ['🏆', 'Sidequest-legende'];
+    if (p >= 750) return ['🦸', 'Weekend-helt'];
+    if (p >= 500) return ['⚔️', 'Eventyrer'];
+    if (p >= 250) return ['🥾', 'På vej'];
+    return ['🛋️', 'Sofakartoffel (i dag)'];
+  }
+
+  /* ───────────── UI: toast & modal ───────────── */
+  function toast(msg) {
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3200);
+  }
+
+  function modal(html) {
+    const wrap = document.createElement('div');
+    wrap.className = 'modal-wrap';
+    wrap.innerHTML = `<div class="modal">${html}</div>`;
+    wrap.addEventListener('click', (e) => { if (e.target === wrap) wrap.remove(); });
+    document.body.appendChild(wrap);
+    return wrap;
+  }
+
+  /* ───────────── UI: opsætning ───────────── */
+  let view = null;
+
+  function renderSetup() {
+    view = 'setup';
+    const st = store.settings;
+    const opts = weekendOptions();
+    if (!st.date || !opts.some((o) => o.iso === st.date)) st.date = opts[opts.length === 3 ? 1 : 0].iso; // hverdag → lørdag, ellers i dag
+    const season = seasonOf(st.date);
+    const special = specialOf(st.date);
+    setAccent(season, special);
+
+    app.innerHTML = `
+      <header class="hero">
+        <div class="logo">🎲 Sidequest</div>
+        <h1>Én dag. Én tilfældig plan.<br>Ingen undskyldninger.</h1>
+        <p class="muted">Vi kigger på årstiden og vejret, hvor du er, og giver dig en komplet plan fra morgen til aften.
+        Udfordringerne låses op i løbet af dagen – så hav appen med.</p>
+        <div class="chips center">
+          <span class="chip">${SEASON_META[season].icon} ${SEASON_META[season].label}</span>
+          ${special ? `<span class="chip hot">${special.icon} ${special.name}</span>` : ''}
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>1. Hvilken dag?</h2>
+        <div class="seg" data-group="date">
+          ${opts.map((o) => `<button class="${o.iso === st.date ? 'on' : ''}" data-action="set" data-key="date" data-val="${o.iso}">
+            ${o.label}<small>${parseDate(o.iso).toLocaleDateString('da-DK', { day: 'numeric', month: 'short' })}</small></button>`).join('')}
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2. Budget</h2>
+        <div class="big-choice">
+          <button class="${st.budget === 'billig' ? 'on' : ''}" data-action="set" data-key="budget" data-val="billig">
+            <span class="em">🪙</span><b>Billig</b><small>Ca. 0–400 kr pr. person for hele dagen. Kreativitet frem for kreditkort.</small></button>
+          <button class="${st.budget === 'dyr' ? 'on' : ''}" data-action="set" data-key="budget" data-val="dyr">
+            <span class="em">💎</span><b>Dyr</b><small>Gå all in. Oplevelser, restauranter og det, I plejer at sige nej til.</small></button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>3. Alkohol?</h2>
+        <div class="big-choice">
+          <button class="${st.alc === true ? 'on' : ''}" data-action="set" data-key="alc" data-val="1">
+            <span class="em">🍻</span><b>Med alkohol</b><small>Ølsmagning, cocktails og bodegaer kan dukke op. Kun 18+ – drik med omtanke.</small></button>
+          <button class="${st.alc === false ? 'on' : ''}" data-action="set" data-key="alc" data-val="0">
+            <span class="em">🧃</span><b>Uden alkohol</b><small>Mocktails, kakao og klar hjerne hele dagen.</small></button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>4. Hvor er I?</h2>
+        <p class="muted small">Bruges kun til at hente vejrudsigten. Nu: <b id="locname">${esc(st.loc.name)}</b></p>
+        <div class="row">
+          <button class="btn ghost" data-action="geo">📍 Brug min position</button>
+        </div>
+        <form class="row" id="cityform">
+          <input id="city" placeholder="…eller skriv en by (fx Aarhus)" autocomplete="off">
+          <button class="btn ghost" type="submit">Søg</button>
+        </form>
+      </section>
+
+      <button class="btn primary xl" data-action="generate" ${st.budget && st.alc !== null ? '' : 'disabled'}>
+        🎲 Rul dagens sidequest
+      </button>
+      <p class="muted small center">${st.budget && st.alc !== null ? 'Klar? Tryk og få din plan.' : 'Vælg budget og alkohol for at fortsætte.'}</p>
+    `;
+
+    $('#cityform').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const q = $('#city').value.trim();
+      if (!q) return;
+      try {
+        const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?' + new URLSearchParams({ name: q, count: 1, language: 'da' }));
+        const j = await r.json();
+        const hit = j.results?.[0];
+        if (!hit) return toast('Kunne ikke finde ' + q);
+        st.loc = { name: `${hit.name}${hit.country_code && hit.country_code !== 'DK' ? ', ' + hit.country_code : ''}`, lat: hit.latitude, lon: hit.longitude };
+        save(); $('#locname').textContent = st.loc.name; toast('📍 ' + st.loc.name);
+      } catch { toast('Søgningen fejlede – tjek din forbindelse.'); }
+    });
+  }
+
+  function setAccent(season, special) {
+    document.body.dataset.season = season;
+    document.body.dataset.special = special ? special.name : '';
+  }
+
+  /* ───────────── UI: plan ───────────── */
+  function renderPlan() {
+    view = 'plan';
+    const plan = store.plan;
+    const mode = dayMode(plan);
+    const season = seasonOf(plan.date);
+    const special = specialOf(plan.date);
+    setAccent(season, special);
+    const d = plan.wx.daily;
+    const [dIcon, dText] = WMO(d.code, false);
+    const ai = activeIndex(plan);
+    const p = points(plan);
+    const doneCount = plan.steps.filter((s) => s.status !== 'todo').length;
+
+    let banner = '';
+    if (mode === 'preview') {
+      banner = `<div class="banner">🔒 Det er ikke ${fmtDate(plan.date)} endnu. Planen ligger klar – udfordringerne og den hemmelige mission låses op på dagen. Kom tilbage kl. 09:00!</div>`;
+    } else if (mode === 'past') {
+      banner = `<div class="banner">📅 Denne sidequest var ${fmtDate(plan.date)}. <button class="link" data-action="report">Se rapporten</button> eller <button class="link" data-action="new">rul en ny</button>.</div>`;
+    }
+
+    app.innerHTML = `
+      <header class="planhead">
+        <div class="topbar">
+          <div class="logo small">🎲 Sidequest</div>
+          <div class="score" title="Point">⭐ ${p}</div>
+        </div>
+        <div class="chips">
+          <span class="chip">${SEASON_META[season].icon} ${SEASON_META[season].label}</span>
+          ${special ? `<span class="chip hot">${special.icon} ${special.name}</span>` : ''}
+          <span class="chip">${plan.budget === 'dyr' ? '💎 Dyr' : '🪙 Billig'}</span>
+          <span class="chip">${plan.alc ? '🍻 Med alkohol' : '🧃 Alkoholfri'}</span>
+        </div>
+        <h1 class="theme">${esc(plan.theme)}</h1>
+        <p class="muted">${cap(fmtDate(plan.date))} · 📍 ${esc(plan.loc.name)}</p>
+        <div class="wxbar">
+          <div class="wxbig">${dIcon}</div>
+          <div>
+            <b>${dText}, ${Math.round(d.tmin)}–${Math.round(d.tmax)}°</b>
+            <div class="muted small">💧 ${d.pp}% regnrisiko · 💨 ${Math.round(d.wind)} m/s · 🌅 ${hoursToClock(d.sunrise)} · 🌇 ${hoursToClock(d.sunset)}</div>
+            ${plan.wx.fallback ? '<div class="small warn">Vejret kunne ikke hentes – planen er lavet ud fra typisk vejr for årstiden.</div>' : ''}
+          </div>
+        </div>
+        <div class="progress"><div style="width:${(doneCount / plan.steps.length) * 100}%"></div></div>
+        <div class="muted small row between"><span>${doneCount}/${plan.steps.length} stop klaret</span><span>Ca. ${totalCost(plan)} kr pr. person</span></div>
+      </header>
+
+      ${banner}
+      ${mode === 'live' ? renderNow(plan, ai) : ''}
+      ${renderMission(plan)}
+
+      <h2 class="section">Dagens plan</h2>
+      <ol class="timeline">
+        ${plan.steps.map((s, i) => renderStep(plan, s, i, ai)).join('')}
+      </ol>
+
+      <div class="footer-actions">
+        ${mode === 'live' ? `<button class="btn ghost" data-action="notify">🔔 Påmind mig ved hvert stop</button>` : ''}
+        ${mode !== 'preview' ? `<button class="btn ghost" data-action="report">📜 ${allDone(plan) ? 'Se dagens rapport' : 'Afslut dagen'}</button>` : ''}
+        <button class="btn ghost danger" data-action="new">🎲 Ny sidequest</button>
+      </div>
+      <p class="muted small center">Vejrdata: Open-Meteo · Tjek altid åbningstider og book i god tid.</p>
+    `;
+    document.title = ai >= 0 ? `Nu: ${actById(plan.steps[ai].act).t} – Sidequest` : 'Sidequest';
+  }
+
+  function priceTag(a) { return a.kr === 0 ? 'Gratis' : `ca. ${a.kr} kr`; }
+  const mapLink = (a) => a.map ? `<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.map + ' nær mig')}">🗺️ Find på kort</a>` : '';
+  const envTag = (a) => ({ ude: '🌳 Udendørs', mix: '🧥 Ude/inde', inde: '🏠 Indendørs' }[a.env]);
+
+  function renderNow(plan, ai) {
+    if (ai < 0) {
+      if (allDone(plan)) {
+        return `<section class="now done-card"><div class="em-xl">🏁</div><h2>Dagen er klaret!</h2>
+          <p>Godt gået. Se jeres rapport og del den med nogen, der sad derhjemme.</p>
+          <button class="btn primary" data-action="report">📜 Se rapporten</button></section>`;
+      }
+      const next = plan.steps.findIndex((s) => s.status === 'todo');
+      return `<section class="now waiting"><h2>⏳ Næste stop låses op kl. ${SLOTS[next].time}</h2>
+        <p class="muted">Om <b data-countdown="${SLOTS[next].h}"></b>. Hold en pause – eller klar det forrige stop for at låse op tidligere.</p></section>`;
+    }
+    const step = plan.steps[ai];
+    const slot = SLOTS[ai];
+    const a = actById(step.act);
+    const sw = slotWeather(plan.wx, slot);
+    const ctx = makeCtx(plan);
+    const badWx = a.env !== 'inde' && !fits(a, sw, ctx);
+    const b = step.planB && actById(step.planB);
+    return `
+      <section class="now">
+        <div class="now-label">NU · ${slot.icon} ${slot.label} · ${slot.time}</div>
+        <h2>${esc(a.t)}</h2>
+        <p>${esc(a.d)}</p>
+        ${plan.alc && a.alcTip ? `<p class="tip">${esc(a.alcTip)}</p>` : ''}
+        <div class="chips">
+          <span class="chip">${sw.icon} ${sw.t}° · 💧${sw.pp}%</span>
+          <span class="chip">${envTag(a)}</span>
+          <span class="chip">💰 ${priceTag(a)}</span>
+        </div>
+        ${badWx ? `<div class="banner warn">☔ Vejret er ikke med jer lige nu (${sw.text.toLowerCase()}, ${sw.t}°). ${b ? `Plan B: <b>${esc(b.t)}</b>.` : 'Brug en joker for en indendørs idé.'}</div>` : ''}
+        <div class="quest">
+          <div class="quest-label">⚡ Udfordring (+${POINTS.bonus} point)</div>
+          ${esc(a.q)}
+        </div>
+        <div class="actions">
+          <button class="btn primary" data-action="complete" data-i="${ai}">✅ Klaret!</button>
+          ${b ? `<button class="btn ${badWx ? 'primary alt' : 'ghost'}" data-action="planb" data-i="${ai}">☔ Skift til Plan B</button>` : ''}
+          <button class="btn ghost" data-action="joker" data-i="${ai}" ${plan.jokers ? '' : 'disabled'}>🃏 Joker (${plan.jokers})</button>
+          ${mapLink(a)}
+          <button class="btn ghost sm" data-action="skip" data-i="${ai}">⏭️ Spring over</button>
+        </div>
+      </section>`;
+  }
+
+  function renderMission(plan) {
+    const mode = dayMode(plan);
+    if (mode === 'preview') return `<section class="mission locked"><b>🕵️ Hemmelig mission</b><p class="muted">Afsløres på dagen ved frokosttid.</p></section>`;
+    if (!missionUnlocked(plan)) return `<section class="mission locked"><b>🕵️ Hemmelig mission</b><p class="muted">Låses op kl. ${SLOTS[2].time} (eller når I har klaret formiddagens stop).</p></section>`;
+    return `<section class="mission ${plan.missionDone ? 'ok' : ''}">
+      <b>🕵️ Hemmelig mission (+${POINTS.mission} point)</b>
+      <p>${esc(plan.mission)}</p>
+      <label class="check"><input type="checkbox" data-action="mission" ${plan.missionDone ? 'checked' : ''}> Mission fuldført</label>
+    </section>`;
+  }
+
+  function renderStep(plan, s, i, ai) {
+    const slot = SLOTS[i];
+    const a = actById(s.act);
+    const sw = slotWeather(plan.wx, slot);
+    const unlocked = isUnlocked(plan, i);
+    const cls = s.status === 'done' ? 'done' : s.status === 'skipped' ? 'skipped' : i === ai ? 'active' : unlocked ? '' : 'locked';
+    const b = s.planB && actById(s.planB);
+    return `
+      <li class="step ${cls}">
+        <div class="step-time"><b>${slot.time}</b><span>${slot.icon}</span></div>
+        <div class="step-body">
+          <div class="step-head">
+            <span class="muted small">${slot.label} · ${sw.icon} ${sw.t}° · 💧${sw.pp}%${sw.dark ? ' · 🌑 mørkt' : ''}</span>
+            ${s.status === 'done' ? `<span class="badge ok">✓ ${POINTS.done + (s.bonus ? POINTS.bonus : 0)}</span>` : s.status === 'skipped' ? '<span class="badge">Sprunget over</span>' : ''}
+          </div>
+          <h3>${esc(a.t)}</h3>
+          <p class="small">${esc(a.d)}</p>
+          ${plan.alc && a.alcTip ? `<p class="small tip">${esc(a.alcTip)}</p>` : ''}
+          <div class="chips small"><span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
+          ${unlocked
+            ? `<div class="quest small"><span class="quest-label">⚡ Udfordring</span> ${esc(a.q)}</div>`
+            : `<div class="quest small locked">🔒 Udfordringen låses op kl. ${slot.time}</div>`}
+          ${s.photo ? `<img class="thumb" src="${s.photo}" alt="">` : ''}
+          ${s.note ? `<p class="small note">“${esc(s.note)}”</p>` : ''}
+          ${i !== ai && s.status === 'todo' && dayMode(plan) !== 'past' && plan.jokers ? `<button class="link small" data-action="joker" data-i="${i}">🃏 Byt med joker</button>` : ''}
+          ${s.status !== 'todo' && dayMode(plan) === 'live' ? `<button class="link small" data-action="undo" data-i="${i}">↩️ Fortryd</button>` : ''}
+        </div>
+      </li>`;
+  }
+
+  /* ───────────── UI: rapport ───────────── */
+  function renderReport() {
+    view = 'report';
+    const plan = store.plan;
+    const p = points(plan);
+    const [rIcon, rName] = rank(p);
+    const done = plan.steps.filter((s) => s.status === 'done');
+    const badges = [];
+    if (plan.steps[0].status === 'done') badges.push('🌅 Morgenfrisk');
+    if (plan.steps[5].status === 'done') badges.push('🌙 Natteravn');
+    if (done.length === plan.steps.length) badges.push('💯 Fuld plan');
+    if (done.length && done.every((s) => s.bonus)) badges.push('⚡ Udfordrings-mester');
+    if (plan.missionDone) badges.push('🕵️ Hemmelig agent');
+    if (plan.jokers === 3) badges.push('🃏 Ingen jokere brugt');
+    if (done.some((s) => { const a = actById(s.act); return a.env !== 'inde' && slotWeather(plan.wx, SLOTS[plan.steps.indexOf(s)]).wet; })) badges.push('☔ Vejr-trodser');
+    if (plan.wx.daily.tmax < 5 && done.some((s) => actById(s.act).env !== 'inde')) badges.push('🥶 Kuldekriger');
+
+    app.innerHTML = `
+      <header class="hero">
+        <div class="logo">📜 Dagens rapport</div>
+        <h1>${esc(plan.theme)}</h1>
+        <p class="muted">${cap(fmtDate(plan.date))} · 📍 ${esc(plan.loc.name)}</p>
+        <div class="rank"><div class="em-xl">${rIcon}</div><div><div class="score big">⭐ ${p} point</div><b>${rName}</b></div></div>
+        <div class="chips center">${badges.map((b) => `<span class="chip hot">${b}</span>`).join('') || '<span class="chip">Ingen badges i dag – næste gang!</span>'}</div>
+      </header>
+      <section class="card">
+        <h2>Sådan gik det</h2>
+        <ul class="report-list">
+          ${plan.steps.map((s, i) => {
+            const a = actById(s.act);
+            return `<li class="${s.status}"><span>${SLOTS[i].time}</span><div><b>${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${esc(a.t)}</b>
+              ${s.bonus ? '<span class="badge ok">⚡ udfordring klaret</span>' : ''}
+              ${s.note ? `<p class="small note">“${esc(s.note)}”</p>` : ''}</div></li>`;
+          }).join('')}
+        </ul>
+        ${missionUnlocked(plan) ? `<p class="small">🕵️ Mission: ${esc(plan.mission)} ${plan.missionDone ? '✅' : '❌'}</p>` : ''}
+      </section>
+      ${plan.steps.some((s) => s.photo) ? `<section class="card"><h2>Galleri</h2><div class="gallery">${plan.steps.filter((s) => s.photo).map((s) => `<img src="${s.photo}" alt="">`).join('')}</div></section>` : ''}
+      <div class="footer-actions">
+        <button class="btn primary" data-action="share">📤 Del rapporten</button>
+        <button class="btn ghost" data-action="back">← Tilbage til planen</button>
+        <button class="btn ghost" data-action="new">🎲 Ny sidequest</button>
+      </div>`;
+  }
+
+  function shareText(plan) {
+    const [rIcon, rName] = rank(points(plan));
+    const lines = plan.steps.map((s, i) => `${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${SLOTS[i].time} ${actById(s.act).t}${s.bonus ? ' ⚡' : ''}`);
+    return `🎲 Sidequest: ${plan.theme}\n${cap(fmtDate(plan.date))}\n\n${lines.join('\n')}\n\n${rIcon} ${rName} – ⭐ ${points(plan)} point`;
+  }
+
+  /* ───────────── Handlinger ───────────── */
+  function render() {
+    if (!store.plan) return renderSetup();
+    if (view === 'report') return renderReport();
+    renderPlan();
+  }
+
+  async function generate() {
+    const st = store.settings;
+    app.innerHTML = `<div class="loading"><div class="dice">🎲</div><p>Tjekker vejret i ${esc(st.loc.name)} og ruller terningerne…</p></div>`;
+    const wx = await getWeather(st.loc, st.date);
+    await new Promise((r) => setTimeout(r, 700)); // lidt spænding
+    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx });
+    save();
+    renderPlan();
+    window.scrollTo({ top: 0 });
+  }
+
+  function openComplete(i) {
+    const plan = store.plan;
+    const a = actById(plan.steps[i].act);
+    const m = modal(`
+      <h2>✅ ${esc(a.t)}</h2>
+      <label class="check big"><input type="checkbox" id="bonus"> Vi klarede udfordringen (+${POINTS.bonus})</label>
+      <p class="small muted">${esc(a.q)}</p>
+      <label class="small">Et minde fra stoppet (valgfrit)</label>
+      <textarea id="note" rows="2" placeholder="Hvad skete der?"></textarea>
+      <label class="btn ghost file">📸 Tilføj billede<input type="file" id="photo" accept="image/*" capture="environment" hidden></label>
+      <img id="preview" class="thumb" hidden alt="">
+      <div class="actions"><button class="btn primary" id="save">Gem (+${POINTS.done})</button><button class="btn ghost" id="cancel">Annullér</button></div>
+    `);
+    let photo = null;
+    $('#photo', m).addEventListener('change', async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      photo = await shrink(f);
+      const img = $('#preview', m); img.src = photo; img.hidden = false;
+    });
+    $('#cancel', m).onclick = () => m.remove();
+    $('#save', m).onclick = () => {
+      Object.assign(plan.steps[i], { status: 'done', bonus: $('#bonus', m).checked, note: $('#note', m).value.trim(), photo, doneAt: Date.now() });
+      save(); m.remove();
+      celebrate();
+      const ni = activeIndex(plan);
+      toast(ni >= 0 ? `Næste stop er låst op: ${actById(plan.steps[ni].act).t}` : allDone(plan) ? '🏁 Hele dagen er klaret!' : 'Godt gået! 🎉');
+      renderPlan();
+    };
+  }
+
+  function shrink(file, max = 640) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const s = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(img.src);
+        resolve(c.toDataURL('image/jpeg', 0.7));
+      };
+      img.onerror = () => resolve(null);
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  function celebrate() {
+    const emojis = ['🎉', '⭐', '✨', '🎊', '🔥'];
+    for (let k = 0; k < 24; k++) {
+      const e = document.createElement('span');
+      e.className = 'confetti';
+      e.textContent = pick(emojis);
+      e.style.left = Math.random() * 100 + 'vw';
+      e.style.animationDelay = Math.random() * 0.4 + 's';
+      document.body.appendChild(e);
+      setTimeout(() => e.remove(), 2200);
+    }
+    navigator.vibrate?.(80);
+  }
+
+  function useJoker(i) {
+    const plan = store.plan;
+    if (!plan.jokers) return;
+    const slot = SLOTS[i];
+    const step = plan.steps[i];
+    const used = usedIds(plan, i);
+    used.add(step.act); // ikke den samme igen
+    const a = chooseFor(slot, plan, used);
+    if (!a) return toast('Ingen flere idéer til dette tidspunkt 🤷');
+    used.add(a.id);
+    step.act = a.id;
+    step.planB = null;
+    if (a.env !== 'inde') { const b = chooseFor(slot, plan, used, { indoorOnly: true }); if (b) step.planB = b.id; }
+    plan.jokers--;
+    save();
+    toast(`🃏 Ny idé: ${a.t}`);
+    renderPlan();
+  }
+
+  function swapPlanB(i) {
+    const step = store.plan.steps[i];
+    if (!step.planB) return;
+    [step.act, step.planB] = [step.planB, step.act];
+    save();
+    toast(`☔ Skiftet til: ${actById(step.act).t}`);
+    renderPlan();
+  }
+
+  async function refreshWeather() {
+    const plan = store.plan;
+    if (!plan || dayMode(plan) !== 'live') return;
+    if (Date.now() - plan.wx.fetched < 30 * 60 * 1000 && !plan.wx.fallback) return;
+    try {
+      plan.wx = await fetchWeather(plan.loc, plan.date);
+      save();
+      if (view === 'plan') renderPlan();
+    } catch { /* prøv igen senere */ }
+  }
+
+  async function notify(title, body) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    try {
+      const reg = await navigator.serviceWorker?.getRegistration();
+      if (reg) reg.showNotification(title, { body, icon: 'icon.svg', badge: 'icon.svg', tag: 'sidequest' });
+      else new Notification(title, { body, icon: 'icon.svg' });
+    } catch { /* ignorer */ }
+  }
+
+  function tick() {
+    const plan = store.plan;
+    if (!plan || dayMode(plan) !== 'live') return;
+    const ai = activeIndex(plan);
+    if (ai >= 0 && !plan.notified.includes(ai)) {
+      plan.notified.push(ai);
+      save();
+      if (ai > 0) {
+        const a = actById(plan.steps[ai].act);
+        notify(`${SLOTS[ai].icon} ${SLOTS[ai].label}: ${a.t}`, 'Nyt stop og ny udfordring er låst op!');
+        navigator.vibrate?.([100, 50, 100]);
+      }
+      if (view === 'plan') renderPlan();
+    }
+    // Opdater nedtælling
+    document.querySelectorAll('[data-countdown]').forEach((el) => {
+      const diff = Math.max(0, +el.dataset.countdown - nowHours());
+      const h = Math.floor(diff), m = Math.ceil((diff - h) * 60);
+      el.textContent = h ? `${h} t ${m} min` : `${m} min`;
+      if (diff <= 0 && view === 'plan') renderPlan();
+    });
+  }
+
+  app.addEventListener('click', async (e) => {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    const act = el.dataset.action;
+    const i = +el.dataset.i;
+    const st = store.settings;
+    switch (act) {
+      case 'set':
+        st[el.dataset.key] = el.dataset.key === 'alc' ? el.dataset.val === '1' : el.dataset.val;
+        save(); renderSetup(); break;
+      case 'geo':
+        if (!navigator.geolocation) return toast('Din browser understøtter ikke position.');
+        navigator.geolocation.getCurrentPosition(
+          (pos) => { st.loc = { name: 'Din position', lat: +pos.coords.latitude.toFixed(3), lon: +pos.coords.longitude.toFixed(3) }; save(); $('#locname').textContent = st.loc.name; toast('📍 Position fundet'); },
+          () => toast('Kunne ikke hente position – skriv en by i stedet.'),
+          { timeout: 10000 });
+        break;
+      case 'generate': generate(); break;
+      case 'complete': openComplete(i); break;
+      case 'skip':
+        if (confirm('Spring dette stop over? (0 point)')) { store.plan.steps[i].status = 'skipped'; save(); renderPlan(); }
+        break;
+      case 'undo':
+        Object.assign(store.plan.steps[i], { status: 'todo', bonus: false, doneAt: null }); save(); renderPlan(); break;
+      case 'joker':
+        if (confirm(`Brug en joker og få en ny idé til ${SLOTS[i].label.toLowerCase()}? (${store.plan.jokers} tilbage)`)) useJoker(i);
+        break;
+      case 'planb': swapPlanB(i); break;
+      case 'mission':
+        store.plan.missionDone = el.checked; save(); if (el.checked) celebrate(); renderPlan(); break;
+      case 'notify': {
+        if (!('Notification' in window)) return toast('Notifikationer understøttes ikke her.');
+        const r = await Notification.requestPermission();
+        toast(r === 'granted' ? '🔔 Du får besked, når næste stop låses op (mens appen er åben i baggrunden).' : 'Notifikationer er slået fra.');
+        break;
+      }
+      case 'report': renderReport(); window.scrollTo({ top: 0 }); break;
+      case 'back': renderPlan(); break;
+      case 'share': {
+        const text = shareText(store.plan);
+        if (navigator.share) { try { await navigator.share({ text }); } catch { /* annulleret */ } }
+        else { await navigator.clipboard?.writeText(text); toast('📋 Kopieret – indsæt hvor du vil.'); }
+        break;
+      }
+      case 'new':
+        if (!store.plan || confirm('Starte en ny sidequest? Den nuværende plan slettes.')) {
+          store.plan = null; save(); view = null; renderSetup(); window.scrollTo({ top: 0 });
+        }
+        break;
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { refreshWeather(); tick(); if (view === 'plan') renderPlan(); } });
+  setInterval(tick, 20 * 1000);
+  setInterval(refreshWeather, 10 * 60 * 1000);
+
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  render();
+  tick();
+  refreshWeather();
+})();
