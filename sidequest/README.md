@@ -24,3 +24,6 @@
 Alt gemmes lokalt i browseren (localStorage). Appen kan installeres som PWA ("Føj til hjemmeskærm").
 
 Aktiviteterne ligger i `data.js` og er nemme at udvide.
+
+## Én-fils-version
+`sidequest.html` er hele appen i én fil (CSS og JavaScript indbygget). Den kan åbnes direkte i en browser uden server. Genereres ud fra `index.html`, `style.css`, `data.js` og `app.js`, så husk at bygge den igen efter ændringer.

@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sidequest – din tilfældige weekend-dag</title>
+<meta name="theme-color" content="#14111f">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iIzE0MTExZiIvPgogIDxyZWN0IHg9IjExNiIgeT0iMTE2IiB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgcng9IjU2IiBmaWxsPSIjZmY4YTNkIiB0cmFuc2Zvcm09InJvdGF0ZSgtOCAyNTYgMjU2KSIvPgogIDxnIGZpbGw9IiMxNDExMWYiIHRyYW5zZm9ybT0icm90YXRlKC04IDI1NiAyNTYpIj4KICAgIDxjaXJjbGUgY3g9IjE4NiIgY3k9IjE4NiIgcj0iMjYiLz48Y2lyY2xlIGN4PSIzMjYiIGN5PSIxODYiIHI9IjI2Ii8+CiAgICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjI2Ii8+CiAgICA8Y2lyY2xlIGN4PSIxODYiIGN5PSIzMjYiIHI9IjI2Ii8+PGNpcmNsZSBjeD0iMzI2IiBjeT0iMzI2IiByPSIyNiIvPgogIDwvZz4KPC9zdmc+Cg==">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iIzE0MTExZiIvPgogIDxyZWN0IHg9IjExNiIgeT0iMTE2IiB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgcng9IjU2IiBmaWxsPSIjZmY4YTNkIiB0cmFuc2Zvcm09InJvdGF0ZSgtOCAyNTYgMjU2KSIvPgogIDxnIGZpbGw9IiMxNDExMWYiIHRyYW5zZm9ybT0icm90YXRlKC04IDI1NiAyNTYpIj4KICAgIDxjaXJjbGUgY3g9IjE4NiIgY3k9IjE4NiIgcj0iMjYiLz48Y2lyY2xlIGN4PSIzMjYiIGN5PSIxODYiIHI9IjI2Ii8+CiAgICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjI2Ii8+CiAgICA8Y2lyY2xlIGN4PSIxODYiIGN5PSIzMjYiIHI9IjI2Ii8+PGNpcmNsZSBjeD0iMzI2IiBjeT0iMzI2IiByPSIyNiIvPgogIDwvZz4KPC9zdmc+Cg==">
+<style>
+:root {
+  --bg: #14111f;
+  --card: #1f1a30;
+  --card2: #2a2340;
+  --text: #f4f1ff;
+  --muted: #a9a2c4;
+  --accent: #ff8a3d;
+  --accent2: #ffd23f;
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --danger: #f87171;
+  --radius: 18px;
+}
+body[data-season="vinter"] { --accent: #6ec6ff; --accent2: #c4b5fd; }
+body[data-season="forår"]  { --accent: #7ee081; --accent2: #fde68a; }
+body[data-season="sommer"] { --accent: #ffd23f; --accent2: #fb7185; }
+body[data-season="efterår"]{ --accent: #ff8a3d; --accent2: #ffd23f; }
+body[data-special="Halloween"] { --accent: #ff7a1a; --accent2: #b78cff; --bg: #120d18; }
+body[data-special="Julemåned"], body[data-special="Jul"] { --accent: #ef4444; --accent2: #4ade80; }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background-image: radial-gradient(circle at 20% -10%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 45%),
+                    radial-gradient(circle at 110% 10%, color-mix(in srgb, var(--accent2) 14%, transparent), transparent 40%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+#app { max-width: 640px; margin: 0 auto; padding: 16px 16px calc(40px + env(safe-area-inset-bottom)); }
+h1, h2, h3 { line-height: 1.2; margin: 0 0 8px; }
+h1 { font-size: 1.8rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+p { margin: 0 0 10px; }
+.muted { color: var(--muted); }
+.small { font-size: .88rem; }
+.center { text-align: center; justify-content: center; }
+.warn { color: var(--warn); }
+.row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.row.between { justify-content: space-between; }
+
+.logo { font-weight: 800; letter-spacing: .5px; font-size: 1.1rem; color: var(--accent); margin-bottom: 10px; }
+.logo.small { margin: 0; }
+.hero { text-align: center; padding: 20px 4px 8px; }
+.hero h1 { font-size: 2rem; }
+
+.card, .now, .mission, .planhead {
+  background: var(--card); border-radius: var(--radius); padding: 18px; margin: 14px 0;
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.chip { background: var(--card2); padding: 4px 10px; border-radius: 99px; font-size: .82rem; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.chip.hot { background: color-mix(in srgb, var(--accent) 25%, var(--card2)); color: #fff; }
+.chips.small .chip { font-size: .76rem; padding: 3px 8px; }
+
+/* Knapper */
+button { font: inherit; color: inherit; cursor: pointer; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 0; border-radius: 12px; padding: 11px 16px; font-weight: 600; text-decoration: none; color: var(--text);
+  transition: transform .1s, opacity .2s;
+}
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.primary { background: var(--accent); color: #1a1222; }
+.btn.primary.alt { background: var(--accent2); }
+.btn.ghost { background: var(--card2); }
+.btn.danger { color: var(--danger); }
+.btn.sm { padding: 8px 12px; font-size: .88rem; }
+.btn.xl { width: 100%; padding: 18px; font-size: 1.2rem; border-radius: 16px; margin-top: 10px; box-shadow: 0 10px 30px color-mix(in srgb, var(--accent) 35%, transparent); }
+.btn.file { margin: 8px 0; }
+.link { background: none; border: 0; color: var(--accent); padding: 0; text-decoration: underline; font-weight: 600; margin-right: 12px; }
+
+input, textarea {
+  width: 100%; font: inherit; color: var(--text); background: var(--card2); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px; padding: 11px 12px; outline: none;
+}
+input:focus, textarea:focus { border-color: var(--accent); }
+
+.seg { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg button {
+  flex: 1; min-width: 100px; background: var(--card2); border: 2px solid transparent; border-radius: 12px; padding: 10px; font-weight: 600;
+  display: flex; flex-direction: column; align-items: center;
+}
+.seg button small { color: var(--muted); font-weight: 400; }
+.seg button.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, var(--card2)); }
+
+.big-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.big-choice button {
+  background: var(--card2); border: 2px solid transparent; border-radius: 16px; padding: 14px 12px; text-align: left;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.big-choice button .em { font-size: 1.8rem; }
+.big-choice button b { font-size: 1.05rem; }
+.big-choice button small { color: var(--muted); font-size: .8rem; line-height: 1.35; }
+.big-choice button.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, var(--card2)); }
+
+/* Plan-header */
+.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.score { background: var(--card2); border-radius: 99px; padding: 4px 12px; font-weight: 800; color: var(--accent2); }
+.score.big { font-size: 1.4rem; background: none; padding: 0; }
+.theme { font-size: 1.7rem; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.wxbar { display: flex; gap: 12px; align-items: center; background: var(--card2); border-radius: 14px; padding: 10px 12px; margin: 10px 0; }
+.wxbig { font-size: 2.4rem; }
+.progress { height: 8px; background: var(--card2); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+.progress div { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .5s; }
+
+.banner { background: var(--card2); border-left: 4px solid var(--accent); border-radius: 12px; padding: 12px 14px; margin: 12px 0; font-size: .92rem; }
+.banner.warn { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, var(--card2)); }
+
+/* NU-kort */
+.now { border: 2px solid var(--accent); box-shadow: 0 10px 40px color-mix(in srgb, var(--accent) 25%, transparent); position: relative; overflow: hidden; }
+.now::before { content: ""; position: absolute; inset: 0 0 auto; height: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.now h2 { font-size: 1.5rem; }
+.now-label { font-size: .78rem; font-weight: 800; letter-spacing: 1px; color: var(--accent); margin-bottom: 6px; animation: pulse 2s infinite; }
+.now.waiting, .now.done-card { border-style: dashed; text-align: center; }
+.em-xl { font-size: 3rem; }
+@keyframes pulse { 50% { opacity: .55; } }
+
+.quest { background: color-mix(in srgb, var(--accent2) 12%, var(--card2)); border-radius: 12px; padding: 12px; margin: 10px 0; }
+.quest.small { padding: 8px 10px; font-size: .86rem; }
+.quest.locked { background: var(--card2); color: var(--muted); }
+.quest-label { font-weight: 800; color: var(--accent2); display: block; font-size: .8rem; margin-bottom: 2px; }
+.quest.small .quest-label { display: inline; }
+.tip { color: var(--accent2); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.actions .btn.primary { flex: 1 1 100%; padding: 14px; font-size: 1.05rem; }
+
+.mission { border: 1px dashed var(--accent2); }
+.mission.locked { opacity: .75; }
+.mission.ok { border-style: solid; border-color: var(--ok); }
+.check { display: flex; align-items: center; gap: 8px; font-weight: 600; margin-top: 6px; cursor: pointer; }
+.check input { width: 20px; height: 20px; accent-color: var(--accent); }
+.check.big { font-size: 1.05rem; margin: 12px 0 4px; }
+
+/* Tidslinje */
+.section { margin: 22px 4px 10px; }
+.timeline { list-style: none; padding: 0; margin: 0; position: relative; }
+.timeline::before { content: ""; position: absolute; left: 31px; top: 10px; bottom: 10px; width: 2px; background: var(--card2); }
+.step { display: flex; gap: 12px; margin-bottom: 12px; position: relative; }
+.step-time { width: 64px; flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; z-index: 1; }
+.step-time b { background: var(--bg); padding: 0 4px; font-size: .88rem; }
+.step-time span { background: var(--card2); width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-size: 1.1rem; border: 2px solid var(--card2); }
+.step-body { flex: 1; min-width: 0; background: var(--card); border-radius: 14px; padding: 12px 14px; border: 1px solid rgba(255,255,255,.05); }
+.step-head { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 4px; }
+.step.active .step-body { border-color: var(--accent); }
+.step.active .step-time span { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 30%, var(--card2)); }
+.step.done .step-time span { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 25%, var(--card2)); }
+.step.done h3 { text-decoration: line-through; text-decoration-color: var(--ok); }
+.step.skipped { opacity: .5; }
+.step.locked .step-body { opacity: .85; }
+.badge { font-size: .74rem; font-weight: 800; background: var(--card2); padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+.badge.ok { background: color-mix(in srgb, var(--ok) 25%, var(--card2)); color: var(--ok); }
+.thumb { width: 100%; max-height: 220px; object-fit: cover; border-radius: 10px; margin-top: 8px; }
+.note { font-style: italic; color: var(--muted); }
+
+.footer-actions { display: flex; flex-direction: column; gap: 8px; margin: 22px 0 12px; }
+
+/* Rapport */
+.rank { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 14px 0; text-align: left; }
+.report-list { list-style: none; padding: 0; margin: 0; }
+.report-list li { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+.report-list li > span { color: var(--muted); width: 48px; flex: none; }
+.report-list li.skipped { opacity: .55; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; }
+
+/* Modal, toast, loading */
+.modal-wrap { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: flex-end; justify-content: center; z-index: 50; backdrop-filter: blur(4px); }
+.modal { background: var(--card); width: 100%; max-width: 560px; border-radius: 22px 22px 0 0; padding: 20px 18px calc(20px + env(safe-area-inset-bottom)); max-height: 90vh; overflow: auto; animation: up .25s ease-out; }
+@media (min-width: 600px) { .modal-wrap { align-items: center; } .modal { border-radius: 22px; } }
+@keyframes up { from { transform: translateY(40px); opacity: 0; } }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 30px); opacity: 0; background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 600; z-index: 60; transition: .3s; max-width: 90vw; text-align: center; }
+.toast.show { transform: translate(-50%, 0); opacity: 1; }
+.loading { min-height: 70vh; display: grid; place-content: center; text-align: center; color: var(--muted); }
+.dice { font-size: 4rem; animation: roll 1s infinite ease-in-out; }
+@keyframes roll { 50% { transform: rotate(180deg) scale(1.15); } 100% { transform: rotate(360deg); } }
+.confetti { position: fixed; top: -40px; font-size: 1.6rem; z-index: 70; pointer-events: none; animation: fall 1.8s ease-in forwards; }
+@keyframes fall { to { transform: translateY(110vh) rotate(540deg); opacity: .6; } }
+
+@media (max-width: 380px) { .big-choice { grid-template-columns: 1fr; } }
+
+/* v2: tre alkohol-valg og kaos-regler */
+.big-choice.three { grid-template-columns: 1fr; }
+.big-choice.three button { flex-direction: row; align-items: center; gap: 12px; }
+.big-choice.three button > span:last-child { display: flex; flex-direction: column; }
+.kaos { background: color-mix(in srgb, var(--accent) 14%, var(--card2)); border: 1px dashed var(--accent); border-radius: 12px; padding: 10px 12px; margin: 10px 0; }
+.kaos.small { padding: 6px 10px; font-size: .84rem; }
+.kaos .quest-label { color: var(--accent); }
+.kaos.small .quest-label { display: inline; }
+
+</style>
+</head>
+<body>
+<main id="app"><div class="loading"><div class="dice">🎲</div></div></main>
+<noscript>Sidequest kræver JavaScript.</noscript>
+<script>
+/* Sidequest – aktivitetsdatabase
+ *
+ * Felter:
+ *  id     unikt id
+ *  s      tidspunkter aktiviteten passer til (se SLOTS)
+ *  t      titel
+ *  d      beskrivelse / direkte plan
+ *  q      dagens udfordring (låses op i løbet af dagen)
+ *  b      budget: 'billig' | 'dyr' | '*' (begge)
+ *  kr     ca. pris pr. person i kr.
+ *  env    'ude' (kræver tørvejr) | 'mix' (ok i let regn) | 'inde'
+ *  alc    1 = øl/alkohol-aktivitet, 0 = eksplicit alkoholfri, udeladt = neutral
+ *  alcTip ekstra tekst der vises når alkohol er valgt
+ *  sober  true = vand, sauna, kørsel, højder, økser o.l. – vælges ALDRIG efter et øl-stop
+ *  vild   true = ekstra vild/skør – vægtes højere
+ *  season ['forår','sommer','efterår','vinter'] – udeladt = hele året
+ *  months [1-12] – kun i disse måneder
+ *  win    ['MM-DD','MM-DD'] – særlig periode (fx Halloween)
+ *  minT   mindste temperatur for ude-aktiviteter
+ *  dark   true hvis aktiviteten fungerer i mørke
+ *  need   'klart' (skyfri himmel) | 'blæst' (vind) | 'sne'
+ *  map    søgning til "Find på kort"
+ */
+
+const SLOTS = [
+  { id: 'morgen',      time: '09:00', h: 9,    label: 'Morgen',      icon: '☕' },
+  { id: 'formiddag',   time: '10:30', h: 10.5, label: 'Formiddag',   icon: '🧭' },
+  { id: 'frokost',     time: '12:30', h: 12.5, label: 'Frokost',     icon: '🥪' },
+  { id: 'eftermiddag', time: '14:30', h: 14.5, label: 'Eftermiddag', icon: '⚡' },
+  { id: 'middag',      time: '18:00', h: 18,   label: 'Aftensmad',   icon: '🍽️' },
+  { id: 'aften',       time: '20:30', h: 20.5, label: 'Aften',       icon: '🌙' },
+];
+
+const ACTIVITIES = [
+  /* ═════════════ MORGEN ═════════════ */
+  { id: 'm-togroulette', s: ['morgen'], t: 'Tog-roulette',
+    d: 'Gå til nærmeste station. Slå med en terning: det er antallet af stop, I kører med det første tog eller den første bus, der kommer. Stå af og udforsk stedet, som om I var turister på ferie.',
+    q: 'Find stedets bedste morgenmad ved kun at spørge lokale – ingen telefoner.',
+    b: 'billig', kr: 60, env: 'mix', minT: -10, vild: true },
+  { id: 'm-mysterytog', s: ['morgen'], t: 'Mystery-rejse til en tilfældig by',
+    d: 'Åbn rejseplanen, og lad terningen vælge en by 1–2 timer væk. Køb billetter med det samme – ingen fortrydelse. Resten af dagens plan foregår dér.',
+    q: 'Find byens borgmesterkontor, statue eller kirke, og tag et "vi har erobret byen"-billede.',
+    b: 'dyr', kr: 350, env: 'inde', vild: true },
+  { id: 'm-vinterbad', s: ['morgen'], t: 'Isbad + skrig-konkurrence',
+    d: 'Find nærmeste badebro eller havnebad. Hop i (kort!) og skrig så højt I kan. Tør jer, og drik kakao fra termokanden. Gå aldrig i alene.',
+    q: 'Hold jer i vandet i 30 sekunder – og syng et vers af nationalsangen imens.',
+    b: 'billig', kr: 10, env: 'mix', minT: -3, season: ['efterår', 'vinter', 'forår'], sober: true, vild: true, map: 'badebro havnebad' },
+  { id: 'm-dukkert', s: ['morgen'], t: 'Morgendukkert + strand-OL',
+    d: 'Pak rundstykker og et tæppe. Dukkert, morgenmad i sandet og et mini-OL: længdespring, kast med sko og en 50-meter sandsprint.',
+    q: 'Uddel medaljer lavet af ting fundet på stranden.',
+    b: 'billig', kr: 40, env: 'ude', minT: 15, season: ['sommer'], sober: true, map: 'strand' },
+  { id: 'm-sauna', s: ['morgen', 'formiddag'], t: 'Saunagus med havbad',
+    d: 'Book en saunagus i en havnesauna. Skift mellem varm sauna og iskoldt vand tre gange. Den sidste dukkert skal være med et spring.',
+    q: 'Hold jer i det kolde vand 10 sekunder længere end sidste gang – hver gang.',
+    b: 'dyr', kr: 150, env: 'mix', minT: -10, season: ['efterår', 'vinter', 'forår'], sober: true, map: 'sauna havbad' },
+  { id: 'm-kostume', s: ['morgen'], t: 'Kostume-dagen starter NU',
+    d: 'Alle har 20 minutter og må kun bruge det, der allerede er i huset: hele dagen skal gennemføres udklædt. Jo mere absurd, jo bedre.',
+    q: 'Bliv i rollen og præsenter dig med karakterens navn ved hvert stop.',
+    b: 'billig', kr: 0, env: 'inde', vild: true },
+  { id: 'm-byttehandel', s: ['morgen', 'formiddag'], t: 'Byttehandel: fra papirclips til noget stort',
+    d: 'Start med én papirclips. Byt den op med fremmede: clips → noget bedre → noget endnu bedre. I har 90 minutter. Hvad ender I med?',
+    q: 'Lav mindst 5 byttehandler. Den sidste skal være noget, I kan bruge resten af dagen.',
+    b: 'billig', kr: 0, env: 'mix', minT: -5, vild: true },
+  { id: 'm-bodegamorgen', s: ['morgen'], t: 'Morgenbitter på åbnings-bodegaen',
+    d: 'Find en bodega, der åbner tidligt (mange åbner kl. 8–9 i weekenden). Bestil rundstykke, kaffe og en lille morgenbitter som de gamle stamgæster.',
+    q: 'Få en stamgæst til at lære jer et kortspil eller et terningspil.',
+    b: 'billig', kr: 80, env: 'inde', alc: 1, map: 'bodega' },
+  { id: 'm-oelbrunch', s: ['morgen'], t: 'Øl-brunch med Bloody Marys',
+    d: 'Brunch, men den voksne version: røræg, bacon, en Bloody Mary eller en hvedeøl ved siden af. Langsomt, højlydt og lang.',
+    q: 'Skål for noget nyt hver gang nogen tager en bid bacon.',
+    b: '*', kr: 220, env: 'inde', alc: 1, map: 'brunch' },
+  { id: 'm-hjemmebrunch', s: ['morgen'], t: 'Pandekage-kampen',
+    d: 'Duel ved komfuret: hver person laver én pandekage med den skøreste topping, I kan finde i skabene. De andre spiser med bind for øjnene og bedømmer.',
+    q: 'Vend en pandekage med et kast over 50 cm højt.',
+    b: 'billig', kr: 25, env: 'inde', alcTip: 'Hvedeøl i stedet for juice til brunchen 🍺' },
+  { id: 'm-drop-in', s: ['morgen'], t: 'Den skøreste træning i byen',
+    d: 'Find et drop-in hold, I aldrig har prøvet: aerial yoga, pole fitness, boksning, capoeira eller trapez. Bare mød op og vær dårlige sammen.',
+    q: 'Få instruktøren til at lære jer ét "show-off"-trick.',
+    b: 'dyr', kr: 180, env: 'inde', sober: true, vild: true, map: 'drop-in aerial yoga boksning' },
+  { id: 'm-morgenloeb', s: ['morgen'], t: 'Solopgangs-ninjaløb',
+    d: 'Løb en rute, hvor alt er en forhindring: hop over bænke, balancer på kantsten, klatr på legepladser. Parkour for begyndere.',
+    q: 'Find en rute på mindst 10 forhindringer, og tag tid på hinanden.',
+    b: 'billig', kr: 0, env: 'mix', minT: -5, sober: true },
+  { id: 'm-torvehal', s: ['morgen', 'formiddag'], t: 'Smag-ingen-kender-morgenmad',
+    d: 'Tag i en torvehal eller madhal. Hver person har 60 kr og må KUN købe ting, de aldrig har smagt. Saml alt og del.',
+    q: 'Spis noget, der får mindst én af jer til at grine højt eller grimassere.',
+    b: '*', kr: 120, env: 'inde', map: 'madmarked torvehal' },
+
+  /* ═════════════ FORMIDDAG ═════════════ */
+  { id: 'f-busking', s: ['formiddag', 'eftermiddag'], t: 'Gademusikanter for frokostpenge',
+    d: 'Stil jer på en gågade med en hat eller en kasket. Syng, spil (en grydeske tæller) eller lav sketch. Kun de penge, I tjener, må bruges til frokost.',
+    q: 'Tjen mindst 50 kr. Hvis ikke: frokost fra 7-Eleven.',
+    b: 'billig', kr: 0, env: 'mix', minT: 0, vild: true },
+  { id: 'f-ja-dag', s: ['formiddag'], t: 'Ja-timen',
+    d: 'I en time skal I sige JA til alt: spørg 5 fremmede "hvad skal vi lave nu?" og gør det, de siger (så længe det er lovligt og sikkert).',
+    q: 'Fuldfør mindst 3 af forslagene – og tag bevis.',
+    b: 'billig', kr: 30, env: 'mix', minT: -5, vild: true },
+  { id: 'f-faldskaerm', s: ['formiddag'], t: 'Tandem-faldskærmsudspring',
+    d: 'Book et tandemspring (fx i en faldskærmsklub). 4 km op, 45 sekunders frit fald. Det mest vilde, man kan gøre på en lørdag.',
+    q: 'Skrig noget sjovt i frit fald, og få det med på videoen.',
+    b: 'dyr', kr: 2500, env: 'ude', minT: 5, sober: true, vild: true, season: ['forår', 'sommer', 'efterår'], map: 'faldskærm tandemspring' },
+  { id: 'f-paintball', s: ['formiddag', 'eftermiddag'], t: 'Paintball / laser tag-krig',
+    d: 'Book en bane til paintball eller udendørs laser tag. Hold mod hold, og taberholdet giver den første omgang senere.',
+    q: 'Vind en runde ved at sende kun én person ud som lokkemad.',
+    b: 'dyr', kr: 350, env: 'mix', minT: 0, sober: true, vild: true, map: 'paintball' },
+  { id: 'f-oekse', s: ['formiddag', 'eftermiddag'], t: 'Øksekast-turnering',
+    d: 'Book en bane i en øksekast-bar. Lær teknikken, og spil en turnering med pointtavle.',
+    q: 'Ram plet tre gange i træk.',
+    b: 'dyr', kr: 250, env: 'inde', sober: true, vild: true, alcTip: 'Øllene venter til EFTER øksene 🍺', map: 'øksekast' },
+  { id: 'f-trampolin', s: ['formiddag', 'eftermiddag'], t: 'Trampolinpark-kaos',
+    d: 'Tag i en trampolinpark og hop som 10-årige. Dodgeball på trampolin, skumbassin og saltomortaler (eller forsøg).',
+    q: 'Lær en saltomortale ind i skumbassinet.',
+    b: '*', kr: 160, env: 'inde', sober: true, vild: true, map: 'trampolinpark' },
+  { id: 'f-escape', s: ['formiddag', 'eftermiddag'], t: 'Escape room – det sværeste',
+    d: 'Book det escape room med den laveste succesrate. Gyser-tema hvis muligt.',
+    q: 'Løs rummet uden at bede om mere end ét hint.',
+    b: 'dyr', kr: 250, env: 'inde', map: 'escape room' },
+  { id: 'f-kajak', s: ['formiddag', 'eftermiddag'], t: 'Kajak-kaperfærd',
+    d: 'Lej kajakker eller SUP. Padl rundt og "erobr" en bro, en ø eller en badebro ved at plante et flag (en sok tæller).',
+    q: 'Padl under så mange broer som muligt.',
+    b: 'dyr', kr: 300, env: 'ude', minT: 14, sober: true, season: ['forår', 'sommer', 'efterår'], map: 'kajakudlejning' },
+  { id: 'f-wakeboard', s: ['formiddag', 'eftermiddag'], t: 'Wakeboard i kabelpark',
+    d: 'Lej udstyr i en wakeboard-kabelpark, og lad jer trække gennem vandet. Fald meget, grin mere.',
+    q: 'Kom hele vejen rundt én gang uden at falde.',
+    b: 'dyr', kr: 400, env: 'ude', minT: 16, sober: true, vild: true, season: ['sommer'], map: 'wakeboard kabelpark' },
+  { id: 'f-boulder', s: ['formiddag', 'eftermiddag'], t: 'Boulder-battle',
+    d: 'Lej sko i en boulderhal. Hver person udpeger en rute til de andre. Den, der klarer flest, vinder.',
+    q: 'Find én rute, I alle fejler på – og bliv ved, indtil én klarer den.',
+    b: 'dyr', kr: 180, env: 'inde', sober: true, map: 'boulderhal' },
+  { id: 'f-hest', s: ['formiddag'], t: 'Galop på islandske heste',
+    d: 'Book en tur på islandske heste med tølt gennem skov og strand. Bed om den hurtige tur.',
+    q: 'Find ud af hestens navn, og giv den et nyt superheltenavn.',
+    b: 'dyr', kr: 450, env: 'mix', minT: -2, sober: true, map: 'ridetur islandske heste' },
+  { id: 'f-geocache', s: ['formiddag', 'eftermiddag'], t: 'Geocaching-ekspedition',
+    d: 'Download Geocaching-appen. Find den sværeste cache (højeste "terrain") i nærheden – også hvis det kræver klatring eller mudder.',
+    q: 'Efterlad en mærkelig "skat" i cachen til den næste finder.',
+    b: 'billig', kr: 0, env: 'mix', minT: -5 },
+  { id: 'f-loppe', s: ['formiddag', 'eftermiddag'], t: 'Loppe-duel: det mest bizarre fund',
+    d: 'Hver person får 50 kr på et loppemarked eller i en genbrugsbutik. Find det mest bizarre objekt. Det skal bæres eller bruges resten af dagen.',
+    q: 'Fundet skal med på alle billeder resten af dagen.',
+    b: 'billig', kr: 50, env: 'inde', vild: true, map: 'genbrugsbutik loppemarked' },
+  { id: 'f-fremmedpodcast', s: ['formiddag', 'eftermiddag'], t: 'Gade-podcast: interview fremmede',
+    d: 'Optag en "podcast" på telefonen. Interview 5 fremmede om det samme skøre spørgsmål: "Hvad er det vildeste, du har gjort på en lørdag?"',
+    q: 'Få én af de interviewede til at blive og være medvært i et minut.',
+    b: 'billig', kr: 0, env: 'mix', minT: -5, vild: true },
+  { id: 'f-skoejter', s: ['formiddag', 'eftermiddag', 'aften'], t: 'Skøjte-disco på isen',
+    d: 'Find nærmeste udendørs skøjtebane. Lej skøjter og lav en koreograferet skøjte-dans til en sang fra telefonen.',
+    q: 'Kør baglæns – eller i det mindste prøv.',
+    b: 'billig', kr: 70, env: 'mix', minT: -10, months: [11, 12, 1, 2], dark: true, alcTip: 'Gløgg ved banen bagefter 🍷', map: 'skøjtebane' },
+  { id: 'f-kaelk', s: ['formiddag', 'eftermiddag'], t: 'Kælke-VM',
+    d: 'Der er sne! Find den stejleste bakke. Kælk, plastikpose, bakke, hvad som helst. Byg en hop.',
+    q: 'Byg en hop og land den (sikkert).',
+    b: 'billig', kr: 0, env: 'mix', minT: -15, need: 'sne', vild: true, map: 'kælkebakke' },
+  { id: 'f-drage', s: ['formiddag', 'eftermiddag'], t: 'Drage-dueller i stormen',
+    d: 'Det blæser! Køb eller byg en drage, og tag på en åben mark eller strand. Dragekamp: hvem får sin højest – eller tager den andens ned?',
+    q: 'Få dragen til at lave et loop.',
+    b: 'billig', kr: 60, env: 'ude', minT: 0, need: 'blæst', season: ['forår', 'sommer', 'efterår'], map: 'legetøjsbutik' },
+  { id: 'f-svampe', s: ['formiddag'], t: 'Svampejagt i skoven',
+    d: 'Tag i skoven med kurv og svampe-app. Find så mange arter som muligt. Spis KUN, hvad en ekspert har godkendt.',
+    q: 'Find en svamp, der er større end en hånd, og en, der er mindre end en negl.',
+    b: 'billig', kr: 0, env: 'mix', minT: 0, months: [8, 9, 10, 11], map: 'skov' },
+  { id: 'f-aeble', s: ['formiddag'], t: 'Pluk-selv + æble-OL',
+    d: 'Find en plantage med pluk-selv. Fyld poser, og afslut med æble-OL: æblekast, æble på hovedet og æbleskræl i én lang strimmel.',
+    q: 'Skræl et æble i én lang strimmel uden at den knækker.',
+    b: 'billig', kr: 60, env: 'mix', minT: 5, months: [8, 9, 10], map: 'pluk selv æbler' },
+  { id: 'f-jordbaer', s: ['formiddag'], t: 'Jordbær-plukke-race',
+    d: 'Kør ud til en jordbærmark med pluk-selv. 20 minutters race: hvem fylder bakken først?',
+    q: 'Find det største jordbær på marken.',
+    b: 'billig', kr: 80, env: 'ude', minT: 14, months: [6, 7], map: 'pluk selv jordbær' },
+  { id: 'f-dyrepark', s: ['formiddag', 'eftermiddag'], t: 'Safari i dyreparken',
+    d: 'Tag i zoo eller en dyrepark. Hver person skal efterligne et dyr, og de andre gætter, hvilket.',
+    q: 'Find et dyr, der ligner en af jer, og tag et "side-om-side"-billede.',
+    b: 'dyr', kr: 220, env: 'mix', minT: 0, map: 'zoo dyrepark' },
+  { id: 'f-rally', s: ['formiddag', 'eftermiddag'], t: 'Rally / drift-oplevelse',
+    d: 'Book en rally- eller driftoplevelse på en bane, hvor en instruktør lader jer køre (eller sidde med). Fuld gas, sidelæns.',
+    q: 'Få instruktøren til at lave den vildeste drift, de kan.',
+    b: 'dyr', kr: 1200, env: 'mix', minT: -5, sober: true, vild: true, map: 'rally oplevelse drift' },
+  { id: 'f-oelmile', s: ['formiddag', 'eftermiddag'], t: 'Øl-milen',
+    d: 'Den klassiske beer mile: 4 omgange (ca. 400 m hver), og før hver omgang skal en lille øl drikkes. Tag tid. Drik vand bagefter, og spis ordentligt.',
+    q: 'Slå jeres egen tid ved at opfinde en strategi (gå i stedet for at løbe?).',
+    b: 'billig', kr: 50, env: 'mix', minT: 0, alc: 1, vild: true },
+  { id: 'f-oeldiscgolf', s: ['formiddag', 'eftermiddag'], t: 'Øl-frisbeegolf',
+    d: 'Find en frisbeegolfbane. Hver bane har sin egen øl-regel: over par = én tår, birdie = du deler en tår ud.',
+    q: 'Lav en "hole in one" (eller i det mindste en birdie).',
+    b: 'billig', kr: 60, env: 'mix', minT: 0, alc: 1, map: 'frisbeegolf' },
+  { id: 'f-brygkursus', s: ['formiddag'], t: 'Brygkursus: lav jeres egen øl',
+    d: 'Book et brygkursus hos et lokalt bryghus. I brygger en batch og får en smagning af husets øl undervejs.',
+    q: 'Find på et navn og et etiket-design til jeres øl.',
+    b: 'dyr', kr: 700, env: 'inde', alc: 1, vild: true, map: 'brygkursus bryghus' },
+  { id: 'f-bryghuscrawl', s: ['formiddag', 'eftermiddag'], t: 'Bryghus-crawl til fods',
+    d: 'Find 3 mikrobryggerier eller ølbarer inden for gåafstand. Én lille øl (eller en smagebakke) på hvert sted.',
+    q: 'Bestil hvert sted den øl med det mærkeligste navn.',
+    b: '*', kr: 200, env: 'mix', minT: -10, alc: 1, map: 'mikrobryggeri' },
+  { id: 'f-cykel', s: ['formiddag', 'eftermiddag'], t: 'Cykel-erobring af nabobyen',
+    d: 'Cykl til en by 15–25 km væk. Find byens bedste bager, is eller pølsevogn, og cykl hjem.',
+    q: 'Tag en selfie ved byskiltet med en dramatisk sejrsgestus.',
+    b: 'billig', kr: 50, env: 'ude', minT: 8, sober: true, season: ['forår', 'sommer', 'efterår'] },
+
+  /* ═════════════ FROKOST ═════════════ */
+  { id: 'l-chili', s: ['frokost', 'middag'], t: 'Chili-udfordringen',
+    d: 'Find et sted med stærke vinger eller en chili-ret med "challenge"-niveau. Hver person vælger en styrke – og ingen må give op.',
+    q: 'Den, der holder ud længst uden at drikke noget, vinder dagens krone.',
+    b: '*', kr: 150, env: 'inde', vild: true, alcTip: 'En iskold pilsner til at slukke ilden 🍺', map: 'hot wings' },
+  { id: 'l-insekter', s: ['frokost'], t: 'Spis noget, I aldrig har turdet',
+    d: 'Find et sted, der serverer noget vildt: insekter, østers, blæksprutte, haggis eller fermenteret haj. Alle skal smage.',
+    q: 'Beskriv smagen som en vinanmelder – med lukkede øjne.',
+    b: 'dyr', kr: 250, env: 'inde', vild: true, alcTip: 'Østers og en kold øl eller et glas champagne 🥂', map: 'østersbar' },
+  { id: 'l-alfabet', s: ['frokost'], t: 'Bogstav-frokost',
+    d: 'Slå op i en bog på et tilfældigt sted – første bogstav på siden bestemmer: ALT til frokost skal starte med det bogstav. Køb ind og byg det.',
+    q: 'Lav en ret, der har mindst 5 ingredienser med bogstavet.',
+    b: 'billig', kr: 50, env: 'inde', vild: true },
+  { id: 'l-boelle', s: ['frokost'], t: 'Bålpølser og snobrød',
+    d: 'Tag pølser, brød og ketchup med til en bålplads. Saml brænde og tænd bålet uden tændvæske.',
+    q: 'Tænd bålet med højst 3 tændstikker.',
+    b: 'billig', kr: 40, env: 'mix', minT: -5, alcTip: 'Bål og en kold øl er en klassiker 🍺', map: 'bålplads shelter' },
+  { id: 'l-streetfood', s: ['frokost', 'middag'], t: 'Streetfood-roulette',
+    d: 'Tag på et streetfood-marked. Snur en flaske eller brug en terning til at vælge boder. I skal spise dér, hvor den peger.',
+    q: 'Vælg en bod ud fra navnet alene, uden at se menuen.',
+    b: 'billig', kr: 75, env: 'inde', alcTip: 'En øl fra hver sin bar – del og bedøm 🍺', map: 'streetfood' },
+  { id: 'l-smoerrebroed', s: ['frokost'], t: 'Den lange danske frokost',
+    d: 'Gå på en klassisk frokostrestaurant. Sild, rejer, stjerneskud. Tag god tid, og hold mindst én tale.',
+    q: 'Bestil det stykke smørrebrød med det mærkeligste navn på menuen.',
+    b: 'dyr', kr: 300, env: 'inde', alcTip: 'En kold fadøl og en snaps til silden er obligatorisk 🥃', map: 'smørrebrød frokostrestaurant' },
+  { id: 'l-oelfrokost', s: ['frokost'], t: 'Fadøl og stjerneskud på bodegaen',
+    d: 'Find en ægte bodega med frokost. Bestil dagens ret og en stor fadøl. Spil en omgang terninger med en stamgæst.',
+    q: 'Lær bodegaens historie af bartenderen.',
+    b: 'billig', kr: 150, env: 'inde', alc: 1, map: 'bodega frokost' },
+  { id: 'l-oelpoelser', s: ['frokost'], t: 'Pølsevogns-turnéen',
+    d: 'Find 3 pølsevogne eller grillbarer. Én pølse hvert sted – og en kold dåseøl undervejs. Kår byens bedste ristede.',
+    q: 'Bestil en "med det hele" og spis den uden at spilde.',
+    b: 'billig', kr: 120, env: 'mix', minT: -10, alc: 1, map: 'pølsevogn' },
+  { id: 'l-biergarten', s: ['frokost', 'eftermiddag'], t: 'Biergarten i solen',
+    d: 'Find en udeservering eller ølhave med lange borde. Bestil en stor liter og en kringle eller en pølse. Sæt jer sammen med fremmede.',
+    q: 'Lær en skål på tysk og brug den på nabobordet.',
+    b: '*', kr: 180, env: 'ude', minT: 16, season: ['forår', 'sommer'], alc: 1, map: 'ølhave udeservering' },
+  { id: 'l-ramen', s: ['frokost', 'middag'], t: 'Ramen med slurpe-konkurrence',
+    d: 'Find en ramenbar. I Japan er det høfligt at slurpe – så hold en slurpe-konkurrence.',
+    q: 'Lær at sige "tak for maden" på japansk og sig det til kokken.',
+    b: 'dyr', kr: 220, env: 'inde', alcTip: 'Asahi eller sake til ramen 🍶', map: 'ramen' },
+  { id: 'l-grill', s: ['frokost', 'middag'], t: 'Grill-anarki i parken',
+    d: 'Engangsgrill, pølser, halloumi – og hver person skal grille én ting, der ALDRIG skal på en grill (vandmelon? kage? salat?).',
+    q: 'Den mest vellykkede mærkelige grillret vinder.',
+    b: 'billig', kr: 70, env: 'ude', minT: 14, season: ['forår', 'sommer'], alcTip: 'En kasse kolde øl på køl i en spand 🍺', map: 'park grillplads' },
+  { id: 'l-julemarked', s: ['frokost', 'eftermiddag'], t: 'Julemarked-togt',
+    d: 'Tag på julemarked. Æbleskiver, brændte mandler og en varm drik. Find den mest kitschede pynt på hele markedet.',
+    q: 'Find den mest kitschede julepynt, og tag et billede med den.',
+    b: 'billig', kr: 90, env: 'mix', minT: -10, win: ['11-14', '12-23'], dark: true, alcTip: 'Gløgg – og en juleøl fra hver bod 🍺', map: 'julemarked' },
+  { id: 'l-fishchips', s: ['frokost'], t: 'Fish’n’chips i havnen',
+    d: 'Find et fiskehus ved havnen. Spis ved vandet, uanset vejret. Måger er fjenden.',
+    q: 'Find båden med det sjoveste navn.',
+    b: '*', kr: 120, env: 'mix', minT: -5, alcTip: 'En kold pilsner fra kiosken til fisken 🍺', map: 'fish and chips havn' },
+  { id: 'l-dimsum', s: ['frokost'], t: 'Dim sum med pinde-regel',
+    d: 'Find en dim sum-restaurant og bestil lidt af det hele. Alle skal spise med pinde – også suppen.',
+    q: 'Flyt en dumpling fra din tallerken til en andens med pindene, uden at tabe den.',
+    b: 'dyr', kr: 280, env: 'inde', alcTip: 'Tsingtao til dim sum 🍺', map: 'dim sum' },
+  { id: 'l-sandwichduel', s: ['frokost'], t: 'Hemmelig sandwich-duel',
+    d: 'Hver person køber for max 40 kr og bygger en sandwich i hemmelighed. Blindsmagning, point og en reklametale.',
+    q: 'Sandwichen skal have et navn og en 15-sekunders reklametale.',
+    b: 'billig', kr: 40, env: 'inde' },
+
+  /* ═════════════ EFTERMIDDAG ═════════════ */
+  { id: 'e-beerpong', s: ['eftermiddag', 'aften'], t: 'Beer pong-VM',
+    d: 'Byg en beer pong-bane (bord, kopper, bordtennisbolde). Hold, gruppespil og finale. Brug lette øl eller halve kopper, og hav vand ved siden af.',
+    q: 'Lav et "trickshot", der rammer i første forsøg.',
+    b: 'billig', kr: 60, env: 'inde', alc: 1, vild: true },
+  { id: 'e-oelbowling', s: ['eftermiddag', 'aften'], t: 'Øl-bowling',
+    d: 'Spil to serier bowling. Strike = du deler en tår ud. Rendesten = du tager en. Anden serie spilles med den "forkerte" hånd.',
+    q: 'Lav en sejrsdans efter hver strike – jo mere pinlig, jo bedre.',
+    b: 'dyr', kr: 250, env: 'inde', alc: 1, map: 'bowling' },
+  { id: 'e-bryghus', s: ['eftermiddag'], t: 'Ølsmagning bag kulisserne',
+    d: 'Book en rundvisning med smagning på et bryghus. Smag direkte fra tanken, hvis I kan.',
+    q: 'Find den øl, du hader mest – og forklar præcis hvorfor, som en ægte ølanmelder.',
+    b: 'dyr', kr: 300, env: 'inde', alc: 1, map: 'bryghus ølsmagning' },
+  { id: 'e-blindoel', s: ['eftermiddag', 'aften'], t: 'Blindsmagning: find budget-øllen',
+    d: 'Køb 6 forskellige øl (inkl. den billigste i butikken). Hæld i ens glas og blindsmag. Kan nogen finde den billige?',
+    q: 'Opfind et smagsord, I bruger resten af dagen.',
+    b: 'billig', kr: 70, env: 'inde', alc: 1 },
+  { id: 'e-oelverden', s: ['eftermiddag'], t: 'Jorden rundt i øl',
+    d: 'Gå i en velassorteret butik og køb én øl fra 6 forskellige lande. Smag i rækkefølge efter afstand fra Danmark og giv point.',
+    q: 'Find en øl fra et land, ingen af jer kan finde på kortet.',
+    b: 'billig', kr: 100, env: 'inde', alc: 1, map: 'ølbutik' },
+  { id: 'e-shuffle', s: ['eftermiddag', 'aften'], t: 'Shuffleboard & ølkander',
+    d: 'Find en bar med shuffleboard, dart eller bordfodbold. Turnering, hvor taberne bestiller næste kande.',
+    q: 'Vind en kamp med en "umulig" afslutning.',
+    b: '*', kr: 180, env: 'inde', alc: 1, map: 'shuffleboard bar' },
+  { id: 'e-oelyoga', s: ['eftermiddag'], t: 'Øl-yoga',
+    d: 'Ja, det findes: yoga med en øl i hånden. Find et hold, eller lav jeres egen session efter en YouTube-video. Balancer øllen på hovedet i "træet".',
+    q: 'Hold en øl på hovedet i 10 sekunder i en yogastilling.',
+    b: 'billig', kr: 60, env: 'inde', alc: 1, vild: true, map: 'beer yoga' },
+  { id: 'e-gokart', s: ['eftermiddag'], t: 'Gokart Grand Prix',
+    d: 'Book et race: kvalifikation og finale. Taberen holder takketale for vinderen til aftensmaden.',
+    q: 'Lav en podie-ceremoni med "champagne" (danskvand).',
+    b: 'dyr', kr: 350, env: 'inde', sober: true, map: 'gokart' },
+  { id: 'e-vr', s: ['eftermiddag', 'aften'], t: 'VR-zombieapokalypse',
+    d: 'Book en VR-arena med zombier eller et VR-escape room. Skrig så meget I vil.',
+    q: 'Den, der "dør" først, vælger den næste sang.',
+    b: 'dyr', kr: 300, env: 'inde', map: 'VR arena' },
+  { id: 'e-flashmob', s: ['eftermiddag'], t: 'Mini-flashmob',
+    d: 'Lær en simpel dans på 15 minutter (TikTok-dans tæller). Find et offentligt torv, og opfør den pludselig – og gå så videre, som om intet var hændt.',
+    q: 'Få mindst én fremmed til at danse med.',
+    b: 'billig', kr: 0, env: 'mix', minT: 0, vild: true },
+  { id: 'e-skattejagt', s: ['eftermiddag'], t: 'Skattejagt for fremmede',
+    d: 'Køb en lille præmie (chokolade, en lommelygte, en øl-voucher). Gem den et sted i byen, og læg ledetråde på sociale medier eller sedler.',
+    q: 'Se om nogen finder den, før dagen er slut.',
+    b: 'billig', kr: 50, env: 'mix', minT: -5, vild: true },
+  { id: 'e-streetart', s: ['eftermiddag'], t: 'Street art-jagt med "living statues"',
+    d: 'Find 5 vægmalerier eller graffiti-værker. Ved hvert værk skal I genskabe det med kroppen og stå stille, til en forbipasserende reagerer.',
+    q: 'Få en fremmed til at give jer penge eller klapsalver.',
+    b: 'billig', kr: 0, env: 'mix', minT: -5, map: 'street art' },
+  { id: 'e-graeskar', s: ['eftermiddag'], t: 'Græskar-massakren',
+    d: 'Køb græskar og skær de mest uhyggelige ansigter. Rist kernerne. Taberen skal bære sit græskar som hat på et billede.',
+    q: 'Græskarret skal forestille en kendt person. De andre skal gætte, hvem.',
+    b: 'billig', kr: 50, env: 'inde', win: ['10-15', '11-01'], alcTip: 'Græskar-ale eller en mørk porter til udskæringen 🍺' },
+  { id: 'e-keramik', s: ['eftermiddag'], t: 'Paint & sip / keramik',
+    d: 'Book et "paint & sip" eller et drejekursus. Lav et portræt af en af de andre – med vilje dårligt.',
+    q: 'Værket skal gives væk til en fremmed på vej hjem.',
+    b: 'dyr', kr: 400, env: 'inde', alcTip: 'Vælg "paint & sip" med vin eller øl 🍷', map: 'paint and sip' },
+  { id: 'e-strand', s: ['eftermiddag'], t: 'Strand-skattejagt',
+    d: 'Gå langs stranden i en time med en pose. Saml skrald og skatte (glas, sten, muslinger), og byg en skulptur af fundene.',
+    q: 'Find et stykke slebet glas i en farve, der ikke er grøn eller brun.',
+    b: 'billig', kr: 0, env: 'mix', minT: 0, map: 'strand' },
+  { id: 'e-sommerbad', s: ['eftermiddag'], t: 'Havnespring',
+    d: 'Tag i havnebadet og spring fra det højeste vippe eller tårn, I tør. Afslut med den største is, I kan finde.',
+    q: 'Lav det mest kreative spring – de andre giver karakter.',
+    b: 'billig', kr: 50, env: 'ude', minT: 20, season: ['sommer'], sober: true, vild: true, map: 'havnebad' },
+  { id: 'e-minigolf', s: ['eftermiddag'], t: 'Crazy golf',
+    d: 'Find en (gerne glow-in-the-dark) minigolfbane. Hvert hul har en ekstra regel, som en anden bestemmer.',
+    q: 'Spil et hul med lukkede øjne.',
+    b: '*', kr: 120, env: 'inde', alcTip: 'Mange crazy golf-steder har bar – én øl pr. 3 huller 🍺', map: 'crazy golf' },
+  { id: 'e-loevkrig', s: ['eftermiddag'], t: 'Løv-krigen',
+    d: 'Find en park med store bunker af blade. Byg et fort, og hold en løvkrig. Til sidst: hop ind i den største bunke.',
+    q: 'Lav et slow-motion-video af et hop ind i bunken.',
+    b: 'billig', kr: 0, env: 'mix', minT: 0, season: ['efterår'], vild: true, map: 'park' },
+  { id: 'e-sneboldkrig', s: ['eftermiddag'], t: 'Snefort og sneboldkrig',
+    d: 'Byg to forter, og lav en kæmpe sneboldkrig. Inviter andre i parken med.',
+    q: 'Byg en snemand, der ligner en af jer.',
+    b: 'billig', kr: 0, env: 'mix', minT: -15, need: 'sne', vild: true, map: 'park' },
+  { id: 'e-kaffecrawl', s: ['eftermiddag'], t: 'Espresso-raketten',
+    d: 'Tre kaffebarer, tre espressoer, ét mål: bestem byens bedste. Derefter et 1 km sprintløb på koffein.',
+    q: 'Spørg baristaen, hvad de selv drikker – og bestil det.',
+    b: '*', kr: 120, env: 'mix', minT: -10, alc: 0, map: 'kaffebar' },
+
+  /* ═════════════ AFTENSMAD ═════════════ */
+  { id: 'a-mysterybox', s: ['middag'], t: 'Mystery Box Masterchef',
+    d: 'Alle køber 3 ingredienser i hemmelighed for 40 kr. Alt samles, og I laver én ret på 45 minutter.',
+    q: 'Retten skal have en restaurantbeskrivelse med mindst tre fancy adjektiver.',
+    b: 'billig', kr: 40, env: 'inde', alcTip: 'Hver kok skal parre retten med en øl fra køleskabet 🍺' },
+  { id: 'a-oelmiddag', s: ['middag'], t: 'Middag med øl-pairing',
+    d: 'Find en restaurant eller ølbar, der laver ølmenu med pairing. Hver ret får sin egen øl.',
+    q: 'Gæt hver øltype (IPA, stout, saison…) før tjeneren fortæller det.',
+    b: 'dyr', kr: 650, env: 'inde', alc: 1, map: 'ølmenu restaurant' },
+  { id: 'a-oelmad', s: ['middag'], t: 'Alt-med-øl-middagen',
+    d: 'Hjemmelavet middag, hvor øl skal i ALT: ølbraiseret kød, beer can chicken, øl-dej til pizza eller ølbrød, og øl-is til dessert.',
+    q: 'Lav en dessert med øl, som faktisk smager godt.',
+    b: 'billig', kr: 70, env: 'inde', alc: 1, vild: true },
+  { id: 'a-wings', s: ['middag'], t: 'Wings & pitchers',
+    d: 'Find en sportsbar eller ølbar med kyllingevinger. Bestil en pitcher og vinger i alle styrker. Den, der efterlader flest ben, betaler næste pitcher.',
+    q: 'Spis en vinge i den stærkeste styrke uden at røre øllen i 60 sekunder.',
+    b: 'billig', kr: 160, env: 'inde', alc: 1, map: 'chicken wings bar' },
+  { id: 'a-moules', s: ['middag'], t: 'Belgisk aften: moules frites og trappist',
+    d: 'Find en belgisk ølcafé eller bistro. Muslinger, pommes frites med mayo og belgiske øl i rigtige glas.',
+    q: 'Find ud af, hvilken munk eller hvilket kloster jeres øl kommer fra.',
+    b: 'dyr', kr: 450, env: 'inde', alc: 1, map: 'belgisk ølbar' },
+  { id: 'a-pizzapitcher', s: ['middag'], t: 'Pizza & pitcher-roulette',
+    d: 'Gå på en pizzeria med fadøl. Hver person vælger pizzanummer med terningen – I bytter skiver hele vejen rundt.',
+    q: 'Den, der får den værste pizza, skal holde en takketale for den.',
+    b: 'billig', kr: 130, env: 'inde', alc: 1, map: 'pizzeria' },
+  { id: 'a-burgerduel', s: ['middag'], t: 'Byens største burger',
+    d: 'Find den burgerbar med den største burger på menuen. Bestil den. Del hvis I skal – men prøv først alene.',
+    q: 'Spis burgeren uden kniv og gaffel og uden at tabe noget.',
+    b: '*', kr: 180, env: 'inde', alcTip: 'En kold IPA til burgeren 🍺', map: 'burger' },
+  { id: 'a-tasting', s: ['middag'], t: 'Smagsmenu – gå all in',
+    d: 'Book en smagsmenu på en restaurant, I aldrig har haft råd til. Klæd jer pænt på. Telefonerne væk.',
+    q: 'Find på et navn til hver ret, som er bedre end menukortets.',
+    b: 'dyr', kr: 900, env: 'inde', alcTip: 'Tag vin- eller ølmenuen 🍷', map: 'restaurant smagsmenu' },
+  { id: 'a-kbbq', s: ['middag'], t: 'Koreansk BBQ og soju-skål',
+    d: 'Find en koreansk grill-selv-restaurant. Grill alt selv ved bordet, og prøv kimchi og banchan.',
+    q: 'Lav den "perfekte bid" i et salatblad og præsentér den som en tv-kok.',
+    b: 'dyr', kr: 400, env: 'inde', alcTip: 'Somaek: øl + soju i samme glas 🍺🥃', map: 'korean bbq' },
+  { id: 'a-dumplings', s: ['middag'], t: 'Dumpling-fabrik på tid',
+    d: 'Køb dumpling-plader, fyld og ingefær. Hvem kan folde flest på 20 minutter? Damp og steg dem bagefter.',
+    q: 'Gem en "mystery dumpling" med en skør fyldning.',
+    b: 'billig', kr: 40, env: 'inde', alcTip: 'Asiatisk lager til dumplings 🍺' },
+  { id: 'a-trangia', s: ['middag'], t: 'Aftensmad på stranden ved solnedgang',
+    d: 'Stormkøkken, pasta og pesto til stranden. Lav mad, mens solen går ned.',
+    q: 'Tag et billede, præcis da solen rammer horisonten.',
+    b: 'billig', kr: 40, env: 'ude', minT: 12, season: ['sommer'], dark: true, alcTip: 'Øl på køl i havet 🍺', map: 'strand' },
+  { id: 'a-halloween', s: ['middag'], t: 'Blodig Halloween-middag',
+    d: 'Alt skal være sort eller orange. Sluk lyset, tænd stearinlys, og alle skal være udklædt.',
+    q: 'Alle skal komme udklædt – også selvom det bare er et lagen med huller.',
+    b: 'billig', kr: 60, env: 'inde', win: ['10-24', '11-01'], alcTip: 'Mørk stout som "trolddomsdrik" 🍺' },
+  { id: 'a-folkekoekken', s: ['middag'], t: 'Middag med fremmede',
+    d: 'Find et folkekøkken eller en fællesspisning. Sæt jer ved hver sit bord, og mød hinanden igen til dessert med en historie.',
+    q: 'Lær tre fremmedes navne, og få deres bedste weekendtip.',
+    b: 'billig', kr: 60, env: 'inde', alcTip: 'Mange folkekøkkener har billig fadøl 🍺', map: 'fællesspisning folkekøkken' },
+  { id: 'a-julefrokost', s: ['middag'], t: 'Mini-julefrokost',
+    d: 'Sild, frikadeller, risalamande. Nissehuer på. Taler mellem hver ret.',
+    q: 'Den, der finder mandlen, vælger aftenens aktivitet om (joker gratis!).',
+    b: 'billig', kr: 70, env: 'inde', win: ['11-20', '12-23'], alcTip: 'Juleøl og snaps hører til 🎄' },
+  { id: 'a-fondue', s: ['middag'], t: 'Ostefondue med straffe',
+    d: 'Ost, brød og grøntsager i en gryde. Taber man brødet, skal man synge et vers – eller tage en straf, de andre bestemmer.',
+    q: 'Den første, der taber noget i gryden, synger et vers.',
+    b: '*', kr: 100, env: 'inde', season: ['efterår', 'vinter'], alcTip: 'Hvidvin i fonduen og øl i glasset 🍺' },
+  { id: 'a-tapas', s: ['middag'], t: 'Tapas-roulette',
+    d: 'Slå med terningen for hver ret, og bestil det nummer på menuen. Ingen bytter.',
+    q: 'Den, der rammer den værste ret, betaler for desserten.',
+    b: 'dyr', kr: 350, env: 'inde', alcTip: 'En kande sangria eller Estrella til bordet 🍺', map: 'tapas' },
+  { id: 'a-pizza', s: ['middag'], t: 'Pizza-kunst-konkurrence',
+    d: 'Hjemmelavet pizza, hvor hver person laver et portræt af en af de andre med toppings.',
+    q: 'De andre skal gætte, hvem pizzaen forestiller.',
+    b: 'billig', kr: 45, env: 'inde', alcTip: 'Italiensk lager eller rødvin til pizzaen 🍺' },
+
+  /* ═════════════ AFTEN ═════════════ */
+  { id: 'n-pubcrawl', s: ['aften'], t: 'Terning-pubcrawl',
+    d: 'Start på én bar. Slå med terningen: lige tal = næste bar til højre, ulige = venstre. Ét glas pr. sted, 5 steder. Spis noget undervejs, og drik vand mellem barerne.',
+    q: 'Få en bartender til at give jer et kortspil, et tip eller en historie på hvert sted.',
+    b: '*', kr: 300, env: 'mix', minT: -15, alc: 1, dark: true, vild: true, map: 'bar' },
+  { id: 'n-bodega', s: ['aften'], t: 'Bodega-crawl med jukebox',
+    d: 'Tre bodegaer. Ét krus hvert sted, og spil dart, bob eller jukebox. Vælg den mest pinlige sang på jukeboxen.',
+    q: 'Få en stamgæst til at fortælle bodegaens bedste historie.',
+    b: 'billig', kr: 150, env: 'mix', minT: -15, alc: 1, dark: true, map: 'bodega' },
+  { id: 'n-kostumecrawl', s: ['aften'], t: 'Pub-crawl i kostume',
+    d: 'Klæd jer ud efter et tema (pirater, 80’er, superhelte), og tag på bar-tur. Bliv i rollen hele aftenen.',
+    q: 'Få et gratis shot eller en øl på grund af kostumet.',
+    b: '*', kr: 250, env: 'mix', minT: -10, alc: 1, dark: true, vild: true, map: 'bar' },
+  { id: 'n-oelbar30', s: ['aften'], t: 'Ølbaren med 30 haner',
+    d: 'Find byens ølbar med flest haner. Hver person bestiller en smagebakke med det skøreste: sur øl, røget øl, imperial stout.',
+    q: 'Find den øl, der smager mest af noget, der ikke er øl.',
+    b: 'dyr', kr: 300, env: 'inde', alc: 1, map: 'ølbar' },
+  { id: 'n-kingscup', s: ['aften'], t: 'Spilleaften: Kings Cup og ølstafet',
+    d: 'Hjemme-fest: Kings Cup, ølstafet, flip cup. Lav jeres egne regler til hvert kort. Hav sodavand og vand klar som "straf-alternativ".',
+    q: 'Opfind en ny regel, der skal gælde hele aftenen.',
+    b: 'billig', kr: 60, env: 'inde', alc: 1, vild: true },
+  { id: 'n-oelquiz', s: ['aften'], t: 'Pubquiz med fuld kande',
+    d: 'Find en pubquiz. Mød op med det mest absurde holdnavn, I kan finde på.',
+    q: 'Vind en runde – eller få flest "kreative" forkerte svar.',
+    b: 'billig', kr: 80, env: 'inde', alc: 1, map: 'pub quiz' },
+  { id: 'n-cocktailbar', s: ['aften'], t: 'Cocktailbar: "bartender’s choice"',
+    d: 'Byens bedst anmeldte cocktailbar. Bestil ikke fra kortet – fortæl bartenderen tre ord om dagen, og lad dem vælge.',
+    q: 'Find ud af bartenderens yndlingscocktail, og bestil den til sidst.',
+    b: 'dyr', kr: 350, env: 'inde', alc: 1, map: 'cocktailbar' },
+  { id: 'n-hjemmebar', s: ['aften'], t: 'Hjemme-bartender: cocktail fra ét ord',
+    d: 'Slå et tilfældigt ord op. Hver person opfinder en drink inspireret af ordet med det, der er i skabet.',
+    q: 'Drinken skal have navn, historie og pynt.',
+    b: 'billig', kr: 70, env: 'inde', alc: 1 },
+  { id: 'n-silentdisco', s: ['aften'], t: 'Silent disco',
+    d: 'Find et silent disco-event – eller lav jeres eget: alle sætter den samme playliste i gang og danser i headphones gennem byen.',
+    q: 'Dans gennem et helt kvarter uden at stoppe.',
+    b: '*', kr: 100, env: 'mix', minT: 0, dark: true, vild: true, alcTip: 'Én øl før dansegulvet 🍺', map: 'silent disco' },
+  { id: 'n-karaokebar', s: ['aften'], t: 'Karaoke-bar: power-ballade-maraton',
+    d: 'Book et privat karaokerum, eller tag på en karaokebar. Kun power-ballader. Koreografi er obligatorisk.',
+    q: 'Lav en gruppe-performance af én sang med koreografi.',
+    b: 'dyr', kr: 250, env: 'inde', vild: true, alcTip: 'Drinks og øl leveret til rummet 🍺', map: 'karaoke' },
+  { id: 'n-karaokehjem', s: ['aften'], t: 'Stue-karaoke-showdown',
+    d: 'YouTube-karaoke. Alle synger tre sange, og én af dem er valgt af de andre. Dommerpanel med skilte.',
+    q: 'Syng en sang, som de andre vælger til dig.',
+    b: 'billig', kr: 0, env: 'inde', alcTip: 'Øl på køl til sangerne 🍺' },
+  { id: 'n-standup', s: ['aften'], t: 'Open mic – gå selv på scenen',
+    d: 'Find en open mic (stand-up, musik eller poetry slam). Mindst én af jer skal på scenen i 3 minutter.',
+    q: 'Få et ægte grin eller klapsalver fra publikum.',
+    b: 'billig', kr: 50, env: 'inde', vild: true, alcTip: 'En øl for modet – men kun én før scenen 🍺', map: 'open mic' },
+  { id: 'n-koncert', s: ['aften'], t: 'Tilfældig koncert',
+    d: 'Find den første koncert eller det første show, der har billetter i aften – uanset genre. Stil jer forrest.',
+    q: 'Find en replik eller et omkvæd fra showet, I citerer resten af aftenen.',
+    b: 'dyr', kr: 300, env: 'inde', alcTip: 'En fadøl i baren 🍺', map: 'koncert' },
+  { id: 'n-stjerner', s: ['aften'], t: 'Stjernekig væk fra byens lys',
+    d: 'Klart vejr! Tag bussen eller gå væk fra gadelysene med tæpper og kakao. Brug en stjernekort-app.',
+    q: 'Find Karlsvognen, Nordstjernen og (hvis I er heldige) et stjerneskud.',
+    b: 'billig', kr: 10, env: 'ude', minT: -8, dark: true, need: 'klart', map: 'mørk himmel' },
+  { id: 'n-baal', s: ['aften'], t: 'Bål, snobrød og spøgelseshistorier',
+    d: 'Tænd bål på en bålplads. Lav snobrød, rist skumfiduser, og fortæl uhyggelige historier med lommelygten under hagen.',
+    q: 'Fortæl en historie sammen, hvor hver person kun må sige én sætning ad gangen.',
+    b: 'billig', kr: 30, env: 'mix', minT: -5, dark: true, alcTip: 'Øl i sneen eller i køletasken 🍺', map: 'bålplads' },
+  { id: 'n-shelter', s: ['aften'], t: 'Overnat i en shelter',
+    d: 'Pak soveposer og liggeunderlag, og tag til en shelter i skoven. Bål, mad i mørket, og vågn op i naturen.',
+    q: 'Bliv vågne, til alle har set eller hørt et dyr.',
+    b: 'billig', kr: 20, env: 'mix', minT: 2, dark: true, vild: true, alcTip: 'Øl i rygsækken til bålet 🍺', map: 'shelter' },
+  { id: 'n-gyser', s: ['aften'], t: 'Gyser-maraton i pudeborg',
+    d: 'Byg en pudeborg, sluk alle lys, og se to gyserfilm. Den, der hopper højest, serverer snacks.',
+    q: 'Den, der hopper højest i sædet, skal servere snacks.',
+    b: 'billig', kr: 30, env: 'inde', win: ['10-20', '11-03'], alcTip: 'Én tår, hver gang nogen skriger 🍺' },
+  { id: 'n-natbad', s: ['aften'], t: 'Natbad og sauna',
+    d: 'Havnesaunaer med aftenåbent: bad i mørket, se lysene over vandet, og varm op i saunaen.',
+    q: 'Lav et ønske i det kolde vand.',
+    b: 'dyr', kr: 200, env: 'mix', minT: -10, dark: true, season: ['efterår', 'vinter', 'forår'], sober: true, map: 'sauna havbad' },
+  { id: 'n-natlob', s: ['aften'], t: 'Lygte-jagt i skoven',
+    d: 'Pandelamper på. Ét hold gemmer sig i skoven, det andet jager. Skift efter 15 minutter.',
+    q: 'Gem en "skat" langs ruten, og lad de andre finde den med lygten.',
+    b: 'billig', kr: 0, env: 'mix', minT: -5, dark: true, season: ['efterår', 'vinter'], vild: true, map: 'skov' },
+  { id: 'n-glow', s: ['aften'], t: 'Glow-in-the-dark minigolf',
+    d: 'Find en glow-bane med neon og musik. Klæd jer i hvidt, så I lyser op.',
+    q: 'Lav et hul-i-ét, og fejr det som en VM-finale.',
+    b: 'dyr', kr: 220, env: 'inde', alcTip: 'Neon-drinks i baren 🍹', map: 'glow minigolf' },
+  { id: 'n-mocktail', s: ['aften'], t: 'Mocktail-mesterskab',
+    d: 'Juice, sodavand, frugt og is. Alle laver en signatur-mocktail. Blindsmagning og dommerpanel.',
+    q: 'Mocktailen skal kunne serveres på en femstjernet bar.',
+    b: 'billig', kr: 50, env: 'inde', alc: 0 },
+  { id: 'n-julelys', s: ['aften'], t: 'Julelys-safari',
+    d: 'Fyld termokanden, og gå gennem de mest julepyntede villakvarterer. Kår årets mest overdrevne hus.',
+    q: 'Find årets mest overdrevne julepyntede hus.',
+    b: 'billig', kr: 15, env: 'mix', minT: -10, dark: true, win: ['11-25', '12-30'], alcTip: 'Juleøl i lommen 🍺' },
+  { id: 'n-solnedgang', s: ['aften'], t: 'Solnedgang og stjerner på stranden',
+    d: 'Tæpper og snacks til stranden. Bliv, til stjernerne kommer frem.',
+    q: 'Lav en "tidskapsel-besked" til jer selv om et år.',
+    b: 'billig', kr: 30, env: 'ude', minT: 14, season: ['sommer'], dark: true, alcTip: 'Kolde øl i sandet 🍺', map: 'strand' },
+  { id: 'n-livemusik', s: ['aften'], t: 'Jazz- eller rock-kælder',
+    d: 'Find et lille spillested med livemusik. Sæt jer helt tæt på scenen, og ønsk en sang.',
+    q: 'Få bandet til at spille et ønske – eller hils på dem efter koncerten.',
+    b: '*', kr: 150, env: 'inde', alcTip: 'Fadøl til musikken 🍺', map: 'livemusik' },
+];
+
+/* Hemmelige missioner – hele dagen, låses op ved frokost */
+const MISSIONS = [
+  'Få 5 fremmede til at give jer et high five i løbet af dagen.',
+  'Få en fremmed til at tage et gruppebillede af jer – i en absurd pose.',
+  'Find noget gult ved hvert eneste stop, og fotografér det.',
+  'Giv et ærligt kompliment til 5 forskellige mennesker.',
+  'Lær én ny ting af en ansat ved hvert sted, I besøger.',
+  'Tal kun i spørgsmål i 10 minutter et sted i løbet af dagen.',
+  'Hver person skal få en anden til at sige ordet "pandekage" uden selv at sige det.',
+  'Tag et billede, hvor alle hopper samtidig, ved mindst 3 stop.',
+  'Få en fremmed til at anbefale en sang – og syng den højt senere.',
+  'Byt én ting med en fremmed (en tusch, et klistermærke, et tip).',
+  'Lav en mini-dokumentar: én 5-sekunders video fra hvert stop.',
+  'Få et gratis "noget" (en smagsprøve, et klistermærke, en kop vand) ved 3 stop.',
+  'Overbevis en fremmed om, at I er et kendt band på turné.',
+  'Lav en hemmelig håndhilsen, og brug den ved hvert stop.',
+];
+const MISSIONS_ALC = [
+  'Skål med en fremmed på 3 forskellige sprog i løbet af dagen.',
+  'Få en bartender til at opfinde en drink opkaldt efter jeres hold.',
+  'Saml et ølkapsel eller en ølbrik fra hvert sted, I drikker.',
+  'Få en fremmed til at give jer en øl-anbefaling – og bestil den.',
+];
+
+/* Kaos-regler – en tilfældig regel pr. stop, afsløres når stoppet låses op */
+const KAOS = [
+  'Alle taler med fransk accent i dette stop.',
+  'Ingen må sige "ja" eller "nej". Taberen gør armbøjninger.',
+  'Gruppen må kun gå i gåsegang til næste stop.',
+  'En fremmed skal vælge noget for jer her.',
+  'Alle skal bytte en ting (hue, jakke, taske) i dette stop.',
+  'Tag et billede, hvor ingen ansigter kan ses.',
+  'Den yngste bestemmer alt i dette stop.',
+  'Den ældste skal fortælle en pinlig historie.',
+  'Alle skal nynne et filmtema, når I ankommer.',
+  'Kun hvisken er tilladt de første 5 minutter.',
+  'Hver person skal lave én dramatisk "slow motion"-gåtur.',
+  'Find en ting, der er ældre end jer alle tilsammen.',
+];
+const KAOS_ALC = [
+  'Skål-regel: hver gang nogen siger "fedt", skåler alle.',
+  'Den, der griner først, giver næste omgang.',
+  'Alle skal drikke med den "forkerte" hånd. Glemmer du det: én tår.',
+  'Vandpause! Alle drikker et helt glas vand, før næste øl. 💧',
+  'Waterfall-regel: den, der starter, bestemmer, hvornår alle stopper.',
+  'Find ud af, hvad "skål" hedder på 3 sprog, og brug dem alle.',
+];
+
+/* Tema-navne til dagen */
+const THEME_A = ['Gylden', 'Hemmelig', 'Vild', 'Episk', 'Spontan', 'Kosmisk', 'Legendarisk', 'Uventet', 'Kaotisk', 'Turbo', 'Ustoppelig', 'Mega'];
+const THEME_B = ['Ekspedition', 'Mission', 'Odyssé', 'Eventyr', 'Safari', 'Lørdagsrevolution', 'Raid', 'Expedition X', 'Jagt', 'Kaos-tur', 'Stormløb'];
+const THEME_BEER = ['Den Store Ølrejse', 'Operation Skål', 'Humle-Odysséen', 'Fadøls-Felttoget', 'Den Gyldne Pint', 'Skumkronens Mission'];
+
+const SPECIAL_DAYS = [
+  { win: ['10-24', '11-01'], name: 'Halloween', icon: '🎃', theme: 'Operation Græskar' },
+  { win: ['11-14', '12-23'], name: 'Julemåned', icon: '🎄', theme: 'Nissernes Sidequest' },
+  { win: ['12-24', '12-26'], name: 'Jul', icon: '🎅', theme: 'Juledags-eventyret' },
+  { win: ['12-27', '01-01'], name: 'Nytår', icon: '🎆', theme: 'Årets sidste sidequest' },
+  { win: ['02-01', '02-20'], name: 'Fastelavn', icon: '🐱', theme: 'Slå katten af tønden' },
+  { win: ['06-20', '06-24'], name: 'Sankthans', icon: '🔥', theme: 'Midsommer-missionen' },
+];
+
+</script>
+<script>
+/* Sidequest – en tilfældig heldagsplan til weekenden
+ * Vælger aktiviteter ud fra årstid, særlige dage, vejrudsigten time for time,
+ * solnedgang, budget og alkohol-valg. Udfordringer låses op i løbet af dagen.
+ */
+(() => {
+  'use strict';
+
+  const STORE_KEY = 'sidequest.v1';
+  const POINTS = { done: 100, bonus: 50, mission: 200, joker: 25 };
+  const DEFAULT_LOC = { name: 'København', lat: 55.6761, lon: 12.5683 };
+
+  // Typisk dansk klima pr. måned – bruges hvis vejret ikke kan hentes
+  const CLIMATE = {
+    tmax:    [3, 3, 6, 11, 16, 19, 22, 21, 17, 12, 7, 4],
+    sunrise: [8.6, 7.9, 6.8, 6.4, 5.2, 4.5, 4.7, 5.6, 6.6, 7.6, 7.6, 8.5],
+    sunset:  [16.2, 17.2, 18.2, 20.2, 21.2, 22.0, 21.8, 21.0, 19.7, 18.3, 16.4, 15.8],
+    rain:    [45, 40, 35, 30, 30, 35, 40, 40, 40, 45, 50, 50],
+  };
+
+  const $ = (sel, el = document) => el.querySelector(sel);
+  const app = $('#app');
+
+  /* ───────────── Hjælpere ───────────── */
+  const pad = (n) => String(n).padStart(2, '0');
+  const isoDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const todayISO = () => isoDate(new Date());
+  const parseDate = (iso) => new Date(iso + 'T12:00:00');
+  const mmdd = (iso) => iso.slice(5);
+  const inWin = (md, [a, b]) => (a <= b ? md >= a && md <= b : md >= a || md <= b);
+  const nowHours = () => { const d = new Date(); return d.getHours() + d.getMinutes() / 60; };
+  const hoursToClock = (h) => `${pad(Math.floor(h))}:${pad(Math.round((h % 1) * 60) % 60)}`;
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmtDate = (iso) => parseDate(iso).toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long' });
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const actById = (id) => ACTIVITIES.find((a) => a.id === id);
+
+  function seasonOf(iso) {
+    const m = parseDate(iso).getMonth() + 1;
+    if (m === 12 || m <= 2) return 'vinter';
+    if (m <= 5) return 'forår';
+    if (m <= 8) return 'sommer';
+    return 'efterår';
+  }
+  const SEASON_META = {
+    vinter: { icon: '❄️', label: 'Vinter' },
+    forår: { icon: '🌱', label: 'Forår' },
+    sommer: { icon: '☀️', label: 'Sommer' },
+    efterår: { icon: '🍂', label: 'Efterår' },
+  };
+  const specialOf = (iso) => SPECIAL_DAYS.find((s) => inWin(mmdd(iso), s.win)) || null;
+
+  function weekendOptions() {
+    const now = new Date();
+    const dow = now.getDay(); // 0 søn, 6 lør
+    const add = (n) => { const d = new Date(now); d.setDate(d.getDate() + n); return isoDate(d); };
+    const opts = [];
+    if (dow === 6) { opts.push({ iso: add(0), label: 'I dag (lørdag)' }, { iso: add(1), label: 'I morgen (søndag)' }); }
+    else if (dow === 0) { opts.push({ iso: add(0), label: 'I dag (søndag)' }, { iso: add(6), label: 'Næste lørdag' }); }
+    else {
+      const toSat = 6 - dow;
+      opts.push({ iso: add(0), label: 'I dag' }, { iso: add(toSat), label: 'Lørdag' }, { iso: add(toSat + 1), label: 'Søndag' });
+    }
+    return opts;
+  }
+
+  /* ───────────── Lager ───────────── */
+  const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } };
+  let store = load();
+  store.settings = store.settings || { budget: null, alc: null, date: null, loc: DEFAULT_LOC };
+  // Ældre versioner gemte alkohol som true/false – nu 0 (uden), 1 (med) eller 2 (øl-dag)
+  if (typeof store.settings.alc === 'boolean') store.settings.alc = store.settings.alc ? 1 : 0;
+  if (store.plan && typeof store.plan.alc === 'boolean') store.plan.alc = store.plan.alc ? 1 : 0;
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
+    catch (e) {
+      // Sandsynligvis fuld pga. billeder – fjern det ældste billede og prøv igen
+      const withPhoto = store.plan?.steps.find((s) => s.photo);
+      if (withPhoto) { withPhoto.photo = null; save(); toast('Lageret var fuldt – et ældre billede blev fjernet.'); }
+    }
+  }
+
+  /* ───────────── Vejr ───────────── */
+  const WMO = (code, dark) => {
+    if (code === 0) return dark ? ['🌙', 'Klart'] : ['☀️', 'Klart'];
+    if (code === 1) return dark ? ['🌙', 'Mest klart'] : ['🌤️', 'Mest klart'];
+    if (code === 2) return ['⛅', 'Delvist skyet'];
+    if (code === 3) return ['☁️', 'Overskyet'];
+    if (code === 45 || code === 48) return ['🌫️', 'Tåge'];
+    if (code >= 51 && code <= 57) return ['🌦️', 'Støvregn'];
+    if (code >= 61 && code <= 67) return ['🌧️', 'Regn'];
+    if (code >= 71 && code <= 77) return ['🌨️', 'Sne'];
+    if (code >= 80 && code <= 82) return ['🌧️', 'Byger'];
+    if (code === 85 || code === 86) return ['🌨️', 'Snebyger'];
+    if (code >= 95) return ['⛈️', 'Torden'];
+    return ['🌡️', 'Ukendt'];
+  };
+  const isSnowCode = (c) => (c >= 71 && c <= 77) || c === 85 || c === 86;
+  const toHours = (s) => { const t = s.slice(11, 16).split(':'); return +t[0] + +t[1] / 60; };
+
+  async function fetchWeather(loc, date) {
+    const url = 'https://api.open-meteo.com/v1/forecast?' + new URLSearchParams({
+      latitude: loc.lat, longitude: loc.lon, timezone: 'auto', wind_speed_unit: 'ms',
+      start_date: date, end_date: date,
+      hourly: 'temperature_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m,cloud_cover',
+      daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,wind_speed_10m_max',
+    });
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Vejr-API svarede ' + res.status);
+    const j = await res.json();
+    const H = j.hourly;
+    const hourly = {};
+    H.time.forEach((t, i) => {
+      hourly[+t.slice(11, 13)] = {
+        t: H.temperature_2m[i], pp: H.precipitation_probability[i] ?? 0, pr: H.precipitation[i] ?? 0,
+        code: H.weather_code[i], wind: H.wind_speed_10m[i], cloud: H.cloud_cover[i],
+      };
+    });
+    const D = j.daily;
+    return {
+      fetched: Date.now(), fallback: false,
+      daily: {
+        code: D.weather_code[0], tmax: D.temperature_2m_max[0], tmin: D.temperature_2m_min[0],
+        pp: D.precipitation_probability_max[0] ?? 0, wind: D.wind_speed_10m_max[0],
+        sunrise: toHours(D.sunrise[0]), sunset: toHours(D.sunset[0]),
+      },
+      hourly,
+    };
+  }
+
+  function climateWeather(date) {
+    const m = parseDate(date).getMonth();
+    const tmax = CLIMATE.tmax[m];
+    const hourly = {};
+    for (let h = 0; h < 24; h++) {
+      const t = tmax - 4 + 4 * Math.max(0, Math.sin(((h - 8) / 12) * Math.PI));
+      hourly[h] = { t: Math.round(t), pp: CLIMATE.rain[m], pr: 0, code: 2, wind: 5, cloud: 60 };
+    }
+    return {
+      fetched: Date.now(), fallback: true,
+      daily: { code: 2, tmax, tmin: tmax - 5, pp: CLIMATE.rain[m], wind: 6, sunrise: CLIMATE.sunrise[m], sunset: CLIMATE.sunset[m] },
+      hourly,
+    };
+  }
+
+  async function getWeather(loc, date) {
+    try { return await fetchWeather(loc, date); }
+    catch (e) { console.warn(e); return climateWeather(date); }
+  }
+
+  function slotWeather(wx, slot) {
+    const h = wx.hourly[Math.floor(slot.h)] || wx.hourly[12];
+    const next = wx.hourly[Math.min(23, Math.floor(slot.h) + 1)] || h;
+    const pp = Math.max(h.pp, next.pp);
+    const pr = h.pr + next.pr;
+    const dark = slot.h + 1 > wx.daily.sunset || slot.h < wx.daily.sunrise;
+    const [icon, text] = WMO(h.code, dark);
+    return {
+      t: Math.round(h.t), pp, pr, wind: Math.round(h.wind), cloud: h.cloud, code: h.code, icon, text, dark,
+      wet: pp >= 55 || pr >= 0.6 || (h.code >= 61 && h.code <= 82),
+      storm: h.wind >= 14 || h.code >= 95,
+      nice: h.t >= 16 && pp < 30 && h.code <= 2,
+      snow: isSnowCode(h.code),
+    };
+  }
+
+  /* ───────────── Planlægning ───────────── */
+  function fits(a, sw, ctx) {
+    if (a.need === 'sne' && !ctx.snowDay) return false;
+    if (a.need === 'klart' && (sw.cloud > 45 || sw.wet)) return false;
+    if (a.need === 'blæst' && (sw.wind < 5 || sw.wind >= 14 || sw.wet)) return false;
+    if (a.env === 'ude') {
+      if (sw.wet || sw.storm || sw.t < (a.minT ?? 5)) return false;
+      if (sw.dark && !a.dark) return false;
+    }
+    if (a.env === 'mix') {
+      if (sw.storm || sw.pr >= 2.5 || sw.t < (a.minT ?? 0)) return false;
+      if (sw.dark && !a.dark) return false;
+    }
+    return true;
+  }
+
+  function eligible(a, slot, ctx) {
+    if (!a.s.includes(slot.id)) return false;
+    if (a.b !== '*' && a.b !== ctx.budget) return false;
+    if (a.alc === 1 && !ctx.alc) return false;
+    if (a.season && !a.season.includes(ctx.season)) return false;
+    if (a.months && !a.months.includes(ctx.month)) return false;
+    if (a.win && !inWin(ctx.md, a.win)) return false;
+    return true;
+  }
+
+  function weight(a, slot, sw, ctx) {
+    let w = 1;
+    if (a.win) w *= 6;
+    if (a.months || a.season) w *= 1.6;
+    if (a.need) w *= 4;
+    if (sw.nice) w *= a.env === 'inde' ? 0.5 : 2;
+    if ((sw.wet || sw.t < 3) && a.env === 'inde') w *= 1.4;
+    if (a.vild) w *= 1.8;
+    if (ctx.alc === 2) {
+      if (a.alc === 1) w *= slot.id === 'morgen' ? 3 : 6;
+      if (a.alc === 0) w *= 0.2;
+    } else if (ctx.alc && !['morgen', 'formiddag'].includes(slot.id)) {
+      if (a.alc === 1) w *= 2.5;
+      if (a.alc === 0) w *= 0.3;
+    }
+    if (ctx.budget === 'dyr' && a.b === 'dyr') w *= 1.6;
+    if (ctx.budget === 'billig' && a.kr === 0) w *= 1.2;
+    return w;
+  }
+
+  function weightedPick(list) {
+    const total = list.reduce((s, x) => s + x.w, 0);
+    let r = Math.random() * total;
+    for (const x of list) { r -= x.w; if (r <= 0) return x.a; }
+    return list[list.length - 1]?.a;
+  }
+
+  function makeCtx(plan) {
+    const d = parseDate(plan.date);
+    const snowDay = isSnowCode(plan.wx.daily.code) || Object.values(plan.wx.hourly).some((h) => isSnowCode(h.code));
+    return { budget: plan.budget, alc: plan.alc, season: seasonOf(plan.date), month: d.getMonth() + 1, md: mmdd(plan.date), snowDay };
+  }
+
+  const isBeer = (id) => actById(id)?.alc === 1;
+  const isSober = (id) => !!actById(id)?.sober;
+  const beerCount = (plan) => plan.steps.filter((st) => isBeer(st.act)).length;
+
+  // Sikkerhed: efter et øl-stop (også som Plan B) vælges aldrig vand, sauna, kørsel, højder eller økser,
+  // og et øl-stop vælges aldrig før et af dem.
+  function safeWithBeer(a, plan, idx) {
+    const before = plan.steps.slice(0, idx);
+    const after = plan.steps.slice(idx + 1);
+    if (a.sober && before.some((st) => isBeer(st.act) || isBeer(st.planB))) return false;
+    if (a.alc === 1 && after.some((st) => isSober(st.act) || isSober(st.planB))) return false;
+    return true;
+  }
+
+  function chooseFor(slot, plan, used, { indoorOnly = false } = {}) {
+    const ctx = makeCtx(plan);
+    const idx = SLOTS.indexOf(slot);
+    const sw = slotWeather(plan.wx, slot);
+    const specials = plan.steps.filter((st, i) => i !== idx && actById(st.act)?.win).length;
+    const base = (a) => !used.has(a.id) && a.s.includes(slot.id) && (a.alc !== 1 || ctx.alc) && safeWithBeer(a, plan, idx);
+    let pool = ACTIVITIES.filter((a) => base(a) && eligible(a, slot, ctx) && fits(a, sw, ctx) && (!indoorOnly || a.env === 'inde')
+      && !(a.win && specials >= 2));
+    // Øl-niveau: tving en vis andel øl-stop ind, og sørg for et minimum i løbet af dagen
+    if (ctx.alc && !indoorOnly) {
+      const beerPool = pool.filter((a) => a.alc === 1);
+      const minBeer = ctx.alc === 2 ? 4 : 2;
+      const slotsLeft = SLOTS.length - idx;
+      const missing = minBeer - beerCount(plan);
+      const chance = ctx.alc === 2
+        ? (slot.id === 'morgen' ? 0.5 : 0.85)
+        : (['morgen', 'formiddag'].includes(slot.id) ? 0.1 : 0.4);
+      if (beerPool.length && (missing >= slotsLeft || Math.random() < chance)) pool = beerPool;
+    }
+    if (!pool.length) pool = ACTIVITIES.filter((a) => base(a) && a.env === 'inde');
+    if (!pool.length) return null;
+    return weightedPick(pool.map((a) => ({ a, w: weight(a, slot, sw, ctx) })));
+  }
+
+  function usedIds(plan, except = -1) {
+    const s = new Set();
+    plan.steps.forEach((st, i) => { if (i !== except) { s.add(st.act); if (st.planB) s.add(st.planB); } });
+    return s;
+  }
+
+  function buildPlan({ date, budget, alc, loc, wx }) {
+    const special = specialOf(date);
+    const plan = {
+      date, budget, alc, loc, wx,
+      theme: special ? special.theme : alc === 2 ? pick(THEME_BEER) : `${pick(THEME_A)} ${pick(THEME_B)}`,
+      mission: pick(alc ? [...MISSIONS, ...MISSIONS_ALC, ...MISSIONS_ALC] : MISSIONS), missionDone: false,
+      jokers: 3, notified: [], createdAt: Date.now(), steps: [],
+    };
+    const used = new Set();
+    for (const slot of SLOTS) {
+      const a = chooseFor(slot, plan, used);
+      used.add(a.id);
+      const kaos = alc && Math.random() < (alc === 2 ? 0.6 : 0.3) ? pick(KAOS_ALC) : pick(KAOS);
+      const step = { slot: slot.id, act: a.id, planB: null, kaos, status: 'todo', bonus: false, note: '', photo: null, doneAt: null };
+      if (a.env !== 'inde') {
+        const b = chooseFor(slot, plan, used, { indoorOnly: true });
+        if (b) { step.planB = b.id; used.add(b.id); }
+      }
+      plan.steps.push(step);
+    }
+    return plan;
+  }
+
+  /* ───────────── Dagens forløb ───────────── */
+  function dayMode(plan) {
+    const t = todayISO();
+    if (plan.date > t) return 'preview';
+    if (plan.date < t) return 'past';
+    return 'live';
+  }
+
+  function isUnlocked(plan, i) {
+    const mode = dayMode(plan);
+    if (mode === 'past') return true;
+    if (mode === 'preview') return false;
+    if (i === 0) return true;
+    if (plan.steps[i - 1].status !== 'todo') return true;
+    return nowHours() >= SLOTS[i].h;
+  }
+
+  function activeIndex(plan) {
+    if (dayMode(plan) !== 'live') return -1;
+    return plan.steps.findIndex((s, i) => s.status === 'todo' && isUnlocked(plan, i));
+  }
+
+  const missionUnlocked = (plan) => isUnlocked(plan, 2);
+  const allDone = (plan) => plan.steps.every((s) => s.status !== 'todo');
+
+  function points(plan) {
+    let p = 0;
+    plan.steps.forEach((s) => { if (s.status === 'done') p += POINTS.done + (s.bonus ? POINTS.bonus : 0); });
+    if (plan.missionDone) p += POINTS.mission;
+    return p;
+  }
+
+  function totalCost(plan) {
+    return plan.steps.reduce((s, st) => s + (actById(st.act)?.kr || 0), 0);
+  }
+
+  function rank(p) {
+    if (p >= 1000) return ['🏆', 'Sidequest-legende'];
+    if (p >= 750) return ['🦸', 'Weekend-helt'];
+    if (p >= 500) return ['⚔️', 'Eventyrer'];
+    if (p >= 250) return ['🥾', 'På vej'];
+    return ['🛋️', 'Sofakartoffel (i dag)'];
+  }
+
+  /* ───────────── UI: toast & modal ───────────── */
+  function toast(msg) {
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3200);
+  }
+
+  function modal(html) {
+    const wrap = document.createElement('div');
+    wrap.className = 'modal-wrap';
+    wrap.innerHTML = `<div class="modal">${html}</div>`;
+    wrap.addEventListener('click', (e) => { if (e.target === wrap) wrap.remove(); });
+    document.body.appendChild(wrap);
+    return wrap;
+  }
+
+  /* ───────────── UI: opsætning ───────────── */
+  let view = null;
+
+  function renderSetup() {
+    view = 'setup';
+    const st = store.settings;
+    const opts = weekendOptions();
+    if (!st.date || !opts.some((o) => o.iso === st.date)) st.date = opts[opts.length === 3 ? 1 : 0].iso; // hverdag → lørdag, ellers i dag
+    const season = seasonOf(st.date);
+    const special = specialOf(st.date);
+    setAccent(season, special);
+
+    app.innerHTML = `
+      <header class="hero">
+        <div class="logo">🎲 Sidequest</div>
+        <h1>Én dag. Én tilfældig plan.<br>Ingen undskyldninger.</h1>
+        <p class="muted">Vi kigger på årstiden og vejret, hvor du er, og giver dig en komplet plan fra morgen til aften.
+        Udfordringerne låses op i løbet af dagen – så hav appen med.</p>
+        <div class="chips center">
+          <span class="chip">${SEASON_META[season].icon} ${SEASON_META[season].label}</span>
+          ${special ? `<span class="chip hot">${special.icon} ${special.name}</span>` : ''}
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>1. Hvilken dag?</h2>
+        <div class="seg" data-group="date">
+          ${opts.map((o) => `<button class="${o.iso === st.date ? 'on' : ''}" data-action="set" data-key="date" data-val="${o.iso}">
+            ${o.label}<small>${parseDate(o.iso).toLocaleDateString('da-DK', { day: 'numeric', month: 'short' })}</small></button>`).join('')}
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2. Budget</h2>
+        <div class="big-choice">
+          <button class="${st.budget === 'billig' ? 'on' : ''}" data-action="set" data-key="budget" data-val="billig">
+            <span class="em">🪙</span><b>Billig</b><small>Ca. 0–400 kr pr. person for hele dagen (lidt mere på en øl-dag). Kreativitet frem for kreditkort.</small></button>
+          <button class="${st.budget === 'dyr' ? 'on' : ''}" data-action="set" data-key="budget" data-val="dyr">
+            <span class="em">💎</span><b>Dyr</b><small>Gå all in. Oplevelser, restauranter og det, I plejer at sige nej til.</small></button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>3. Alkohol?</h2>
+        <div class="big-choice three">
+          <button class="${st.alc === 0 ? 'on' : ''}" data-action="set" data-key="alc" data-val="0">
+            <span class="em">🧃</span><span><b>Uden alkohol</b><small>Klar hjerne, vilde oplevelser, mocktails.</small></span></button>
+          <button class="${st.alc === 1 ? 'on' : ''}" data-action="set" data-key="alc" data-val="1">
+            <span class="em">🍻</span><span><b>Med alkohol</b><small>Et par øl-stop i løbet af dagen og aftenen.</small></span></button>
+          <button class="${st.alc === 2 ? 'on' : ''}" data-action="set" data-key="alc" data-val="2">
+            <span class="em">🍺</span><span><b>Øl-dag!</b><small>Bryghuse, beer pong, pubcrawl og øl-milen. Typisk 4–6 øl-stop.</small></span></button>
+        </div>
+        <p class="muted small">Kun 18+. Drik med omtanke. Planen lægger aldrig vand, sauna, kørsel eller højder efter et øl-stop.</p>
+      </section>
+
+      <section class="card">
+        <h2>4. Hvor er I?</h2>
+        <p class="muted small">Bruges kun til at hente vejrudsigten. Nu: <b id="locname">${esc(st.loc.name)}</b></p>
+        <div class="row">
+          <button class="btn ghost" data-action="geo">📍 Brug min position</button>
+        </div>
+        <form class="row" id="cityform">
+          <input id="city" placeholder="…eller skriv en by (fx Aarhus)" autocomplete="off">
+          <button class="btn ghost" type="submit">Søg</button>
+        </form>
+      </section>
+
+      <button class="btn primary xl" data-action="generate" ${st.budget && st.alc != null ? '' : 'disabled'}>
+        🎲 Rul dagens sidequest
+      </button>
+      <p class="muted small center">${st.budget && st.alc != null ? 'Klar? Tryk og få din plan.' : 'Vælg budget og alkohol for at fortsætte.'}</p>
+    `;
+
+    $('#cityform').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const q = $('#city').value.trim();
+      if (!q) return;
+      try {
+        const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?' + new URLSearchParams({ name: q, count: 1, language: 'da' }));
+        const j = await r.json();
+        const hit = j.results?.[0];
+        if (!hit) return toast('Kunne ikke finde ' + q);
+        st.loc = { name: `${hit.name}${hit.country_code && hit.country_code !== 'DK' ? ', ' + hit.country_code : ''}`, lat: hit.latitude, lon: hit.longitude };
+        save(); $('#locname').textContent = st.loc.name; toast('📍 ' + st.loc.name);
+      } catch { toast('Søgningen fejlede – tjek din forbindelse.'); }
+    });
+  }
+
+  function setAccent(season, special) {
+    document.body.dataset.season = season;
+    document.body.dataset.special = special ? special.name : '';
+  }
+
+  /* ───────────── UI: plan ───────────── */
+  function renderPlan() {
+    view = 'plan';
+    const plan = store.plan;
+    const mode = dayMode(plan);
+    const season = seasonOf(plan.date);
+    const special = specialOf(plan.date);
+    setAccent(season, special);
+    const d = plan.wx.daily;
+    const [dIcon, dText] = WMO(d.code, false);
+    const ai = activeIndex(plan);
+    const p = points(plan);
+    const doneCount = plan.steps.filter((s) => s.status !== 'todo').length;
+
+    let banner = '';
+    if (mode === 'preview') {
+      banner = `<div class="banner">🔒 Det er ikke ${fmtDate(plan.date)} endnu. Planen ligger klar – udfordringerne og den hemmelige mission låses op på dagen. Kom tilbage kl. 09:00!</div>`;
+    } else if (mode === 'past') {
+      banner = `<div class="banner">📅 Denne sidequest var ${fmtDate(plan.date)}. <button class="link" data-action="report">Se rapporten</button> eller <button class="link" data-action="new">rul en ny</button>.</div>`;
+    }
+
+    app.innerHTML = `
+      <header class="planhead">
+        <div class="topbar">
+          <div class="logo small">🎲 Sidequest</div>
+          <div class="score" title="Point">⭐ ${p}</div>
+        </div>
+        <div class="chips">
+          <span class="chip">${SEASON_META[season].icon} ${SEASON_META[season].label}</span>
+          ${special ? `<span class="chip hot">${special.icon} ${special.name}</span>` : ''}
+          <span class="chip">${plan.budget === 'dyr' ? '💎 Dyr' : '🪙 Billig'}</span>
+          <span class="chip">${['🧃 Alkoholfri', '🍻 Med alkohol', '🍺 Øl-dag'][plan.alc]}</span>
+        </div>
+        <h1 class="theme">${esc(plan.theme)}</h1>
+        <p class="muted">${cap(fmtDate(plan.date))} · 📍 ${esc(plan.loc.name)}</p>
+        <div class="wxbar">
+          <div class="wxbig">${dIcon}</div>
+          <div>
+            <b>${dText}, ${Math.round(d.tmin)}–${Math.round(d.tmax)}°</b>
+            <div class="muted small">💧 ${d.pp}% regnrisiko · 💨 ${Math.round(d.wind)} m/s · 🌅 ${hoursToClock(d.sunrise)} · 🌇 ${hoursToClock(d.sunset)}</div>
+            ${plan.wx.fallback ? '<div class="small warn">Vejret kunne ikke hentes – planen er lavet ud fra typisk vejr for årstiden.</div>' : ''}
+          </div>
+        </div>
+        <div class="progress"><div style="width:${(doneCount / plan.steps.length) * 100}%"></div></div>
+        <div class="muted small row between"><span>${doneCount}/${plan.steps.length} stop klaret</span><span>Ca. ${totalCost(plan)} kr pr. person</span></div>
+      </header>
+
+      ${banner}
+      ${plan.alc === 2 && mode !== 'past' ? `<div class="banner">🍺 <b>Øl-dag-regler:</b> ét glas vand til hver øl, spis ordentligt til hvert måltid, og ingen kører bil. Det er helt okay at tage en alkoholfri – point tæller stadig.</div>` : ''}
+      ${mode === 'live' ? renderNow(plan, ai) : ''}
+      ${renderMission(plan)}
+
+      <h2 class="section">Dagens plan</h2>
+      <ol class="timeline">
+        ${plan.steps.map((s, i) => renderStep(plan, s, i, ai)).join('')}
+      </ol>
+
+      <div class="footer-actions">
+        ${mode === 'live' ? `<button class="btn ghost" data-action="notify">🔔 Påmind mig ved hvert stop</button>` : ''}
+        ${mode !== 'preview' ? `<button class="btn ghost" data-action="report">📜 ${allDone(plan) ? 'Se dagens rapport' : 'Afslut dagen'}</button>` : ''}
+        <button class="btn ghost danger" data-action="new">🎲 Ny sidequest</button>
+      </div>
+      <p class="muted small center">Vejrdata: Open-Meteo · Tjek altid åbningstider og book i god tid.</p>
+    `;
+    document.title = ai >= 0 ? `Nu: ${actById(plan.steps[ai].act).t} – Sidequest` : 'Sidequest';
+  }
+
+  function priceTag(a) { return a.kr === 0 ? 'Gratis' : `ca. ${a.kr} kr`; }
+  const mapLink = (a) => a.map ? `<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.map + ' nær mig')}">🗺️ Find på kort</a>` : '';
+  const envTag = (a) => ({ ude: '🌳 Udendørs', mix: '🧥 Ude/inde', inde: '🏠 Indendørs' }[a.env]);
+
+  function renderNow(plan, ai) {
+    if (ai < 0) {
+      if (allDone(plan)) {
+        return `<section class="now done-card"><div class="em-xl">🏁</div><h2>Dagen er klaret!</h2>
+          <p>Godt gået. Se jeres rapport og del den med nogen, der sad derhjemme.</p>
+          <button class="btn primary" data-action="report">📜 Se rapporten</button></section>`;
+      }
+      const next = plan.steps.findIndex((s) => s.status === 'todo');
+      return `<section class="now waiting"><h2>⏳ Næste stop låses op kl. ${SLOTS[next].time}</h2>
+        <p class="muted">Om <b data-countdown="${SLOTS[next].h}"></b>. Hold en pause – eller klar det forrige stop for at låse op tidligere.</p></section>`;
+    }
+    const step = plan.steps[ai];
+    const slot = SLOTS[ai];
+    const a = actById(step.act);
+    const sw = slotWeather(plan.wx, slot);
+    const ctx = makeCtx(plan);
+    const badWx = a.env !== 'inde' && !fits(a, sw, ctx);
+    const b = step.planB && actById(step.planB);
+    return `
+      <section class="now">
+        <div class="now-label">NU · ${slot.icon} ${slot.label} · ${slot.time}</div>
+        <h2>${esc(a.t)}</h2>
+        <p>${esc(a.d)}</p>
+        ${plan.alc && a.alcTip ? `<p class="tip">${esc(a.alcTip)}</p>` : ''}
+        <div class="chips">
+          <span class="chip">${sw.icon} ${sw.t}° · 💧${sw.pp}%</span>
+          <span class="chip">${envTag(a)}</span>
+          <span class="chip">💰 ${priceTag(a)}</span>
+        </div>
+        ${badWx ? `<div class="banner warn">☔ Vejret er ikke med jer lige nu (${sw.text.toLowerCase()}, ${sw.t}°). ${b ? `Plan B: <b>${esc(b.t)}</b>.` : 'Brug en joker for en indendørs idé.'}</div>` : ''}
+        <div class="quest">
+          <div class="quest-label">⚡ Udfordring (+${POINTS.bonus} point)</div>
+          ${esc(a.q)}
+        </div>
+        ${step.kaos ? `<div class="kaos"><span class="quest-label">🌀 Kaos-regel</span> ${esc(step.kaos)}</div>` : ''}
+        <div class="actions">
+          <button class="btn primary" data-action="complete" data-i="${ai}">✅ Klaret!</button>
+          ${b ? `<button class="btn ${badWx ? 'primary alt' : 'ghost'}" data-action="planb" data-i="${ai}">☔ Skift til Plan B</button>` : ''}
+          <button class="btn ghost" data-action="joker" data-i="${ai}" ${plan.jokers ? '' : 'disabled'}>🃏 Joker (${plan.jokers})</button>
+          ${mapLink(a)}
+          <button class="btn ghost sm" data-action="skip" data-i="${ai}">⏭️ Spring over</button>
+        </div>
+      </section>`;
+  }
+
+  function renderMission(plan) {
+    const mode = dayMode(plan);
+    if (mode === 'preview') return `<section class="mission locked"><b>🕵️ Hemmelig mission</b><p class="muted">Afsløres på dagen ved frokosttid.</p></section>`;
+    if (!missionUnlocked(plan)) return `<section class="mission locked"><b>🕵️ Hemmelig mission</b><p class="muted">Låses op kl. ${SLOTS[2].time} (eller når I har klaret formiddagens stop).</p></section>`;
+    return `<section class="mission ${plan.missionDone ? 'ok' : ''}">
+      <b>🕵️ Hemmelig mission (+${POINTS.mission} point)</b>
+      <p>${esc(plan.mission)}</p>
+      <label class="check"><input type="checkbox" data-action="mission" ${plan.missionDone ? 'checked' : ''}> Mission fuldført</label>
+    </section>`;
+  }
+
+  function renderStep(plan, s, i, ai) {
+    const slot = SLOTS[i];
+    const a = actById(s.act);
+    const sw = slotWeather(plan.wx, slot);
+    const unlocked = isUnlocked(plan, i);
+    const cls = s.status === 'done' ? 'done' : s.status === 'skipped' ? 'skipped' : i === ai ? 'active' : unlocked ? '' : 'locked';
+    const b = s.planB && actById(s.planB);
+    return `
+      <li class="step ${cls}">
+        <div class="step-time"><b>${slot.time}</b><span>${slot.icon}</span></div>
+        <div class="step-body">
+          <div class="step-head">
+            <span class="muted small">${slot.label} · ${sw.icon} ${sw.t}° · 💧${sw.pp}%${sw.dark ? ' · 🌑 mørkt' : ''}</span>
+            ${s.status === 'done' ? `<span class="badge ok">✓ ${POINTS.done + (s.bonus ? POINTS.bonus : 0)}</span>` : s.status === 'skipped' ? '<span class="badge">Sprunget over</span>' : ''}
+          </div>
+          <h3>${esc(a.t)}</h3>
+          <p class="small">${esc(a.d)}</p>
+          ${plan.alc && a.alcTip ? `<p class="small tip">${esc(a.alcTip)}</p>` : ''}
+          <div class="chips small"><span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
+          ${unlocked
+            ? `<div class="quest small"><span class="quest-label">⚡ Udfordring</span> ${esc(a.q)}</div>${s.kaos ? `<div class="kaos small"><span class="quest-label">🌀 Kaos</span> ${esc(s.kaos)}</div>` : ''}`
+            : `<div class="quest small locked">🔒 Udfordring og kaos-regel låses op kl. ${slot.time}</div>`}
+          ${s.photo ? `<img class="thumb" src="${s.photo}" alt="">` : ''}
+          ${s.note ? `<p class="small note">“${esc(s.note)}”</p>` : ''}
+          ${i !== ai && s.status === 'todo' && dayMode(plan) !== 'past' && plan.jokers ? `<button class="link small" data-action="joker" data-i="${i}">🃏 Byt med joker</button>` : ''}
+          ${s.status !== 'todo' && dayMode(plan) === 'live' ? `<button class="link small" data-action="undo" data-i="${i}">↩️ Fortryd</button>` : ''}
+        </div>
+      </li>`;
+  }
+
+  /* ───────────── UI: rapport ───────────── */
+  function renderReport() {
+    view = 'report';
+    const plan = store.plan;
+    const p = points(plan);
+    const [rIcon, rName] = rank(p);
+    const done = plan.steps.filter((s) => s.status === 'done');
+    const badges = [];
+    if (plan.steps[0].status === 'done') badges.push('🌅 Morgenfrisk');
+    if (plan.steps[5].status === 'done') badges.push('🌙 Natteravn');
+    if (done.length === plan.steps.length) badges.push('💯 Fuld plan');
+    if (done.length && done.every((s) => s.bonus)) badges.push('⚡ Udfordrings-mester');
+    if (plan.missionDone) badges.push('🕵️ Hemmelig agent');
+    if (plan.jokers === 3) badges.push('🃏 Ingen jokere brugt');
+    if (done.filter((st) => isBeer(st.act)).length >= 4) badges.push('🍺 Ølkonge');
+    if (done.filter((st) => actById(st.act).vild).length >= 3) badges.push('🤪 Fuldstændig vild');
+    if (done.some((s) => { const a = actById(s.act); return a.env !== 'inde' && slotWeather(plan.wx, SLOTS[plan.steps.indexOf(s)]).wet; })) badges.push('☔ Vejr-trodser');
+    if (plan.wx.daily.tmax < 5 && done.some((s) => actById(s.act).env !== 'inde')) badges.push('🥶 Kuldekriger');
+
+    app.innerHTML = `
+      <header class="hero">
+        <div class="logo">📜 Dagens rapport</div>
+        <h1>${esc(plan.theme)}</h1>
+        <p class="muted">${cap(fmtDate(plan.date))} · 📍 ${esc(plan.loc.name)}</p>
+        <div class="rank"><div class="em-xl">${rIcon}</div><div><div class="score big">⭐ ${p} point</div><b>${rName}</b></div></div>
+        <div class="chips center">${badges.map((b) => `<span class="chip hot">${b}</span>`).join('') || '<span class="chip">Ingen badges i dag – næste gang!</span>'}</div>
+      </header>
+      <section class="card">
+        <h2>Sådan gik det</h2>
+        <ul class="report-list">
+          ${plan.steps.map((s, i) => {
+            const a = actById(s.act);
+            return `<li class="${s.status}"><span>${SLOTS[i].time}</span><div><b>${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${esc(a.t)}</b>
+              ${s.bonus ? '<span class="badge ok">⚡ udfordring klaret</span>' : ''}
+              ${s.note ? `<p class="small note">“${esc(s.note)}”</p>` : ''}</div></li>`;
+          }).join('')}
+        </ul>
+        ${missionUnlocked(plan) ? `<p class="small">🕵️ Mission: ${esc(plan.mission)} ${plan.missionDone ? '✅' : '❌'}</p>` : ''}
+      </section>
+      ${plan.steps.some((s) => s.photo) ? `<section class="card"><h2>Galleri</h2><div class="gallery">${plan.steps.filter((s) => s.photo).map((s) => `<img src="${s.photo}" alt="">`).join('')}</div></section>` : ''}
+      <div class="footer-actions">
+        <button class="btn primary" data-action="share">📤 Del rapporten</button>
+        <button class="btn ghost" data-action="back">← Tilbage til planen</button>
+        <button class="btn ghost" data-action="new">🎲 Ny sidequest</button>
+      </div>`;
+  }
+
+  function shareText(plan) {
+    const [rIcon, rName] = rank(points(plan));
+    const lines = plan.steps.map((s, i) => `${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${SLOTS[i].time} ${actById(s.act).t}${s.bonus ? ' ⚡' : ''}`);
+    return `🎲 Sidequest: ${plan.theme}\n${cap(fmtDate(plan.date))}\n\n${lines.join('\n')}\n\n${rIcon} ${rName} – ⭐ ${points(plan)} point`;
+  }
+
+  /* ───────────── Handlinger ───────────── */
+  function render() {
+    if (!store.plan) return renderSetup();
+    if (view === 'report') return renderReport();
+    renderPlan();
+  }
+
+  async function generate() {
+    const st = store.settings;
+    app.innerHTML = `<div class="loading"><div class="dice">🎲</div><p>Tjekker vejret i ${esc(st.loc.name)} og ruller terningerne…</p></div>`;
+    const wx = await getWeather(st.loc, st.date);
+    await new Promise((r) => setTimeout(r, 700)); // lidt spænding
+    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx });
+    save();
+    renderPlan();
+    window.scrollTo({ top: 0 });
+  }
+
+  function openComplete(i) {
+    const plan = store.plan;
+    const a = actById(plan.steps[i].act);
+    const m = modal(`
+      <h2>✅ ${esc(a.t)}</h2>
+      <label class="check big"><input type="checkbox" id="bonus"> Vi klarede udfordringen (+${POINTS.bonus})</label>
+      <p class="small muted">${esc(a.q)}</p>
+      <label class="small">Et minde fra stoppet (valgfrit)</label>
+      <textarea id="note" rows="2" placeholder="Hvad skete der?"></textarea>
+      <label class="btn ghost file">📸 Tilføj billede<input type="file" id="photo" accept="image/*" capture="environment" hidden></label>
+      <img id="preview" class="thumb" hidden alt="">
+      <div class="actions"><button class="btn primary" id="save">Gem (+${POINTS.done})</button><button class="btn ghost" id="cancel">Annullér</button></div>
+    `);
+    let photo = null;
+    $('#photo', m).addEventListener('change', async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      photo = await shrink(f);
+      const img = $('#preview', m); img.src = photo; img.hidden = false;
+    });
+    $('#cancel', m).onclick = () => m.remove();
+    $('#save', m).onclick = () => {
+      Object.assign(plan.steps[i], { status: 'done', bonus: $('#bonus', m).checked, note: $('#note', m).value.trim(), photo, doneAt: Date.now() });
+      save(); m.remove();
+      celebrate();
+      const ni = activeIndex(plan);
+      toast(ni >= 0 ? `Næste stop er låst op: ${actById(plan.steps[ni].act).t}` : allDone(plan) ? '🏁 Hele dagen er klaret!' : 'Godt gået! 🎉');
+      renderPlan();
+    };
+  }
+
+  function shrink(file, max = 640) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const s = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(img.src);
+        resolve(c.toDataURL('image/jpeg', 0.7));
+      };
+      img.onerror = () => resolve(null);
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  function celebrate() {
+    const emojis = ['🎉', '⭐', '✨', '🎊', '🔥'];
+    for (let k = 0; k < 24; k++) {
+      const e = document.createElement('span');
+      e.className = 'confetti';
+      e.textContent = pick(emojis);
+      e.style.left = Math.random() * 100 + 'vw';
+      e.style.animationDelay = Math.random() * 0.4 + 's';
+      document.body.appendChild(e);
+      setTimeout(() => e.remove(), 2200);
+    }
+    navigator.vibrate?.(80);
+  }
+
+  function useJoker(i) {
+    const plan = store.plan;
+    if (!plan.jokers) return;
+    const slot = SLOTS[i];
+    const step = plan.steps[i];
+    const used = usedIds(plan, i);
+    used.add(step.act); // ikke den samme igen
+    const a = chooseFor(slot, plan, used);
+    if (!a) return toast('Ingen flere idéer til dette tidspunkt 🤷');
+    used.add(a.id);
+    step.act = a.id;
+    step.planB = null;
+    if (a.env !== 'inde') { const b = chooseFor(slot, plan, used, { indoorOnly: true }); if (b) step.planB = b.id; }
+    plan.jokers--;
+    save();
+    toast(`🃏 Ny idé: ${a.t}`);
+    renderPlan();
+  }
+
+  function swapPlanB(i) {
+    const step = store.plan.steps[i];
+    if (!step.planB) return;
+    [step.act, step.planB] = [step.planB, step.act];
+    save();
+    toast(`☔ Skiftet til: ${actById(step.act).t}`);
+    renderPlan();
+  }
+
+  async function refreshWeather() {
+    const plan = store.plan;
+    if (!plan || dayMode(plan) !== 'live') return;
+    if (Date.now() - plan.wx.fetched < 30 * 60 * 1000 && !plan.wx.fallback) return;
+    try {
+      plan.wx = await fetchWeather(plan.loc, plan.date);
+      save();
+      if (view === 'plan') renderPlan();
+    } catch { /* prøv igen senere */ }
+  }
+
+  async function notify(title, body) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    try {
+      const reg = await navigator.serviceWorker?.getRegistration();
+      if (reg) reg.showNotification(title, { body, icon: 'icon.svg', badge: 'icon.svg', tag: 'sidequest' });
+      else new Notification(title, { body, icon: 'icon.svg' });
+    } catch { /* ignorer */ }
+  }
+
+  function tick() {
+    const plan = store.plan;
+    if (!plan || dayMode(plan) !== 'live') return;
+    const ai = activeIndex(plan);
+    if (ai >= 0 && !plan.notified.includes(ai)) {
+      plan.notified.push(ai);
+      save();
+      if (ai > 0) {
+        const a = actById(plan.steps[ai].act);
+        notify(`${SLOTS[ai].icon} ${SLOTS[ai].label}: ${a.t}`, 'Nyt stop og ny udfordring er låst op!');
+        navigator.vibrate?.([100, 50, 100]);
+      }
+      if (view === 'plan') renderPlan();
+    }
+    // Opdater nedtælling
+    document.querySelectorAll('[data-countdown]').forEach((el) => {
+      const diff = Math.max(0, +el.dataset.countdown - nowHours());
+      const h = Math.floor(diff), m = Math.ceil((diff - h) * 60);
+      el.textContent = h ? `${h} t ${m} min` : `${m} min`;
+      if (diff <= 0 && view === 'plan') renderPlan();
+    });
+  }
+
+  app.addEventListener('click', async (e) => {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    const act = el.dataset.action;
+    const i = +el.dataset.i;
+    const st = store.settings;
+    switch (act) {
+      case 'set':
+        st[el.dataset.key] = el.dataset.key === 'alc' ? +el.dataset.val : el.dataset.val;
+        save(); renderSetup(); break;
+      case 'geo':
+        if (!navigator.geolocation) return toast('Din browser understøtter ikke position.');
+        navigator.geolocation.getCurrentPosition(
+          (pos) => { st.loc = { name: 'Din position', lat: +pos.coords.latitude.toFixed(3), lon: +pos.coords.longitude.toFixed(3) }; save(); $('#locname').textContent = st.loc.name; toast('📍 Position fundet'); },
+          () => toast('Kunne ikke hente position – skriv en by i stedet.'),
+          { timeout: 10000 });
+        break;
+      case 'generate': generate(); break;
+      case 'complete': openComplete(i); break;
+      case 'skip':
+        if (confirm('Spring dette stop over? (0 point)')) { store.plan.steps[i].status = 'skipped'; save(); renderPlan(); }
+        break;
+      case 'undo':
+        Object.assign(store.plan.steps[i], { status: 'todo', bonus: false, doneAt: null }); save(); renderPlan(); break;
+      case 'joker':
+        if (confirm(`Brug en joker og få en ny idé til ${SLOTS[i].label.toLowerCase()}? (${store.plan.jokers} tilbage)`)) useJoker(i);
+        break;
+      case 'planb': swapPlanB(i); break;
+      case 'mission':
+        store.plan.missionDone = el.checked; save(); if (el.checked) celebrate(); renderPlan(); break;
+      case 'notify': {
+        if (!('Notification' in window)) return toast('Notifikationer understøttes ikke her.');
+        const r = await Notification.requestPermission();
+        toast(r === 'granted' ? '🔔 Du får besked, når næste stop låses op (mens appen er åben i baggrunden).' : 'Notifikationer er slået fra.');
+        break;
+      }
+      case 'report': renderReport(); window.scrollTo({ top: 0 }); break;
+      case 'back': renderPlan(); break;
+      case 'share': {
+        const text = shareText(store.plan);
+        if (navigator.share) { try { await navigator.share({ text }); } catch { /* annulleret */ } }
+        else { await navigator.clipboard?.writeText(text); toast('📋 Kopieret – indsæt hvor du vil.'); }
+        break;
+      }
+      case 'new':
+        if (!store.plan || confirm('Starte en ny sidequest? Den nuværende plan slettes.')) {
+          store.plan = null; save(); view = null; renderSetup(); window.scrollTo({ top: 0 });
+        }
+        break;
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { refreshWeather(); tick(); if (view === 'plan') renderPlan(); } });
+  setInterval(tick, 20 * 1000);
+  setInterval(refreshWeather, 10 * 60 * 1000);
+
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  render();
+  tick();
+  refreshWeather();
+})();
+
+</script>
+</body>
+</html>
