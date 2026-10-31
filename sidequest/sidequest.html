@@ -202,6 +202,10 @@ input:focus, textarea:focus { border-color: var(--accent); }
 .kaos .quest-label { color: var(--accent); }
 .kaos.small .quest-label { display: inline; }
 
+/* v3: starttid og heldagsmission */
+.seg.times button { min-width: 64px; flex: 0 1 auto; padding: 8px 12px; }
+.epic-intro { background: var(--card2); border-radius: 12px; padding: 10px 12px; font-size: .92rem; }
+
 </style>
 </head>
 <body>
@@ -781,6 +785,121 @@ const SPECIAL_DAYS = [
   { win: ['06-20', '06-24'], name: 'Sankthans', icon: '🔥', theme: 'Midsommer-missionen' },
 ];
 
+/* ═════════════ HELDAGSMISSIONER ═════════════
+ * Én sammenhængende oplevelse, hvor appen styrer hele dagen kapitel for kapitel.
+ *  b/kr/env/alc/season/minT/sober som aktiviteter (kr = hele dagen pr. person)
+ *  sober  true = ingen alkohol i denne mission (fx bilkørsel), vælges ikke på øl-dag
+ *  ch     kapitler: t, d, q, h (varighed i timer), icon
+ *         alcT/alcD/alcQ erstatter tekst når alkohol er valgt
+ *         opt  true = springes over, hvis dagen starter sent
+ *         map  søgning til "Find på kort"
+ */
+const EPICS = [
+  { id: 'x-mystery', t: 'Mystery-rejsen', icon: '🚆', b: '*', kr: 450, env: 'mix', minT: -10,
+    d: 'Terningen vælger en by, I aldrig har været i. Resten af dagen er I turister dér, og appen fortæller jer, hvad I skal.',
+    ch: [
+      { icon: '🎲', h: 0.75, t: 'Terningen bestemmer', d: 'Find 6 byer 1–2 timer væk med tog eller bus, og giv dem et tal hver. Slå med terningen. Køb billetter med det samme – ingen fortrydelse. Pak en taske med snacks.', q: 'Find på et holdnavn og et rejse-motto, før I går ud af døren.' },
+      { icon: '🚆', h: 1.5, t: 'Rejsen derhen', d: 'Under turen: research byen, men KUN ved at spørge medrejsende eller konduktøren. Lav en "bucket list" med 5 ting, I vil nå.', q: 'Få en fremmed i toget til at give jer et hemmeligt tip om byen.' },
+      { icon: '🥐', h: 1.25, t: 'Ankomst og indtog', d: 'Gå direkte fra stationen til den første bager eller café, en lokal anbefaler. Tag et "vi er ankommet"-billede ved byskiltet eller stationen.', q: 'Spørg 3 lokale "hvad er det bedste ved jeres by?" og skriv svarene ned.' },
+      { icon: '🗺️', h: 2.5, t: 'Erobringen af byen', d: 'Find byens højeste punkt, ældste bygning og mærkeligste butik. Gå uden kort – brug kun skilte og lokale.', q: 'Find en souvenir til under 20 kr, der er så grim, at den er smuk.' },
+      { icon: '🍽️', h: 1.5, t: 'Lokal frokost', d: 'Spis dér, hvor de lokale spiser – ikke turiststedet på torvet. Spørg en ansat i en butik.', q: 'Bestil den lokale specialitet, uanset hvad den er.', alcT: 'Lokal frokost + byens øl', alcD: 'Spis dér, hvor de lokale spiser, og bestil den øl, der er brygget tættest på.' },
+      { icon: '🧭', h: 2, t: 'Bucket list-jagten', d: 'Nå så mange af jeres 5 bucket list-punkter som muligt. Det vildeste punkt giver dobbelt point.', q: 'Klar mindst 3 af de 5 punkter.', opt: true },
+      { icon: '🍝', h: 1.5, t: 'Middag i den fremmede by', d: 'Find byens bedst anmeldte restaurant inden for jeres budget. Skål for erobringen.', q: 'Hold en tale om dagens bedste øjeblik.', alcD: 'Find byens bedst anmeldte restaurant. Bestil lokalt fadøl, og skål for erobringen.' },
+      { icon: '🌙', h: 1.5, t: 'Hjemrejse og kåring', d: 'På vej hjem: kår dagens MVP, dagens bedste foto og dagens mest pinlige øjeblik.', q: 'Planlæg allerede næste mystery-rejse.', alcT: 'Bar-stop før hjemrejsen', alcD: 'Ét sidste glas på en lokal bar, før toget går. Kår dagens MVP, bedste foto og mest pinlige øjeblik på vej hjem.' },
+    ] },
+
+  { id: 'x-oelpilgrim', t: 'Den Store Øl-pilgrimsfærd', icon: '🍺', b: '*', kr: 600, env: 'mix', minT: -10, alc: 1,
+    d: 'En hel dag dedikeret til øl: bryghuse, øl-sport, øl-mad og en pubcrawl til sidst. Drik vand mellem hvert kapitel.',
+    ch: [
+      { icon: '🍳', h: 1.25, t: 'Pilgrimmens morgenmad', d: 'Solid morgenmad (æg, bacon, brød) – bunden skal lægges! Lav en "pilgrim-pas" på et stykke papir, hvor hvert sted skal give et stempel eller en underskrift.', q: 'Design et logo til jeres pilgrim-pas.' },
+      { icon: '🏭', h: 2, t: 'Første bryghus', d: 'Find nærmeste mikrobryggeri med smagning eller rundvisning. Smag dig igennem en smagebakke.', q: 'Få bryggeren til at underskrive jeres pilgrim-pas.', map: 'mikrobryggeri' },
+      { icon: '🌭', h: 1.25, t: 'Pølser og pilsner', d: 'Frokost på pølsevogn eller grillbar med en kold pilsner. Plus et stort glas vand.', q: 'Find den bedste ristede i området.', map: 'pølsevogn' },
+      { icon: '🏓', h: 2, t: 'Øl-OL', d: 'Beer pong, flip cup og øl-frisbeegolf. Hold mod hold. Halve kopper og masser af vand.', q: 'Vind mindst én disciplin.' },
+      { icon: '🛒', h: 1, t: 'Jorden rundt i øl', d: 'Gå i en ølbutik. Hver person køber én øl fra et land, ingen af de andre gætter. Smag og bedøm.', q: 'Find en øl fra et land med under 5 mio. indbyggere.', opt: true, map: 'ølbutik' },
+      { icon: '🍖', h: 1.5, t: 'Øl-middag', d: 'Spis et sted med ølmenu eller pairing – eller lav ølbraiseret mad hjemme.', q: 'Gæt øltypen til hver ret.', map: 'ølmenu restaurant' },
+      { icon: '🎲', h: 2.5, t: 'Den Store Terning-pubcrawl', d: 'Slå med terningen ved hver dør: lige = højre, ulige = venstre. 4 barer. Ét glas pr. sted og vand imellem.', q: 'Få et stempel i pilgrim-passet på hver bar.', map: 'bar' },
+    ] },
+
+  { id: 'x-vildmark', t: 'Overlevelsesdagen', icon: '🏕️', b: 'billig', kr: 120, env: 'mix', minT: 0,
+    d: 'Rygsæk på, telefonen på flytilstand (næsten). I vandrer, laver mad over bål og klarer jer selv en hel dag i naturen.',
+    ch: [
+      { icon: '🎒', h: 1, t: 'Pak overlevelsestasken', d: 'Pak: vand, pølser/brød, tændstikker, kniv, lommelygte, tæppe, regnjakke og én "luksusting" hver. Find en skov eller et naturområde med shelter (udinaturen.dk).', q: 'Luksustingen skal bruges i løbet af dagen.' },
+      { icon: '🥾', h: 2.5, t: 'Ekspeditionen', d: 'Vandr til shelteren eller bålpladsen – gerne den lange vej. Navigér med kort og kompas-app, ikke GPS-rute.', q: 'Find og identificér 5 forskellige træarter.', map: 'shelter' },
+      { icon: '🔥', h: 1.5, t: 'Bål og frokost', d: 'Saml tørt brænde og tænd bål uden tændvæske. Grill pølser og brød over bålet.', q: 'Tænd bålet med højst 3 tændstikker.' },
+      { icon: '🛖', h: 2, t: 'Byg en lejr', d: 'Byg et læ af grene, en stol af træstammer eller en kæmpe tipi-skulptur. Spil skovens OL: kogle-kast, balance på stamme.', q: 'Byg noget, alle kan sidde i eller under.', opt: true },
+      { icon: '🍲', h: 1.5, t: 'Bålmad til aften', d: 'Lav en gryderet eller pasta over bålet. Snobrød til dessert.', q: 'Lav en ret, ingen af jer har lavet over bål før.', alcD: 'Lav en gryderet over bålet. Kolde øl fra rygsækken og snobrød til dessert.' },
+      { icon: '✨', h: 2, t: 'Mørket og stjernerne', d: 'Sluk alle lygter i 5 minutter og lyt. Fortæl historier ved bålet. Overnat i shelteren, hvis I tør – ellers vandr hjem med pandelamper.', q: 'Fortæl en historie, hvor hver person kun siger én sætning ad gangen.' },
+    ] },
+
+  { id: 'x-kostume', t: 'Karakter-dagen', icon: '🎭', b: 'billig', kr: 200, env: 'mix', minT: -5,
+    d: 'Alle bliver en karakter fra morgen til aften. Navn, stemme, baggrundshistorie – og I bryder ALDRIG rollen.',
+    ch: [
+      { icon: '🎭', h: 1.25, t: 'Skab jeres karakterer', d: 'Hver person trækker et job (pirat, rumforsker, kongelig, detektiv, 80’er-rockstjerne, nisse) og laver et kostume af ting i huset eller fra en genbrugsbutik.', q: 'Opfind en baggrundshistorie og et slogan til karakteren.', map: 'genbrugsbutik' },
+      { icon: '☕', h: 1.25, t: 'Morgenmad i rollen', d: 'Gå på café og bestil i rollen. Tip: jo mere seriøst I gør det, jo sjovere er det.', q: 'Få personalet til at spille med.' },
+      { icon: '🔍', h: 2, t: 'Karakterernes mission', d: 'Lav en byvandring, hvor hver karakter skal "løse" et problem fra sin verden: piraten finder skat, detektiven løser et mysterium, rockstjernen giver autografer.', q: 'Få 3 fremmede til at tage et billede med jer.' },
+      { icon: '🍔', h: 1.25, t: 'Frokost-forhandling', d: 'Forhandl om frokosten i rollen (spørg om rabat, en ekstra pommes – høfligt).', q: 'Få noget gratis eller ekstra.', alcD: 'Frokost på en bodega eller pub – bestil i rollen og forsøg at få en gratis omgang.' },
+      { icon: '📸', h: 2.5, t: 'Fotoshoot og film', d: 'Lav en 1-minuts film eller et fotoshoot med en plot, hvor alle karakterer møder hinanden.', q: 'Filmen skal have et twist til sidst.', opt: true },
+      { icon: '🍽️', h: 1.5, t: 'Middagsselskabet', d: 'Middag, hvor alle stadig er i rollen. Hold taler som karaktererne.', q: 'Hver karakter holder en takketale.' },
+      { icon: '🎤', h: 2, t: 'Afsløringen', d: 'Karaoke eller dans som jeres karakterer. Ved midnat (eller når I er færdige) afslører alle "den rigtige mig".', q: 'Syng en sang, som karakteren ville elske.', alcT: 'Bar-crawl i rollen', alcD: 'Tag på barer i kostumerne. Stamgæster elsker det. Afslut med karaoke.' },
+    ] },
+
+  { id: 'x-jadag', t: 'Ja-dagen', icon: '🙋', b: 'billig', kr: 250, env: 'mix', minT: -5,
+    d: 'Fremmede bestemmer hele jeres dag. Hvert kapitel starter med, at I spørger en fremmed – og I siger JA (så længe det er lovligt og sikkert).',
+    ch: [
+      { icon: '🙋', h: 1.25, t: 'Første ja', d: 'Gå ud og spørg den første person, I møder: "Hvor skal vi spise morgenmad?" Gå derhen.', q: 'Få personen til at uddybe hvorfor.' },
+      { icon: '🧭', h: 2, t: 'Formiddagens ja', d: 'Spørg 3 fremmede "Hvad er det sjoveste, man kan lave her i nærheden?" Gør det, to af dem siger det samme om – eller det mest skøre.', q: 'Tag et billede med den, der gav ideen (hvis de vil).' },
+      { icon: '🥪', h: 1.25, t: 'Frokostens ja', d: 'Bed en ansat i en butik om at vælge jeres frokost. I spiser, hvad de siger.', q: 'Spis det hele – også hvis det er mærkeligt.' },
+      { icon: '🎲', h: 2.5, t: 'Det store ja', d: 'Spørg en fremmed: "Hvis du havde en fri eftermiddag her, hvad ville du så gøre?" Gør det.', q: 'Send en tak-besked eller et billede til personen, hvis I fik kontakt.', opt: true },
+      { icon: '🍽️', h: 1.5, t: 'Aftensmadens ja', d: 'Ring til en ven eller et familiemedlem, og lad dem bestemme, hvor I spiser.', q: 'Inviter den person med, hvis de kan.' },
+      { icon: '🌙', h: 2, t: 'Aftenens sidste ja', d: 'Spørg en bartender, dørmand eller servitrice: "Hvor skal vi hen nu?" Følg rådet.', q: 'Fortæl dem bagefter, hvordan det gik.', alcD: 'Spørg en bartender: "Hvor skal vi hen nu?" Følg rådet – ét glas på hvert anbefalet sted.' },
+    ] },
+
+  { id: 'x-luksus', t: 'Luksusdagen', icon: '💎', b: 'dyr', kr: 3000, env: 'inde',
+    d: 'Behandl jer selv, som om I lige har vundet i lotto. Spa, adrenalin, smagsmenu og cocktails.',
+    ch: [
+      { icon: '🧖', h: 2, t: 'Spa-morgen', d: 'Book spa eller wellness med sauna, damp og boblebad. Morgenkåber på.', q: 'Prøv en behandling, I aldrig har prøvet.', map: 'spa wellness' },
+      { icon: '🥂', h: 1.5, t: 'Champagnebrunch', d: 'Brunch på byens fineste hotel eller restaurant.', q: 'Bestil noget med trøffel eller kaviar.', alcD: 'Brunch på byens fineste hotel – med champagne eller en fancy øl.', map: 'hotel brunch' },
+      { icon: '🪂', h: 2.5, t: 'Adrenalin-kapitlet', d: 'Book noget vildt: rally-kørsel, faldskærm, helikoptertur, flyvetime eller indendørs faldskærm.', q: 'Film jeres reaktion.', map: 'indendørs faldskærm' },
+      { icon: '🛍️', h: 1.5, t: 'Gave-runden', d: 'Hver person har et budget og skal købe en overraskelsesgave til en anden i gruppen.', q: 'Gaven skal passe perfekt – eller være perfekt absurd.', opt: true },
+      { icon: '🍾', h: 2.5, t: 'Smagsmenuen', d: 'Smagsmenu på en restaurant, I aldrig har haft råd til. Pænt tøj på.', q: 'Find på et navn til hver ret, der er bedre end kortets.', alcD: 'Smagsmenu med vin- eller ølmenu. Pænt tøj på.', map: 'restaurant smagsmenu' },
+      { icon: '🍸', h: 2, t: 'Rooftop og natteliv', d: 'Afslut på en rooftop-bar, en jazzklub eller i en VIP-lounge.', q: 'Find den bedste udsigt i byen.', alcD: 'Cocktails på en rooftop-bar – bestil "bartender’s choice".', map: 'rooftop bar' },
+    ] },
+
+  { id: 'x-yderpunkter', t: 'Byens yderpunkter', icon: '🧭', b: 'billig', kr: 150, env: 'ude', minT: 3,
+    d: 'Find jeres bys nordligste, sydligste, østligste og vestligste punkt – og plant et "flag" ved hvert. Til fods, på cykel eller med bus.',
+    ch: [
+      { icon: '🗺️', h: 0.75, t: 'Krigsplanen', d: 'Åbn et kort og find byens fire yderpunkter. Lav et flag (et stykke stof, en sok). Planlæg ruten.', q: 'Giv hvert punkt et dramatisk navn.' },
+      { icon: '⬆️', h: 2, t: 'Nordpunktet', d: 'Tag til det nordligste punkt. Plant flaget (midlertidigt) og tag et erobringsbillede.', q: 'Find noget, der er karakteristisk for netop dette sted.' },
+      { icon: '➡️', h: 2, t: 'Østpunktet + frokost', d: 'Videre mod øst. Spis frokost på vejen på det første sted, der dukker op.', q: 'Spørg en lokal, om de vidste, de bor på byens kant.' },
+      { icon: '⬇️', h: 2, t: 'Sydpunktet', d: 'Mod syd. Undervejs: find byens mærkeligste skilt.', q: 'Lav en slow-motion-video af erobringen.' },
+      { icon: '⬅️', h: 2, t: 'Vestpunktet ved solnedgang', d: 'Mod vest – helst så I når solnedgangen ved sidste punkt.', q: 'Tag et billede af solen bag flaget.', opt: true },
+      { icon: '🏆', h: 1.5, t: 'Sejrsmåltidet', d: 'Spis et sted midt i byen – i centrum af jeres erobring. Tæl skridt og kilometer.', q: 'Lav et kort over dagen med alle punkter.', alcD: 'Sejrsmåltid midt i byen med en stor fadøl. Tæl skridt og kilometer.' },
+    ] },
+
+  { id: 'x-hule', t: 'Hygge-hule-maraton', icon: '🛋️', b: 'billig', kr: 150, env: 'inde',
+    d: 'Vejret er træls? Perfekt. I bygger en kæmpe pudeborg og holder et indendørs maraton af spil, mad og film.',
+    ch: [
+      { icon: '🏰', h: 1.5, t: 'Byg borgen', d: 'Byg den største pudeborg, stuen kan klare: tæpper, stole, lyskæder. Den skal have en indgang og et navn.', q: 'Borgen skal have plads til alle + snacks.' },
+      { icon: '🥞', h: 1, t: 'Pandekage-kampen', d: 'Hver person laver en pandekage med den skøreste topping. Blindsmagning.', q: 'Vend en pandekage med et kast over 50 cm.' },
+      { icon: '🎲', h: 2.5, t: 'Brætspils-OL', d: 'Tre forskellige spil, point-tavle og medaljer af sølvpapir.', q: 'Opfind en ekstra regel i hvert spil.' },
+      { icon: '🍕', h: 1.5, t: 'Pizza-kunst', d: 'Lav pizzadej, og lav portrætter af hinanden med toppings.', q: 'De andre skal gætte, hvem pizzaen forestiller.', alcD: 'Lav pizzaportrætter af hinanden – med en øl til hver kok.' },
+      { icon: '🎤', h: 1.5, t: 'Stue-karaoke', d: 'YouTube-karaoke. Alle synger mindst 2 sange – én valgt af de andre.', q: 'Lav en duet med koreografi.', opt: true },
+      { icon: '🎬', h: 3, t: 'Filmmaraton i borgen', d: 'To film i borgen. Den ene vælges af terningen fra en liste på 6.', q: 'Ingen må kigge på telefonen under filmen.', alcD: 'Filmmaraton i borgen med en drukleg: én tår, hver gang nogen siger filmens titel.' },
+    ] },
+
+  { id: 'x-roadtrip', t: 'Roadtrip-roulette', icon: '🚗', b: '*', kr: 400, env: 'mix', minT: -5, sober: true,
+    d: 'Bil, playliste og terning. Ved hvert kryds bestemmer terningen retningen. I ved ikke, hvor I ender – det er pointen. (Alkoholfri dag – der skal køres.)',
+    ch: [
+      { icon: '🎵', h: 0.75, t: 'Playliste og proviant', d: 'Lav en fælles playliste (alle tilføjer 10 sange) og køb snacks, I aldrig har prøvet.', q: 'Playlisten skal have et navn og et cover-billede.' },
+      { icon: '🎲', h: 2, t: 'Terning-ruten', d: 'Kør ud af byen. Ved hvert større kryds: 1–2 venstre, 3–4 ligeud, 5–6 højre. Kør i ca. 1 time.', q: 'Find en vej med et sjovt navn, og tag billede ved skiltet.' },
+      { icon: '🏞️', h: 1.5, t: 'Det første stop', d: 'Stop ved det første seværdighedsskilt (brunt skilt), I ser. Udforsk det.', q: 'Find ud af én fun fact om stedet.' },
+      { icon: '🍔', h: 1.25, t: 'Landevejsfrokost', d: 'Spis på den første kro, grillbar eller gårdbutik på ruten.', q: 'Bestil "husets specialitet".' },
+      { icon: '🌊', h: 2, t: 'Kør til vandet', d: 'Find nærmeste strand, sø eller havn – uanset hvor I er. Gå en tur og saml en sten hver.', q: 'Skriv dagens dato på stenene.', opt: true },
+      { icon: '🍽️', h: 1.5, t: 'Middag på en fremmed kro', d: 'Find en kro eller restaurant i den nærmeste by, I ikke kender.', q: 'Få personalet til at fortælle en lokal historie.' },
+      { icon: '🌌', h: 1.5, t: 'Hjemturen', d: 'Kør hjem med playlisten på fuld styrke. Stop ved et mørkt sted, og se stjernerne i 5 minutter.', q: 'Syng hele vejen igennem én sang uden at stoppe.' },
+    ] },
+];
+
 </script>
 <script>
 /* Sidequest – en tilfældig heldagsplan til weekenden
@@ -818,7 +937,43 @@ const SPECIAL_DAYS = [
   const fmtDate = (iso) => parseDate(iso).toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long' });
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-  const actById = (id) => ACTIVITIES.find((a) => a.id === id);
+  const epicById = (id) => EPICS.find((e) => e.id === id);
+  function actById(id) {
+    if (!id) return undefined;
+    if (!id.includes('#')) return ACTIVITIES.find((a) => a.id === id);
+    // Kapitel i en heldagsmission: "x-mystery#3"
+    const [eid, k] = id.split('#');
+    const e = epicById(eid);
+    const c = e?.ch[+k];
+    if (!c) return undefined;
+    const alc = store.plan?.alc;
+    return {
+      id, t: (alc && c.alcT) || c.t, d: (alc && c.alcD) || c.d, q: (alc && c.alcQ) || c.q,
+      b: e.b, kr: 0, env: e.env, minT: e.minT, alc: e.alc, sober: e.sober, map: c.map, icon: c.icon, dark: true,
+    };
+  }
+  const KIND = Object.fromEntries(SLOTS.map((x) => [x.id, x]));
+  const round15 = (h) => Math.round(h * 4) / 4;
+  const kindFor = (h) => (h < 10 ? 'morgen' : h < 12.5 ? 'formiddag' : h < 19.25 ? 'eftermiddag' : 'aften');
+
+  // Bygger dagens tidspunkter ud fra den valgte starttid, med frokost ~12:30 og aftensmad ~18:00
+  function buildSlots(start) {
+    const out = [];
+    const add = (id, h) => out.push({ id, h: round15(h), time: hoursToClock(round15(h)), label: KIND[id].label, icon: KIND[id].icon });
+    let t = start;
+    for (const meal of [{ id: 'frokost', h: 12.5 }, { id: 'middag', h: 18 }]) {
+      if (t > meal.h + 0.75) continue; // måltidet er passeret
+      const gap = meal.h - t;
+      if (gap < 1) { add(meal.id, t); t += 1.5; continue; }
+      const n = Math.ceil(gap / 2.75);
+      for (let k = 0; k < n; k++) { add(kindFor(t), t); t += gap / n; }
+      add(meal.id, meal.h);
+      t = meal.h + 1.5;
+    }
+    add('aften', out.length ? Math.max(t, 19.5) : t);
+    if (out.length < 4 && out[out.length - 1].h + 2 <= 22.5) add('aften', out[out.length - 1].h + 2);
+    return out;
+  }
 
   function seasonOf(iso) {
     const m = parseDate(iso).getMonth() + 1;
@@ -856,6 +1011,9 @@ const SPECIAL_DAYS = [
   // Ældre versioner gemte alkohol som true/false – nu 0 (uden), 1 (med) eller 2 (øl-dag)
   if (typeof store.settings.alc === 'boolean') store.settings.alc = store.settings.alc ? 1 : 0;
   if (store.plan && typeof store.plan.alc === 'boolean') store.plan.alc = store.plan.alc ? 1 : 0;
+  if (store.plan && !store.plan.slots) { store.plan.slots = SLOTS.map((x) => ({ ...x })); store.plan.mode = 'stop'; }
+  if (store.settings.start == null) store.settings.start = 9;
+  if (!store.settings.mode) store.settings.mode = 'stop';
   function save() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
     catch (e) {
@@ -1022,9 +1180,8 @@ const SPECIAL_DAYS = [
     return true;
   }
 
-  function chooseFor(slot, plan, used, { indoorOnly = false } = {}) {
+  function chooseFor(slot, plan, used, { indoorOnly = false, idx = plan.steps.length } = {}) {
     const ctx = makeCtx(plan);
-    const idx = SLOTS.indexOf(slot);
     const sw = slotWeather(plan.wx, slot);
     const specials = plan.steps.filter((st, i) => i !== idx && actById(st.act)?.win).length;
     const base = (a) => !used.has(a.id) && a.s.includes(slot.id) && (a.alc !== 1 || ctx.alc) && safeWithBeer(a, plan, idx);
@@ -1034,7 +1191,7 @@ const SPECIAL_DAYS = [
     if (ctx.alc && !indoorOnly) {
       const beerPool = pool.filter((a) => a.alc === 1);
       const minBeer = ctx.alc === 2 ? 4 : 2;
-      const slotsLeft = SLOTS.length - idx;
+      const slotsLeft = plan.slots.length - idx;
       const missing = minBeer - beerCount(plan);
       const chance = ctx.alc === 2
         ? (slot.id === 'morgen' ? 0.5 : 0.85)
@@ -1052,19 +1209,66 @@ const SPECIAL_DAYS = [
     return s;
   }
 
-  function buildPlan({ date, budget, alc, loc, wx }) {
+  function pickEpic(plan) {
+    const ctx = makeCtx(plan);
+    const d = plan.wx.daily;
+    const list = EPICS.filter((e) => {
+      if (e.b !== '*' && e.b !== ctx.budget) return false;
+      if (e.alc === 1 && !ctx.alc) return false;
+      if (e.sober && ctx.alc === 2) return false;
+      if (e.season && !e.season.includes(ctx.season)) return false;
+      if (e.env === 'ude' && (d.pp >= 60 || d.tmax < (e.minT ?? 5))) return false;
+      if (e.env === 'mix' && (d.pp >= 85 || d.tmax < (e.minT ?? 0))) return false;
+      return true;
+    });
+    return weightedPick(list.map((e) => {
+      let w = 1;
+      if (e.alc === 1) w *= ctx.alc === 2 ? 5 : 1.5;
+      if (e.sober && ctx.alc) w *= 0.4;
+      if (d.pp >= 60 && e.env === 'inde') w *= 2;
+      if (d.pp < 40 && e.env === 'inde' && e.b !== 'dyr') w *= 0.15; // hygge-hulen er til regnvejr
+      if (d.pp < 30 && d.tmax >= 12 && e.env !== 'inde') w *= 1.5;
+      if (ctx.budget === 'dyr' && e.b === 'dyr') w *= 2;
+      return { a: e, w };
+    }));
+  }
+
+  function buildEpicPlan(plan) {
+    const e = pickEpic(plan);
+    let chs = e.ch.map((c, k) => ({ ...c, k }));
+    const end = (list) => plan.start + list.reduce((s, c) => s + c.h, 0);
+    // Starter dagen sent, droppes valgfrie kapitler – og til sidst kapitler fra midten
+    while (end(chs) > 24 && chs.some((c) => c.opt)) chs.splice(chs.findIndex((c) => c.opt), 1);
+    while (end(chs) > 24.5 && chs.length > 3) chs.splice(Math.floor(chs.length / 2), 1);
+    let t = plan.start;
+    plan.mode = 'epic';
+    plan.epic = e.id;
+    plan.jokers = 0;
+    plan.slots = chs.map((c, n) => {
+      const h = round15(t); t += c.h;
+      return { id: 'kapitel', h, time: hoursToClock(h % 24), label: `Kapitel ${n + 1}`, icon: c.icon };
+    });
+    plan.steps = chs.map((c) => ({ slot: 'kapitel', act: `${e.id}#${c.k}`, planB: null, kaos: pickKaos(plan.alc), status: 'todo', bonus: false, note: '', photo: null, doneAt: null }));
+    if (!specialOf(plan.date)) plan.theme = e.t;
+    return plan;
+  }
+
+  const pickKaos = (alc) => (alc && Math.random() < (alc === 2 ? 0.6 : 0.3) ? pick(KAOS_ALC) : pick(KAOS));
+
+  function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop' }) {
     const special = specialOf(date);
     const plan = {
-      date, budget, alc, loc, wx,
+      date, budget, alc, loc, wx, start, mode, slots: buildSlots(start), startedEarly: false,
       theme: special ? special.theme : alc === 2 ? pick(THEME_BEER) : `${pick(THEME_A)} ${pick(THEME_B)}`,
       mission: pick(alc ? [...MISSIONS, ...MISSIONS_ALC, ...MISSIONS_ALC] : MISSIONS), missionDone: false,
       jokers: 3, notified: [], createdAt: Date.now(), steps: [],
     };
+    if (mode === 'epic') return buildEpicPlan(plan);
     const used = new Set();
-    for (const slot of SLOTS) {
+    for (const slot of plan.slots) {
       const a = chooseFor(slot, plan, used);
       used.add(a.id);
-      const kaos = alc && Math.random() < (alc === 2 ? 0.6 : 0.3) ? pick(KAOS_ALC) : pick(KAOS);
+      const kaos = pickKaos(alc);
       const step = { slot: slot.id, act: a.id, planB: null, kaos, status: 'todo', bonus: false, note: '', photo: null, doneAt: null };
       if (a.env !== 'inde') {
         const b = chooseFor(slot, plan, used, { indoorOnly: true });
@@ -1087,9 +1291,9 @@ const SPECIAL_DAYS = [
     const mode = dayMode(plan);
     if (mode === 'past') return true;
     if (mode === 'preview') return false;
-    if (i === 0) return true;
+    if (i === 0) return plan.startedEarly || nowHours() >= plan.slots[0].h - 0.25;
     if (plan.steps[i - 1].status !== 'todo') return true;
-    return nowHours() >= SLOTS[i].h;
+    return nowHours() >= plan.slots[i].h;
   }
 
   function activeIndex(plan) {
@@ -1097,7 +1301,8 @@ const SPECIAL_DAYS = [
     return plan.steps.findIndex((s, i) => s.status === 'todo' && isUnlocked(plan, i));
   }
 
-  const missionUnlocked = (plan) => isUnlocked(plan, 2);
+  const missionIdx = (plan) => Math.min(plan.steps.length - 1, Math.floor(plan.steps.length / 3));
+  const missionUnlocked = (plan) => isUnlocked(plan, missionIdx(plan));
   const allDone = (plan) => plan.steps.every((s) => s.status !== 'todo');
 
   function points(plan) {
@@ -1108,6 +1313,7 @@ const SPECIAL_DAYS = [
   }
 
   function totalCost(plan) {
+    if (plan.mode === 'epic') return epicById(plan.epic).kr;
     return plan.steps.reduce((s, st) => s + (actById(st.act)?.kr || 0), 0);
   }
 
@@ -1141,6 +1347,15 @@ const SPECIAL_DAYS = [
   /* ───────────── UI: opsætning ───────────── */
   let view = null;
 
+  function startOptions(st) {
+    const opts = [7, 8, 9, 10, 11, 12, 13, 14, 16].map((h) => ({ h, label: hoursToClock(h) }));
+    if (st.date === todayISO()) {
+      const now = Math.ceil(nowHours() * 4) / 4;
+      if (now <= 21 && !opts.some((o) => o.h === now)) opts.unshift({ h: now, label: `Nu (${hoursToClock(now)})` });
+    }
+    return opts;
+  }
+
   function renderSetup() {
     view = 'setup';
     const st = store.settings;
@@ -1171,7 +1386,27 @@ const SPECIAL_DAYS = [
       </section>
 
       <section class="card">
-        <h2>2. Budget</h2>
+        <h2>2. Hvornår starter I?</h2>
+        <div class="seg times">
+          ${startOptions(st).map((o) => `<button class="${o.h === st.start ? 'on' : ''}" data-action="set" data-key="start" data-val="${o.h}">${o.label}</button>`).join('')}
+        </div>
+        <div class="row"><label class="small muted" for="starttime">Eller vælg præcist:</label>
+          <input id="starttime" type="time" step="900" value="${hoursToClock(st.start)}" style="width:auto"></div>
+        <p class="muted small">Planen starter kl. <b>${hoursToClock(st.start)}</b> og kører til sent på aftenen. Frokost og aftensmad lægges på normale tidspunkter.</p>
+      </section>
+
+      <section class="card">
+        <h2>3. Hvordan skal dagen være?</h2>
+        <div class="big-choice">
+          <button class="${st.mode === 'stop' ? 'on' : ''}" data-action="set" data-key="mode" data-val="stop">
+            <span class="em">🎲</span><b>Mange stop</b><small>5–8 forskellige aktiviteter i løbet af dagen. Jokere og Plan B.</small></button>
+          <button class="${st.mode === 'epic' ? 'on' : ''}" data-action="set" data-key="mode" data-val="epic">
+            <span class="em">🗺️</span><b>Heldagsmission</b><small>Én stor sammenhængende oplevelse. Appen styrer hele dagen kapitel for kapitel.</small></button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>4. Budget</h2>
         <div class="big-choice">
           <button class="${st.budget === 'billig' ? 'on' : ''}" data-action="set" data-key="budget" data-val="billig">
             <span class="em">🪙</span><b>Billig</b><small>Ca. 0–400 kr pr. person for hele dagen (lidt mere på en øl-dag). Kreativitet frem for kreditkort.</small></button>
@@ -1181,7 +1416,7 @@ const SPECIAL_DAYS = [
       </section>
 
       <section class="card">
-        <h2>3. Alkohol?</h2>
+        <h2>5. Alkohol?</h2>
         <div class="big-choice three">
           <button class="${st.alc === 0 ? 'on' : ''}" data-action="set" data-key="alc" data-val="0">
             <span class="em">🧃</span><span><b>Uden alkohol</b><small>Klar hjerne, vilde oplevelser, mocktails.</small></span></button>
@@ -1194,7 +1429,7 @@ const SPECIAL_DAYS = [
       </section>
 
       <section class="card">
-        <h2>4. Hvor er I?</h2>
+        <h2>6. Hvor er I?</h2>
         <p class="muted small">Bruges kun til at hente vejrudsigten. Nu: <b id="locname">${esc(st.loc.name)}</b></p>
         <div class="row">
           <button class="btn ghost" data-action="geo">📍 Brug min position</button>
@@ -1211,6 +1446,12 @@ const SPECIAL_DAYS = [
       <p class="muted small center">${st.budget && st.alc != null ? 'Klar? Tryk og få din plan.' : 'Vælg budget og alkohol for at fortsætte.'}</p>
     `;
 
+    $('#starttime').addEventListener('change', (e) => {
+      const [hh, mm] = e.target.value.split(':').map(Number);
+      if (Number.isNaN(hh)) return;
+      st.start = Math.min(21, Math.max(5, hh + (mm || 0) / 60));
+      save(); renderSetup();
+    });
     $('#cityform').addEventListener('submit', async (e) => {
       e.preventDefault();
       const q = $('#city').value.trim();
@@ -1247,7 +1488,7 @@ const SPECIAL_DAYS = [
 
     let banner = '';
     if (mode === 'preview') {
-      banner = `<div class="banner">🔒 Det er ikke ${fmtDate(plan.date)} endnu. Planen ligger klar – udfordringerne og den hemmelige mission låses op på dagen. Kom tilbage kl. 09:00!</div>`;
+      banner = `<div class="banner">🔒 Det er ikke ${fmtDate(plan.date)} endnu. Planen ligger klar – udfordringerne og den hemmelige mission låses op på dagen. Jeres dag starter kl. ${plan.slots[0].time}!</div>`;
     } else if (mode === 'past') {
       banner = `<div class="banner">📅 Denne sidequest var ${fmtDate(plan.date)}. <button class="link" data-action="report">Se rapporten</button> eller <button class="link" data-action="new">rul en ny</button>.</div>`;
     }
@@ -1265,7 +1506,8 @@ const SPECIAL_DAYS = [
           <span class="chip">${['🧃 Alkoholfri', '🍻 Med alkohol', '🍺 Øl-dag'][plan.alc]}</span>
         </div>
         <h1 class="theme">${esc(plan.theme)}</h1>
-        <p class="muted">${cap(fmtDate(plan.date))} · 📍 ${esc(plan.loc.name)}</p>
+        ${plan.mode === 'epic' ? `<p class="epic-intro">${epicById(plan.epic).icon} <b>Heldagsmission: ${esc(epicById(plan.epic).t)}.</b> ${esc(epicById(plan.epic).d)}</p>` : ''}
+        <p class="muted">${cap(fmtDate(plan.date))} · ⏰ fra kl. ${plan.slots[0].time} · 📍 ${esc(plan.loc.name)}</p>
         <div class="wxbar">
           <div class="wxbig">${dIcon}</div>
           <div>
@@ -1298,7 +1540,7 @@ const SPECIAL_DAYS = [
     document.title = ai >= 0 ? `Nu: ${actById(plan.steps[ai].act).t} – Sidequest` : 'Sidequest';
   }
 
-  function priceTag(a) { return a.kr === 0 ? 'Gratis' : `ca. ${a.kr} kr`; }
+  function priceTag(a) { return a.id.includes('#') ? 'Inkl. i missionen' : a.kr === 0 ? 'Gratis' : `ca. ${a.kr} kr`; }
   const mapLink = (a) => a.map ? `<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.map + ' nær mig')}">🗺️ Find på kort</a>` : '';
   const envTag = (a) => ({ ude: '🌳 Udendørs', mix: '🧥 Ude/inde', inde: '🏠 Indendørs' }[a.env]);
 
@@ -1310,11 +1552,16 @@ const SPECIAL_DAYS = [
           <button class="btn primary" data-action="report">📜 Se rapporten</button></section>`;
       }
       const next = plan.steps.findIndex((s) => s.status === 'todo');
-      return `<section class="now waiting"><h2>⏳ Næste stop låses op kl. ${SLOTS[next].time}</h2>
-        <p class="muted">Om <b data-countdown="${SLOTS[next].h}"></b>. Hold en pause – eller klar det forrige stop for at låse op tidligere.</p></section>`;
+      if (next === 0) {
+        return `<section class="now waiting"><div class="em-xl">⏰</div><h2>Dagen starter kl. ${plan.slots[0].time}</h2>
+          <p class="muted">Om <b data-countdown="${plan.slots[0].h - 0.25}"></b>. Planen ligger klar nedenfor – udfordringer og kaos-regler låses op undervejs.</p>
+          <button class="btn primary" data-action="startnow">🚀 Start nu alligevel</button></section>`;
+      }
+      return `<section class="now waiting"><h2>⏳ Næste ${plan.mode === 'epic' ? 'kapitel' : 'stop'} låses op kl. ${plan.slots[next].time}</h2>
+        <p class="muted">Om <b data-countdown="${plan.slots[next].h}"></b>. Hold en pause – eller klar det forrige for at låse op tidligere.</p></section>`;
     }
     const step = plan.steps[ai];
-    const slot = SLOTS[ai];
+    const slot = plan.slots[ai];
     const a = actById(step.act);
     const sw = slotWeather(plan.wx, slot);
     const ctx = makeCtx(plan);
@@ -1331,7 +1578,7 @@ const SPECIAL_DAYS = [
           <span class="chip">${envTag(a)}</span>
           <span class="chip">💰 ${priceTag(a)}</span>
         </div>
-        ${badWx ? `<div class="banner warn">☔ Vejret er ikke med jer lige nu (${sw.text.toLowerCase()}, ${sw.t}°). ${b ? `Plan B: <b>${esc(b.t)}</b>.` : 'Brug en joker for en indendørs idé.'}</div>` : ''}
+        ${badWx ? `<div class="banner warn">☔ Vejret er ikke med jer lige nu (${sw.text.toLowerCase()}, ${sw.t}°). ${b ? `Plan B: <b>${esc(b.t)}</b>.` : plan.mode === 'epic' ? 'Regntøj på – missionen fortsætter! Søg ly undervejs.' : 'Brug en joker for en indendørs idé.'}</div>` : ''}
         <div class="quest">
           <div class="quest-label">⚡ Udfordring (+${POINTS.bonus} point)</div>
           ${esc(a.q)}
@@ -1340,7 +1587,7 @@ const SPECIAL_DAYS = [
         <div class="actions">
           <button class="btn primary" data-action="complete" data-i="${ai}">✅ Klaret!</button>
           ${b ? `<button class="btn ${badWx ? 'primary alt' : 'ghost'}" data-action="planb" data-i="${ai}">☔ Skift til Plan B</button>` : ''}
-          <button class="btn ghost" data-action="joker" data-i="${ai}" ${plan.jokers ? '' : 'disabled'}>🃏 Joker (${plan.jokers})</button>
+          ${plan.mode === 'epic' ? '' : `<button class="btn ghost" data-action="joker" data-i="${ai}" ${plan.jokers ? '' : 'disabled'}>🃏 Joker (${plan.jokers})</button>`}
           ${mapLink(a)}
           <button class="btn ghost sm" data-action="skip" data-i="${ai}">⏭️ Spring over</button>
         </div>
@@ -1350,7 +1597,7 @@ const SPECIAL_DAYS = [
   function renderMission(plan) {
     const mode = dayMode(plan);
     if (mode === 'preview') return `<section class="mission locked"><b>🕵️ Hemmelig mission</b><p class="muted">Afsløres på dagen ved frokosttid.</p></section>`;
-    if (!missionUnlocked(plan)) return `<section class="mission locked"><b>🕵️ Hemmelig mission</b><p class="muted">Låses op kl. ${SLOTS[2].time} (eller når I har klaret formiddagens stop).</p></section>`;
+    if (!missionUnlocked(plan)) return `<section class="mission locked"><b>🕵️ Hemmelig mission</b><p class="muted">Låses op kl. ${plan.slots[missionIdx(plan)].time} (eller når I har klaret det forrige ${plan.mode === 'epic' ? 'kapitel' : 'stop'}).</p></section>`;
     return `<section class="mission ${plan.missionDone ? 'ok' : ''}">
       <b>🕵️ Hemmelig mission (+${POINTS.mission} point)</b>
       <p>${esc(plan.mission)}</p>
@@ -1359,7 +1606,7 @@ const SPECIAL_DAYS = [
   }
 
   function renderStep(plan, s, i, ai) {
-    const slot = SLOTS[i];
+    const slot = plan.slots[i];
     const a = actById(s.act);
     const sw = slotWeather(plan.wx, slot);
     const unlocked = isUnlocked(plan, i);
@@ -1397,14 +1644,15 @@ const SPECIAL_DAYS = [
     const done = plan.steps.filter((s) => s.status === 'done');
     const badges = [];
     if (plan.steps[0].status === 'done') badges.push('🌅 Morgenfrisk');
-    if (plan.steps[5].status === 'done') badges.push('🌙 Natteravn');
+    if (plan.steps.at(-1).status === 'done' && plan.slots.at(-1).h >= 19.5) badges.push('🌙 Natteravn');
+    if (plan.mode === 'epic' && done.length === plan.steps.length) badges.push(`${epicById(plan.epic).icon} Mission fuldført: ${epicById(plan.epic).t}`);
     if (done.length === plan.steps.length) badges.push('💯 Fuld plan');
     if (done.length && done.every((s) => s.bonus)) badges.push('⚡ Udfordrings-mester');
     if (plan.missionDone) badges.push('🕵️ Hemmelig agent');
     if (plan.jokers === 3) badges.push('🃏 Ingen jokere brugt');
     if (done.filter((st) => isBeer(st.act)).length >= 4) badges.push('🍺 Ølkonge');
     if (done.filter((st) => actById(st.act).vild).length >= 3) badges.push('🤪 Fuldstændig vild');
-    if (done.some((s) => { const a = actById(s.act); return a.env !== 'inde' && slotWeather(plan.wx, SLOTS[plan.steps.indexOf(s)]).wet; })) badges.push('☔ Vejr-trodser');
+    if (done.some((s) => { const a = actById(s.act); return a.env !== 'inde' && slotWeather(plan.wx, plan.slots[plan.steps.indexOf(s)]).wet; })) badges.push('☔ Vejr-trodser');
     if (plan.wx.daily.tmax < 5 && done.some((s) => actById(s.act).env !== 'inde')) badges.push('🥶 Kuldekriger');
 
     app.innerHTML = `
@@ -1420,7 +1668,7 @@ const SPECIAL_DAYS = [
         <ul class="report-list">
           ${plan.steps.map((s, i) => {
             const a = actById(s.act);
-            return `<li class="${s.status}"><span>${SLOTS[i].time}</span><div><b>${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${esc(a.t)}</b>
+            return `<li class="${s.status}"><span>${plan.slots[i].time}</span><div><b>${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${esc(a.t)}</b>
               ${s.bonus ? '<span class="badge ok">⚡ udfordring klaret</span>' : ''}
               ${s.note ? `<p class="small note">“${esc(s.note)}”</p>` : ''}</div></li>`;
           }).join('')}
@@ -1437,7 +1685,7 @@ const SPECIAL_DAYS = [
 
   function shareText(plan) {
     const [rIcon, rName] = rank(points(plan));
-    const lines = plan.steps.map((s, i) => `${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${SLOTS[i].time} ${actById(s.act).t}${s.bonus ? ' ⚡' : ''}`);
+    const lines = plan.steps.map((s, i) => `${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${plan.slots[i].time} ${actById(s.act).t}${s.bonus ? ' ⚡' : ''}`);
     return `🎲 Sidequest: ${plan.theme}\n${cap(fmtDate(plan.date))}\n\n${lines.join('\n')}\n\n${rIcon} ${rName} – ⭐ ${points(plan)} point`;
   }
 
@@ -1453,7 +1701,7 @@ const SPECIAL_DAYS = [
     app.innerHTML = `<div class="loading"><div class="dice">🎲</div><p>Tjekker vejret i ${esc(st.loc.name)} og ruller terningerne…</p></div>`;
     const wx = await getWeather(st.loc, st.date);
     await new Promise((r) => setTimeout(r, 700)); // lidt spænding
-    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx });
+    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx, start: st.start, mode: st.mode });
     save();
     renderPlan();
     window.scrollTo({ top: 0 });
@@ -1523,16 +1771,16 @@ const SPECIAL_DAYS = [
   function useJoker(i) {
     const plan = store.plan;
     if (!plan.jokers) return;
-    const slot = SLOTS[i];
+    const slot = plan.slots[i];
     const step = plan.steps[i];
     const used = usedIds(plan, i);
     used.add(step.act); // ikke den samme igen
-    const a = chooseFor(slot, plan, used);
+    const a = chooseFor(slot, plan, used, { idx: i });
     if (!a) return toast('Ingen flere idéer til dette tidspunkt 🤷');
     used.add(a.id);
     step.act = a.id;
     step.planB = null;
-    if (a.env !== 'inde') { const b = chooseFor(slot, plan, used, { indoorOnly: true }); if (b) step.planB = b.id; }
+    if (a.env !== 'inde') { const b = chooseFor(slot, plan, used, { indoorOnly: true, idx: i }); if (b) step.planB = b.id; }
     plan.jokers--;
     save();
     toast(`🃏 Ny idé: ${a.t}`);
@@ -1577,7 +1825,7 @@ const SPECIAL_DAYS = [
       save();
       if (ai > 0) {
         const a = actById(plan.steps[ai].act);
-        notify(`${SLOTS[ai].icon} ${SLOTS[ai].label}: ${a.t}`, 'Nyt stop og ny udfordring er låst op!');
+        notify(`${plan.slots[ai].icon} ${plan.slots[ai].label}: ${a.t}`, 'Nyt stop og ny udfordring er låst op!');
         navigator.vibrate?.([100, 50, 100]);
       }
       if (view === 'plan') renderPlan();
@@ -1599,8 +1847,10 @@ const SPECIAL_DAYS = [
     const st = store.settings;
     switch (act) {
       case 'set':
-        st[el.dataset.key] = el.dataset.key === 'alc' ? +el.dataset.val : el.dataset.val;
+        st[el.dataset.key] = ['alc', 'start'].includes(el.dataset.key) ? +el.dataset.val : el.dataset.val;
         save(); renderSetup(); break;
+      case 'startnow':
+        store.plan.startedEarly = true; save(); renderPlan(); break;
       case 'geo':
         if (!navigator.geolocation) return toast('Din browser understøtter ikke position.');
         navigator.geolocation.getCurrentPosition(
@@ -1616,7 +1866,7 @@ const SPECIAL_DAYS = [
       case 'undo':
         Object.assign(store.plan.steps[i], { status: 'todo', bonus: false, doneAt: null }); save(); renderPlan(); break;
       case 'joker':
-        if (confirm(`Brug en joker og få en ny idé til ${SLOTS[i].label.toLowerCase()}? (${store.plan.jokers} tilbage)`)) useJoker(i);
+        if (confirm(`Brug en joker og få en ny idé til ${store.plan.slots[i].label.toLowerCase()} kl. ${store.plan.slots[i].time}? (${store.plan.jokers} tilbage)`)) useJoker(i);
         break;
       case 'planb': swapPlanB(i); break;
       case 'mission':

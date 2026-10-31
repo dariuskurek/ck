@@ -570,3 +570,118 @@ const SPECIAL_DAYS = [
   { win: ['02-01', '02-20'], name: 'Fastelavn', icon: '🐱', theme: 'Slå katten af tønden' },
   { win: ['06-20', '06-24'], name: 'Sankthans', icon: '🔥', theme: 'Midsommer-missionen' },
 ];
+
+/* ═════════════ HELDAGSMISSIONER ═════════════
+ * Én sammenhængende oplevelse, hvor appen styrer hele dagen kapitel for kapitel.
+ *  b/kr/env/alc/season/minT/sober som aktiviteter (kr = hele dagen pr. person)
+ *  sober  true = ingen alkohol i denne mission (fx bilkørsel), vælges ikke på øl-dag
+ *  ch     kapitler: t, d, q, h (varighed i timer), icon
+ *         alcT/alcD/alcQ erstatter tekst når alkohol er valgt
+ *         opt  true = springes over, hvis dagen starter sent
+ *         map  søgning til "Find på kort"
+ */
+const EPICS = [
+  { id: 'x-mystery', t: 'Mystery-rejsen', icon: '🚆', b: '*', kr: 450, env: 'mix', minT: -10,
+    d: 'Terningen vælger en by, I aldrig har været i. Resten af dagen er I turister dér, og appen fortæller jer, hvad I skal.',
+    ch: [
+      { icon: '🎲', h: 0.75, t: 'Terningen bestemmer', d: 'Find 6 byer 1–2 timer væk med tog eller bus, og giv dem et tal hver. Slå med terningen. Køb billetter med det samme – ingen fortrydelse. Pak en taske med snacks.', q: 'Find på et holdnavn og et rejse-motto, før I går ud af døren.' },
+      { icon: '🚆', h: 1.5, t: 'Rejsen derhen', d: 'Under turen: research byen, men KUN ved at spørge medrejsende eller konduktøren. Lav en "bucket list" med 5 ting, I vil nå.', q: 'Få en fremmed i toget til at give jer et hemmeligt tip om byen.' },
+      { icon: '🥐', h: 1.25, t: 'Ankomst og indtog', d: 'Gå direkte fra stationen til den første bager eller café, en lokal anbefaler. Tag et "vi er ankommet"-billede ved byskiltet eller stationen.', q: 'Spørg 3 lokale "hvad er det bedste ved jeres by?" og skriv svarene ned.' },
+      { icon: '🗺️', h: 2.5, t: 'Erobringen af byen', d: 'Find byens højeste punkt, ældste bygning og mærkeligste butik. Gå uden kort – brug kun skilte og lokale.', q: 'Find en souvenir til under 20 kr, der er så grim, at den er smuk.' },
+      { icon: '🍽️', h: 1.5, t: 'Lokal frokost', d: 'Spis dér, hvor de lokale spiser – ikke turiststedet på torvet. Spørg en ansat i en butik.', q: 'Bestil den lokale specialitet, uanset hvad den er.', alcT: 'Lokal frokost + byens øl', alcD: 'Spis dér, hvor de lokale spiser, og bestil den øl, der er brygget tættest på.' },
+      { icon: '🧭', h: 2, t: 'Bucket list-jagten', d: 'Nå så mange af jeres 5 bucket list-punkter som muligt. Det vildeste punkt giver dobbelt point.', q: 'Klar mindst 3 af de 5 punkter.', opt: true },
+      { icon: '🍝', h: 1.5, t: 'Middag i den fremmede by', d: 'Find byens bedst anmeldte restaurant inden for jeres budget. Skål for erobringen.', q: 'Hold en tale om dagens bedste øjeblik.', alcD: 'Find byens bedst anmeldte restaurant. Bestil lokalt fadøl, og skål for erobringen.' },
+      { icon: '🌙', h: 1.5, t: 'Hjemrejse og kåring', d: 'På vej hjem: kår dagens MVP, dagens bedste foto og dagens mest pinlige øjeblik.', q: 'Planlæg allerede næste mystery-rejse.', alcT: 'Bar-stop før hjemrejsen', alcD: 'Ét sidste glas på en lokal bar, før toget går. Kår dagens MVP, bedste foto og mest pinlige øjeblik på vej hjem.' },
+    ] },
+
+  { id: 'x-oelpilgrim', t: 'Den Store Øl-pilgrimsfærd', icon: '🍺', b: '*', kr: 600, env: 'mix', minT: -10, alc: 1,
+    d: 'En hel dag dedikeret til øl: bryghuse, øl-sport, øl-mad og en pubcrawl til sidst. Drik vand mellem hvert kapitel.',
+    ch: [
+      { icon: '🍳', h: 1.25, t: 'Pilgrimmens morgenmad', d: 'Solid morgenmad (æg, bacon, brød) – bunden skal lægges! Lav en "pilgrim-pas" på et stykke papir, hvor hvert sted skal give et stempel eller en underskrift.', q: 'Design et logo til jeres pilgrim-pas.' },
+      { icon: '🏭', h: 2, t: 'Første bryghus', d: 'Find nærmeste mikrobryggeri med smagning eller rundvisning. Smag dig igennem en smagebakke.', q: 'Få bryggeren til at underskrive jeres pilgrim-pas.', map: 'mikrobryggeri' },
+      { icon: '🌭', h: 1.25, t: 'Pølser og pilsner', d: 'Frokost på pølsevogn eller grillbar med en kold pilsner. Plus et stort glas vand.', q: 'Find den bedste ristede i området.', map: 'pølsevogn' },
+      { icon: '🏓', h: 2, t: 'Øl-OL', d: 'Beer pong, flip cup og øl-frisbeegolf. Hold mod hold. Halve kopper og masser af vand.', q: 'Vind mindst én disciplin.' },
+      { icon: '🛒', h: 1, t: 'Jorden rundt i øl', d: 'Gå i en ølbutik. Hver person køber én øl fra et land, ingen af de andre gætter. Smag og bedøm.', q: 'Find en øl fra et land med under 5 mio. indbyggere.', opt: true, map: 'ølbutik' },
+      { icon: '🍖', h: 1.5, t: 'Øl-middag', d: 'Spis et sted med ølmenu eller pairing – eller lav ølbraiseret mad hjemme.', q: 'Gæt øltypen til hver ret.', map: 'ølmenu restaurant' },
+      { icon: '🎲', h: 2.5, t: 'Den Store Terning-pubcrawl', d: 'Slå med terningen ved hver dør: lige = højre, ulige = venstre. 4 barer. Ét glas pr. sted og vand imellem.', q: 'Få et stempel i pilgrim-passet på hver bar.', map: 'bar' },
+    ] },
+
+  { id: 'x-vildmark', t: 'Overlevelsesdagen', icon: '🏕️', b: 'billig', kr: 120, env: 'mix', minT: 0,
+    d: 'Rygsæk på, telefonen på flytilstand (næsten). I vandrer, laver mad over bål og klarer jer selv en hel dag i naturen.',
+    ch: [
+      { icon: '🎒', h: 1, t: 'Pak overlevelsestasken', d: 'Pak: vand, pølser/brød, tændstikker, kniv, lommelygte, tæppe, regnjakke og én "luksusting" hver. Find en skov eller et naturområde med shelter (udinaturen.dk).', q: 'Luksustingen skal bruges i løbet af dagen.' },
+      { icon: '🥾', h: 2.5, t: 'Ekspeditionen', d: 'Vandr til shelteren eller bålpladsen – gerne den lange vej. Navigér med kort og kompas-app, ikke GPS-rute.', q: 'Find og identificér 5 forskellige træarter.', map: 'shelter' },
+      { icon: '🔥', h: 1.5, t: 'Bål og frokost', d: 'Saml tørt brænde og tænd bål uden tændvæske. Grill pølser og brød over bålet.', q: 'Tænd bålet med højst 3 tændstikker.' },
+      { icon: '🛖', h: 2, t: 'Byg en lejr', d: 'Byg et læ af grene, en stol af træstammer eller en kæmpe tipi-skulptur. Spil skovens OL: kogle-kast, balance på stamme.', q: 'Byg noget, alle kan sidde i eller under.', opt: true },
+      { icon: '🍲', h: 1.5, t: 'Bålmad til aften', d: 'Lav en gryderet eller pasta over bålet. Snobrød til dessert.', q: 'Lav en ret, ingen af jer har lavet over bål før.', alcD: 'Lav en gryderet over bålet. Kolde øl fra rygsækken og snobrød til dessert.' },
+      { icon: '✨', h: 2, t: 'Mørket og stjernerne', d: 'Sluk alle lygter i 5 minutter og lyt. Fortæl historier ved bålet. Overnat i shelteren, hvis I tør – ellers vandr hjem med pandelamper.', q: 'Fortæl en historie, hvor hver person kun siger én sætning ad gangen.' },
+    ] },
+
+  { id: 'x-kostume', t: 'Karakter-dagen', icon: '🎭', b: 'billig', kr: 200, env: 'mix', minT: -5,
+    d: 'Alle bliver en karakter fra morgen til aften. Navn, stemme, baggrundshistorie – og I bryder ALDRIG rollen.',
+    ch: [
+      { icon: '🎭', h: 1.25, t: 'Skab jeres karakterer', d: 'Hver person trækker et job (pirat, rumforsker, kongelig, detektiv, 80’er-rockstjerne, nisse) og laver et kostume af ting i huset eller fra en genbrugsbutik.', q: 'Opfind en baggrundshistorie og et slogan til karakteren.', map: 'genbrugsbutik' },
+      { icon: '☕', h: 1.25, t: 'Morgenmad i rollen', d: 'Gå på café og bestil i rollen. Tip: jo mere seriøst I gør det, jo sjovere er det.', q: 'Få personalet til at spille med.' },
+      { icon: '🔍', h: 2, t: 'Karakterernes mission', d: 'Lav en byvandring, hvor hver karakter skal "løse" et problem fra sin verden: piraten finder skat, detektiven løser et mysterium, rockstjernen giver autografer.', q: 'Få 3 fremmede til at tage et billede med jer.' },
+      { icon: '🍔', h: 1.25, t: 'Frokost-forhandling', d: 'Forhandl om frokosten i rollen (spørg om rabat, en ekstra pommes – høfligt).', q: 'Få noget gratis eller ekstra.', alcD: 'Frokost på en bodega eller pub – bestil i rollen og forsøg at få en gratis omgang.' },
+      { icon: '📸', h: 2.5, t: 'Fotoshoot og film', d: 'Lav en 1-minuts film eller et fotoshoot med en plot, hvor alle karakterer møder hinanden.', q: 'Filmen skal have et twist til sidst.', opt: true },
+      { icon: '🍽️', h: 1.5, t: 'Middagsselskabet', d: 'Middag, hvor alle stadig er i rollen. Hold taler som karaktererne.', q: 'Hver karakter holder en takketale.' },
+      { icon: '🎤', h: 2, t: 'Afsløringen', d: 'Karaoke eller dans som jeres karakterer. Ved midnat (eller når I er færdige) afslører alle "den rigtige mig".', q: 'Syng en sang, som karakteren ville elske.', alcT: 'Bar-crawl i rollen', alcD: 'Tag på barer i kostumerne. Stamgæster elsker det. Afslut med karaoke.' },
+    ] },
+
+  { id: 'x-jadag', t: 'Ja-dagen', icon: '🙋', b: 'billig', kr: 250, env: 'mix', minT: -5,
+    d: 'Fremmede bestemmer hele jeres dag. Hvert kapitel starter med, at I spørger en fremmed – og I siger JA (så længe det er lovligt og sikkert).',
+    ch: [
+      { icon: '🙋', h: 1.25, t: 'Første ja', d: 'Gå ud og spørg den første person, I møder: "Hvor skal vi spise morgenmad?" Gå derhen.', q: 'Få personen til at uddybe hvorfor.' },
+      { icon: '🧭', h: 2, t: 'Formiddagens ja', d: 'Spørg 3 fremmede "Hvad er det sjoveste, man kan lave her i nærheden?" Gør det, to af dem siger det samme om – eller det mest skøre.', q: 'Tag et billede med den, der gav ideen (hvis de vil).' },
+      { icon: '🥪', h: 1.25, t: 'Frokostens ja', d: 'Bed en ansat i en butik om at vælge jeres frokost. I spiser, hvad de siger.', q: 'Spis det hele – også hvis det er mærkeligt.' },
+      { icon: '🎲', h: 2.5, t: 'Det store ja', d: 'Spørg en fremmed: "Hvis du havde en fri eftermiddag her, hvad ville du så gøre?" Gør det.', q: 'Send en tak-besked eller et billede til personen, hvis I fik kontakt.', opt: true },
+      { icon: '🍽️', h: 1.5, t: 'Aftensmadens ja', d: 'Ring til en ven eller et familiemedlem, og lad dem bestemme, hvor I spiser.', q: 'Inviter den person med, hvis de kan.' },
+      { icon: '🌙', h: 2, t: 'Aftenens sidste ja', d: 'Spørg en bartender, dørmand eller servitrice: "Hvor skal vi hen nu?" Følg rådet.', q: 'Fortæl dem bagefter, hvordan det gik.', alcD: 'Spørg en bartender: "Hvor skal vi hen nu?" Følg rådet – ét glas på hvert anbefalet sted.' },
+    ] },
+
+  { id: 'x-luksus', t: 'Luksusdagen', icon: '💎', b: 'dyr', kr: 3000, env: 'inde',
+    d: 'Behandl jer selv, som om I lige har vundet i lotto. Spa, adrenalin, smagsmenu og cocktails.',
+    ch: [
+      { icon: '🧖', h: 2, t: 'Spa-morgen', d: 'Book spa eller wellness med sauna, damp og boblebad. Morgenkåber på.', q: 'Prøv en behandling, I aldrig har prøvet.', map: 'spa wellness' },
+      { icon: '🥂', h: 1.5, t: 'Champagnebrunch', d: 'Brunch på byens fineste hotel eller restaurant.', q: 'Bestil noget med trøffel eller kaviar.', alcD: 'Brunch på byens fineste hotel – med champagne eller en fancy øl.', map: 'hotel brunch' },
+      { icon: '🪂', h: 2.5, t: 'Adrenalin-kapitlet', d: 'Book noget vildt: rally-kørsel, faldskærm, helikoptertur, flyvetime eller indendørs faldskærm.', q: 'Film jeres reaktion.', map: 'indendørs faldskærm' },
+      { icon: '🛍️', h: 1.5, t: 'Gave-runden', d: 'Hver person har et budget og skal købe en overraskelsesgave til en anden i gruppen.', q: 'Gaven skal passe perfekt – eller være perfekt absurd.', opt: true },
+      { icon: '🍾', h: 2.5, t: 'Smagsmenuen', d: 'Smagsmenu på en restaurant, I aldrig har haft råd til. Pænt tøj på.', q: 'Find på et navn til hver ret, der er bedre end kortets.', alcD: 'Smagsmenu med vin- eller ølmenu. Pænt tøj på.', map: 'restaurant smagsmenu' },
+      { icon: '🍸', h: 2, t: 'Rooftop og natteliv', d: 'Afslut på en rooftop-bar, en jazzklub eller i en VIP-lounge.', q: 'Find den bedste udsigt i byen.', alcD: 'Cocktails på en rooftop-bar – bestil "bartender’s choice".', map: 'rooftop bar' },
+    ] },
+
+  { id: 'x-yderpunkter', t: 'Byens yderpunkter', icon: '🧭', b: 'billig', kr: 150, env: 'ude', minT: 3,
+    d: 'Find jeres bys nordligste, sydligste, østligste og vestligste punkt – og plant et "flag" ved hvert. Til fods, på cykel eller med bus.',
+    ch: [
+      { icon: '🗺️', h: 0.75, t: 'Krigsplanen', d: 'Åbn et kort og find byens fire yderpunkter. Lav et flag (et stykke stof, en sok). Planlæg ruten.', q: 'Giv hvert punkt et dramatisk navn.' },
+      { icon: '⬆️', h: 2, t: 'Nordpunktet', d: 'Tag til det nordligste punkt. Plant flaget (midlertidigt) og tag et erobringsbillede.', q: 'Find noget, der er karakteristisk for netop dette sted.' },
+      { icon: '➡️', h: 2, t: 'Østpunktet + frokost', d: 'Videre mod øst. Spis frokost på vejen på det første sted, der dukker op.', q: 'Spørg en lokal, om de vidste, de bor på byens kant.' },
+      { icon: '⬇️', h: 2, t: 'Sydpunktet', d: 'Mod syd. Undervejs: find byens mærkeligste skilt.', q: 'Lav en slow-motion-video af erobringen.' },
+      { icon: '⬅️', h: 2, t: 'Vestpunktet ved solnedgang', d: 'Mod vest – helst så I når solnedgangen ved sidste punkt.', q: 'Tag et billede af solen bag flaget.', opt: true },
+      { icon: '🏆', h: 1.5, t: 'Sejrsmåltidet', d: 'Spis et sted midt i byen – i centrum af jeres erobring. Tæl skridt og kilometer.', q: 'Lav et kort over dagen med alle punkter.', alcD: 'Sejrsmåltid midt i byen med en stor fadøl. Tæl skridt og kilometer.' },
+    ] },
+
+  { id: 'x-hule', t: 'Hygge-hule-maraton', icon: '🛋️', b: 'billig', kr: 150, env: 'inde',
+    d: 'Vejret er træls? Perfekt. I bygger en kæmpe pudeborg og holder et indendørs maraton af spil, mad og film.',
+    ch: [
+      { icon: '🏰', h: 1.5, t: 'Byg borgen', d: 'Byg den største pudeborg, stuen kan klare: tæpper, stole, lyskæder. Den skal have en indgang og et navn.', q: 'Borgen skal have plads til alle + snacks.' },
+      { icon: '🥞', h: 1, t: 'Pandekage-kampen', d: 'Hver person laver en pandekage med den skøreste topping. Blindsmagning.', q: 'Vend en pandekage med et kast over 50 cm.' },
+      { icon: '🎲', h: 2.5, t: 'Brætspils-OL', d: 'Tre forskellige spil, point-tavle og medaljer af sølvpapir.', q: 'Opfind en ekstra regel i hvert spil.' },
+      { icon: '🍕', h: 1.5, t: 'Pizza-kunst', d: 'Lav pizzadej, og lav portrætter af hinanden med toppings.', q: 'De andre skal gætte, hvem pizzaen forestiller.', alcD: 'Lav pizzaportrætter af hinanden – med en øl til hver kok.' },
+      { icon: '🎤', h: 1.5, t: 'Stue-karaoke', d: 'YouTube-karaoke. Alle synger mindst 2 sange – én valgt af de andre.', q: 'Lav en duet med koreografi.', opt: true },
+      { icon: '🎬', h: 3, t: 'Filmmaraton i borgen', d: 'To film i borgen. Den ene vælges af terningen fra en liste på 6.', q: 'Ingen må kigge på telefonen under filmen.', alcD: 'Filmmaraton i borgen med en drukleg: én tår, hver gang nogen siger filmens titel.' },
+    ] },
+
+  { id: 'x-roadtrip', t: 'Roadtrip-roulette', icon: '🚗', b: '*', kr: 400, env: 'mix', minT: -5, sober: true,
+    d: 'Bil, playliste og terning. Ved hvert kryds bestemmer terningen retningen. I ved ikke, hvor I ender – det er pointen. (Alkoholfri dag – der skal køres.)',
+    ch: [
+      { icon: '🎵', h: 0.75, t: 'Playliste og proviant', d: 'Lav en fælles playliste (alle tilføjer 10 sange) og køb snacks, I aldrig har prøvet.', q: 'Playlisten skal have et navn og et cover-billede.' },
+      { icon: '🎲', h: 2, t: 'Terning-ruten', d: 'Kør ud af byen. Ved hvert større kryds: 1–2 venstre, 3–4 ligeud, 5–6 højre. Kør i ca. 1 time.', q: 'Find en vej med et sjovt navn, og tag billede ved skiltet.' },
+      { icon: '🏞️', h: 1.5, t: 'Det første stop', d: 'Stop ved det første seværdighedsskilt (brunt skilt), I ser. Udforsk det.', q: 'Find ud af én fun fact om stedet.' },
+      { icon: '🍔', h: 1.25, t: 'Landevejsfrokost', d: 'Spis på den første kro, grillbar eller gårdbutik på ruten.', q: 'Bestil "husets specialitet".' },
+      { icon: '🌊', h: 2, t: 'Kør til vandet', d: 'Find nærmeste strand, sø eller havn – uanset hvor I er. Gå en tur og saml en sten hver.', q: 'Skriv dagens dato på stenene.', opt: true },
+      { icon: '🍽️', h: 1.5, t: 'Middag på en fremmed kro', d: 'Find en kro eller restaurant i den nærmeste by, I ikke kender.', q: 'Få personalet til at fortælle en lokal historie.' },
+      { icon: '🌌', h: 1.5, t: 'Hjemturen', d: 'Kør hjem med playlisten på fuld styrke. Stop ved et mørkt sted, og se stjernerne i 5 minutter.', q: 'Syng hele vejen igennem én sang uden at stoppe.' },
+    ] },
+];

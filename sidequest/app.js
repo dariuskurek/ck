@@ -33,7 +33,43 @@
   const fmtDate = (iso) => parseDate(iso).toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long' });
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-  const actById = (id) => ACTIVITIES.find((a) => a.id === id);
+  const epicById = (id) => EPICS.find((e) => e.id === id);
+  function actById(id) {
+    if (!id) return undefined;
+    if (!id.includes('#')) return ACTIVITIES.find((a) => a.id === id);
+    // Kapitel i en heldagsmission: "x-mystery#3"
+    const [eid, k] = id.split('#');
+    const e = epicById(eid);
+    const c = e?.ch[+k];
+    if (!c) return undefined;
+    const alc = store.plan?.alc;
+    return {
+      id, t: (alc && c.alcT) || c.t, d: (alc && c.alcD) || c.d, q: (alc && c.alcQ) || c.q,
+      b: e.b, kr: 0, env: e.env, minT: e.minT, alc: e.alc, sober: e.sober, map: c.map, icon: c.icon, dark: true,
+    };
+  }
+  const KIND = Object.fromEntries(SLOTS.map((x) => [x.id, x]));
+  const round15 = (h) => Math.round(h * 4) / 4;
+  const kindFor = (h) => (h < 10 ? 'morgen' : h < 12.5 ? 'formiddag' : h < 19.25 ? 'eftermiddag' : 'aften');
+
+  // Bygger dagens tidspunkter ud fra den valgte starttid, med frokost ~12:30 og aftensmad ~18:00
+  function buildSlots(start) {
+    const out = [];
+    const add = (id, h) => out.push({ id, h: round15(h), time: hoursToClock(round15(h)), label: KIND[id].label, icon: KIND[id].icon });
+    let t = start;
+    for (const meal of [{ id: 'frokost', h: 12.5 }, { id: 'middag', h: 18 }]) {
+      if (t > meal.h + 0.75) continue; // måltidet er passeret
+      const gap = meal.h - t;
+      if (gap < 1) { add(meal.id, t); t += 1.5; continue; }
+      const n = Math.ceil(gap / 2.75);
+      for (let k = 0; k < n; k++) { add(kindFor(t), t); t += gap / n; }
+      add(meal.id, meal.h);
+      t = meal.h + 1.5;
+    }
+    add('aften', out.length ? Math.max(t, 19.5) : t);
+    if (out.length < 4 && out[out.length - 1].h + 2 <= 22.5) add('aften', out[out.length - 1].h + 2);
+    return out;
+  }
 
   function seasonOf(iso) {
     const m = parseDate(iso).getMonth() + 1;
@@ -71,6 +107,9 @@
   // Ældre versioner gemte alkohol som true/false – nu 0 (uden), 1 (med) eller 2 (øl-dag)
   if (typeof store.settings.alc === 'boolean') store.settings.alc = store.settings.alc ? 1 : 0;
   if (store.plan && typeof store.plan.alc === 'boolean') store.plan.alc = store.plan.alc ? 1 : 0;
+  if (store.plan && !store.plan.slots) { store.plan.slots = SLOTS.map((x) => ({ ...x })); store.plan.mode = 'stop'; }
+  if (store.settings.start == null) store.settings.start = 9;
+  if (!store.settings.mode) store.settings.mode = 'stop';
   function save() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
     catch (e) {
@@ -237,9 +276,8 @@
     return true;
   }
 
-  function chooseFor(slot, plan, used, { indoorOnly = false } = {}) {
+  function chooseFor(slot, plan, used, { indoorOnly = false, idx = plan.steps.length } = {}) {
     const ctx = makeCtx(plan);
-    const idx = SLOTS.indexOf(slot);
     const sw = slotWeather(plan.wx, slot);
     const specials = plan.steps.filter((st, i) => i !== idx && actById(st.act)?.win).length;
     const base = (a) => !used.has(a.id) && a.s.includes(slot.id) && (a.alc !== 1 || ctx.alc) && safeWithBeer(a, plan, idx);
@@ -249,7 +287,7 @@
     if (ctx.alc && !indoorOnly) {
       const beerPool = pool.filter((a) => a.alc === 1);
       const minBeer = ctx.alc === 2 ? 4 : 2;
-      const slotsLeft = SLOTS.length - idx;
+      const slotsLeft = plan.slots.length - idx;
       const missing = minBeer - beerCount(plan);
       const chance = ctx.alc === 2
         ? (slot.id === 'morgen' ? 0.5 : 0.85)
@@ -267,19 +305,66 @@
     return s;
   }
 
-  function buildPlan({ date, budget, alc, loc, wx }) {
+  function pickEpic(plan) {
+    const ctx = makeCtx(plan);
+    const d = plan.wx.daily;
+    const list = EPICS.filter((e) => {
+      if (e.b !== '*' && e.b !== ctx.budget) return false;
+      if (e.alc === 1 && !ctx.alc) return false;
+      if (e.sober && ctx.alc === 2) return false;
+      if (e.season && !e.season.includes(ctx.season)) return false;
+      if (e.env === 'ude' && (d.pp >= 60 || d.tmax < (e.minT ?? 5))) return false;
+      if (e.env === 'mix' && (d.pp >= 85 || d.tmax < (e.minT ?? 0))) return false;
+      return true;
+    });
+    return weightedPick(list.map((e) => {
+      let w = 1;
+      if (e.alc === 1) w *= ctx.alc === 2 ? 5 : 1.5;
+      if (e.sober && ctx.alc) w *= 0.4;
+      if (d.pp >= 60 && e.env === 'inde') w *= 2;
+      if (d.pp < 40 && e.env === 'inde' && e.b !== 'dyr') w *= 0.15; // hygge-hulen er til regnvejr
+      if (d.pp < 30 && d.tmax >= 12 && e.env !== 'inde') w *= 1.5;
+      if (ctx.budget === 'dyr' && e.b === 'dyr') w *= 2;
+      return { a: e, w };
+    }));
+  }
+
+  function buildEpicPlan(plan) {
+    const e = pickEpic(plan);
+    let chs = e.ch.map((c, k) => ({ ...c, k }));
+    const end = (list) => plan.start + list.reduce((s, c) => s + c.h, 0);
+    // Starter dagen sent, droppes valgfrie kapitler – og til sidst kapitler fra midten
+    while (end(chs) > 24 && chs.some((c) => c.opt)) chs.splice(chs.findIndex((c) => c.opt), 1);
+    while (end(chs) > 24.5 && chs.length > 3) chs.splice(Math.floor(chs.length / 2), 1);
+    let t = plan.start;
+    plan.mode = 'epic';
+    plan.epic = e.id;
+    plan.jokers = 0;
+    plan.slots = chs.map((c, n) => {
+      const h = round15(t); t += c.h;
+      return { id: 'kapitel', h, time: hoursToClock(h % 24), label: `Kapitel ${n + 1}`, icon: c.icon };
+    });
+    plan.steps = chs.map((c) => ({ slot: 'kapitel', act: `${e.id}#${c.k}`, planB: null, kaos: pickKaos(plan.alc), status: 'todo', bonus: false, note: '', photo: null, doneAt: null }));
+    if (!specialOf(plan.date)) plan.theme = e.t;
+    return plan;
+  }
+
+  const pickKaos = (alc) => (alc && Math.random() < (alc === 2 ? 0.6 : 0.3) ? pick(KAOS_ALC) : pick(KAOS));
+
+  function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop' }) {
     const special = specialOf(date);
     const plan = {
-      date, budget, alc, loc, wx,
+      date, budget, alc, loc, wx, start, mode, slots: buildSlots(start), startedEarly: false,
       theme: special ? special.theme : alc === 2 ? pick(THEME_BEER) : `${pick(THEME_A)} ${pick(THEME_B)}`,
       mission: pick(alc ? [...MISSIONS, ...MISSIONS_ALC, ...MISSIONS_ALC] : MISSIONS), missionDone: false,
       jokers: 3, notified: [], createdAt: Date.now(), steps: [],
     };
+    if (mode === 'epic') return buildEpicPlan(plan);
     const used = new Set();
-    for (const slot of SLOTS) {
+    for (const slot of plan.slots) {
       const a = chooseFor(slot, plan, used);
       used.add(a.id);
-      const kaos = alc && Math.random() < (alc === 2 ? 0.6 : 0.3) ? pick(KAOS_ALC) : pick(KAOS);
+      const kaos = pickKaos(alc);
       const step = { slot: slot.id, act: a.id, planB: null, kaos, status: 'todo', bonus: false, note: '', photo: null, doneAt: null };
       if (a.env !== 'inde') {
         const b = chooseFor(slot, plan, used, { indoorOnly: true });
@@ -302,9 +387,9 @@
     const mode = dayMode(plan);
     if (mode === 'past') return true;
     if (mode === 'preview') return false;
-    if (i === 0) return true;
+    if (i === 0) return plan.startedEarly || nowHours() >= plan.slots[0].h - 0.25;
     if (plan.steps[i - 1].status !== 'todo') return true;
-    return nowHours() >= SLOTS[i].h;
+    return nowHours() >= plan.slots[i].h;
   }
 
   function activeIndex(plan) {
@@ -312,7 +397,8 @@
     return plan.steps.findIndex((s, i) => s.status === 'todo' && isUnlocked(plan, i));
   }
 
-  const missionUnlocked = (plan) => isUnlocked(plan, 2);
+  const missionIdx = (plan) => Math.min(plan.steps.length - 1, Math.floor(plan.steps.length / 3));
+  const missionUnlocked = (plan) => isUnlocked(plan, missionIdx(plan));
   const allDone = (plan) => plan.steps.every((s) => s.status !== 'todo');
 
   function points(plan) {
@@ -323,6 +409,7 @@
   }
 
   function totalCost(plan) {
+    if (plan.mode === 'epic') return epicById(plan.epic).kr;
     return plan.steps.reduce((s, st) => s + (actById(st.act)?.kr || 0), 0);
   }
 
@@ -356,6 +443,15 @@
   /* ───────────── UI: opsætning ───────────── */
   let view = null;
 
+  function startOptions(st) {
+    const opts = [7, 8, 9, 10, 11, 12, 13, 14, 16].map((h) => ({ h, label: hoursToClock(h) }));
+    if (st.date === todayISO()) {
+      const now = Math.ceil(nowHours() * 4) / 4;
+      if (now <= 21 && !opts.some((o) => o.h === now)) opts.unshift({ h: now, label: `Nu (${hoursToClock(now)})` });
+    }
+    return opts;
+  }
+
   function renderSetup() {
     view = 'setup';
     const st = store.settings;
@@ -386,7 +482,27 @@
       </section>
 
       <section class="card">
-        <h2>2. Budget</h2>
+        <h2>2. Hvornår starter I?</h2>
+        <div class="seg times">
+          ${startOptions(st).map((o) => `<button class="${o.h === st.start ? 'on' : ''}" data-action="set" data-key="start" data-val="${o.h}">${o.label}</button>`).join('')}
+        </div>
+        <div class="row"><label class="small muted" for="starttime">Eller vælg præcist:</label>
+          <input id="starttime" type="time" step="900" value="${hoursToClock(st.start)}" style="width:auto"></div>
+        <p class="muted small">Planen starter kl. <b>${hoursToClock(st.start)}</b> og kører til sent på aftenen. Frokost og aftensmad lægges på normale tidspunkter.</p>
+      </section>
+
+      <section class="card">
+        <h2>3. Hvordan skal dagen være?</h2>
+        <div class="big-choice">
+          <button class="${st.mode === 'stop' ? 'on' : ''}" data-action="set" data-key="mode" data-val="stop">
+            <span class="em">🎲</span><b>Mange stop</b><small>5–8 forskellige aktiviteter i løbet af dagen. Jokere og Plan B.</small></button>
+          <button class="${st.mode === 'epic' ? 'on' : ''}" data-action="set" data-key="mode" data-val="epic">
+            <span class="em">🗺️</span><b>Heldagsmission</b><small>Én stor sammenhængende oplevelse. Appen styrer hele dagen kapitel for kapitel.</small></button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>4. Budget</h2>
         <div class="big-choice">
           <button class="${st.budget === 'billig' ? 'on' : ''}" data-action="set" data-key="budget" data-val="billig">
             <span class="em">🪙</span><b>Billig</b><small>Ca. 0–400 kr pr. person for hele dagen (lidt mere på en øl-dag). Kreativitet frem for kreditkort.</small></button>
@@ -396,7 +512,7 @@
       </section>
 
       <section class="card">
-        <h2>3. Alkohol?</h2>
+        <h2>5. Alkohol?</h2>
         <div class="big-choice three">
           <button class="${st.alc === 0 ? 'on' : ''}" data-action="set" data-key="alc" data-val="0">
             <span class="em">🧃</span><span><b>Uden alkohol</b><small>Klar hjerne, vilde oplevelser, mocktails.</small></span></button>
@@ -409,7 +525,7 @@
       </section>
 
       <section class="card">
-        <h2>4. Hvor er I?</h2>
+        <h2>6. Hvor er I?</h2>
         <p class="muted small">Bruges kun til at hente vejrudsigten. Nu: <b id="locname">${esc(st.loc.name)}</b></p>
         <div class="row">
           <button class="btn ghost" data-action="geo">📍 Brug min position</button>
@@ -426,6 +542,12 @@
       <p class="muted small center">${st.budget && st.alc != null ? 'Klar? Tryk og få din plan.' : 'Vælg budget og alkohol for at fortsætte.'}</p>
     `;
 
+    $('#starttime').addEventListener('change', (e) => {
+      const [hh, mm] = e.target.value.split(':').map(Number);
+      if (Number.isNaN(hh)) return;
+      st.start = Math.min(21, Math.max(5, hh + (mm || 0) / 60));
+      save(); renderSetup();
+    });
     $('#cityform').addEventListener('submit', async (e) => {
       e.preventDefault();
       const q = $('#city').value.trim();
@@ -462,7 +584,7 @@
 
     let banner = '';
     if (mode === 'preview') {
-      banner = `<div class="banner">🔒 Det er ikke ${fmtDate(plan.date)} endnu. Planen ligger klar – udfordringerne og den hemmelige mission låses op på dagen. Kom tilbage kl. 09:00!</div>`;
+      banner = `<div class="banner">🔒 Det er ikke ${fmtDate(plan.date)} endnu. Planen ligger klar – udfordringerne og den hemmelige mission låses op på dagen. Jeres dag starter kl. ${plan.slots[0].time}!</div>`;
     } else if (mode === 'past') {
       banner = `<div class="banner">📅 Denne sidequest var ${fmtDate(plan.date)}. <button class="link" data-action="report">Se rapporten</button> eller <button class="link" data-action="new">rul en ny</button>.</div>`;
     }
@@ -480,7 +602,8 @@
           <span class="chip">${['🧃 Alkoholfri', '🍻 Med alkohol', '🍺 Øl-dag'][plan.alc]}</span>
         </div>
         <h1 class="theme">${esc(plan.theme)}</h1>
-        <p class="muted">${cap(fmtDate(plan.date))} · 📍 ${esc(plan.loc.name)}</p>
+        ${plan.mode === 'epic' ? `<p class="epic-intro">${epicById(plan.epic).icon} <b>Heldagsmission: ${esc(epicById(plan.epic).t)}.</b> ${esc(epicById(plan.epic).d)}</p>` : ''}
+        <p class="muted">${cap(fmtDate(plan.date))} · ⏰ fra kl. ${plan.slots[0].time} · 📍 ${esc(plan.loc.name)}</p>
         <div class="wxbar">
           <div class="wxbig">${dIcon}</div>
           <div>
@@ -513,7 +636,7 @@
     document.title = ai >= 0 ? `Nu: ${actById(plan.steps[ai].act).t} – Sidequest` : 'Sidequest';
   }
 
-  function priceTag(a) { return a.kr === 0 ? 'Gratis' : `ca. ${a.kr} kr`; }
+  function priceTag(a) { return a.id.includes('#') ? 'Inkl. i missionen' : a.kr === 0 ? 'Gratis' : `ca. ${a.kr} kr`; }
   const mapLink = (a) => a.map ? `<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.map + ' nær mig')}">🗺️ Find på kort</a>` : '';
   const envTag = (a) => ({ ude: '🌳 Udendørs', mix: '🧥 Ude/inde', inde: '🏠 Indendørs' }[a.env]);
 
@@ -525,11 +648,16 @@
           <button class="btn primary" data-action="report">📜 Se rapporten</button></section>`;
       }
       const next = plan.steps.findIndex((s) => s.status === 'todo');
-      return `<section class="now waiting"><h2>⏳ Næste stop låses op kl. ${SLOTS[next].time}</h2>
-        <p class="muted">Om <b data-countdown="${SLOTS[next].h}"></b>. Hold en pause – eller klar det forrige stop for at låse op tidligere.</p></section>`;
+      if (next === 0) {
+        return `<section class="now waiting"><div class="em-xl">⏰</div><h2>Dagen starter kl. ${plan.slots[0].time}</h2>
+          <p class="muted">Om <b data-countdown="${plan.slots[0].h - 0.25}"></b>. Planen ligger klar nedenfor – udfordringer og kaos-regler låses op undervejs.</p>
+          <button class="btn primary" data-action="startnow">🚀 Start nu alligevel</button></section>`;
+      }
+      return `<section class="now waiting"><h2>⏳ Næste ${plan.mode === 'epic' ? 'kapitel' : 'stop'} låses op kl. ${plan.slots[next].time}</h2>
+        <p class="muted">Om <b data-countdown="${plan.slots[next].h}"></b>. Hold en pause – eller klar det forrige for at låse op tidligere.</p></section>`;
     }
     const step = plan.steps[ai];
-    const slot = SLOTS[ai];
+    const slot = plan.slots[ai];
     const a = actById(step.act);
     const sw = slotWeather(plan.wx, slot);
     const ctx = makeCtx(plan);
@@ -546,7 +674,7 @@
           <span class="chip">${envTag(a)}</span>
           <span class="chip">💰 ${priceTag(a)}</span>
         </div>
-        ${badWx ? `<div class="banner warn">☔ Vejret er ikke med jer lige nu (${sw.text.toLowerCase()}, ${sw.t}°). ${b ? `Plan B: <b>${esc(b.t)}</b>.` : 'Brug en joker for en indendørs idé.'}</div>` : ''}
+        ${badWx ? `<div class="banner warn">☔ Vejret er ikke med jer lige nu (${sw.text.toLowerCase()}, ${sw.t}°). ${b ? `Plan B: <b>${esc(b.t)}</b>.` : plan.mode === 'epic' ? 'Regntøj på – missionen fortsætter! Søg ly undervejs.' : 'Brug en joker for en indendørs idé.'}</div>` : ''}
         <div class="quest">
           <div class="quest-label">⚡ Udfordring (+${POINTS.bonus} point)</div>
           ${esc(a.q)}
@@ -555,7 +683,7 @@
         <div class="actions">
           <button class="btn primary" data-action="complete" data-i="${ai}">✅ Klaret!</button>
           ${b ? `<button class="btn ${badWx ? 'primary alt' : 'ghost'}" data-action="planb" data-i="${ai}">☔ Skift til Plan B</button>` : ''}
-          <button class="btn ghost" data-action="joker" data-i="${ai}" ${plan.jokers ? '' : 'disabled'}>🃏 Joker (${plan.jokers})</button>
+          ${plan.mode === 'epic' ? '' : `<button class="btn ghost" data-action="joker" data-i="${ai}" ${plan.jokers ? '' : 'disabled'}>🃏 Joker (${plan.jokers})</button>`}
           ${mapLink(a)}
           <button class="btn ghost sm" data-action="skip" data-i="${ai}">⏭️ Spring over</button>
         </div>
@@ -565,7 +693,7 @@
   function renderMission(plan) {
     const mode = dayMode(plan);
     if (mode === 'preview') return `<section class="mission locked"><b>🕵️ Hemmelig mission</b><p class="muted">Afsløres på dagen ved frokosttid.</p></section>`;
-    if (!missionUnlocked(plan)) return `<section class="mission locked"><b>🕵️ Hemmelig mission</b><p class="muted">Låses op kl. ${SLOTS[2].time} (eller når I har klaret formiddagens stop).</p></section>`;
+    if (!missionUnlocked(plan)) return `<section class="mission locked"><b>🕵️ Hemmelig mission</b><p class="muted">Låses op kl. ${plan.slots[missionIdx(plan)].time} (eller når I har klaret det forrige ${plan.mode === 'epic' ? 'kapitel' : 'stop'}).</p></section>`;
     return `<section class="mission ${plan.missionDone ? 'ok' : ''}">
       <b>🕵️ Hemmelig mission (+${POINTS.mission} point)</b>
       <p>${esc(plan.mission)}</p>
@@ -574,7 +702,7 @@
   }
 
   function renderStep(plan, s, i, ai) {
-    const slot = SLOTS[i];
+    const slot = plan.slots[i];
     const a = actById(s.act);
     const sw = slotWeather(plan.wx, slot);
     const unlocked = isUnlocked(plan, i);
@@ -612,14 +740,15 @@
     const done = plan.steps.filter((s) => s.status === 'done');
     const badges = [];
     if (plan.steps[0].status === 'done') badges.push('🌅 Morgenfrisk');
-    if (plan.steps[5].status === 'done') badges.push('🌙 Natteravn');
+    if (plan.steps.at(-1).status === 'done' && plan.slots.at(-1).h >= 19.5) badges.push('🌙 Natteravn');
+    if (plan.mode === 'epic' && done.length === plan.steps.length) badges.push(`${epicById(plan.epic).icon} Mission fuldført: ${epicById(plan.epic).t}`);
     if (done.length === plan.steps.length) badges.push('💯 Fuld plan');
     if (done.length && done.every((s) => s.bonus)) badges.push('⚡ Udfordrings-mester');
     if (plan.missionDone) badges.push('🕵️ Hemmelig agent');
     if (plan.jokers === 3) badges.push('🃏 Ingen jokere brugt');
     if (done.filter((st) => isBeer(st.act)).length >= 4) badges.push('🍺 Ølkonge');
     if (done.filter((st) => actById(st.act).vild).length >= 3) badges.push('🤪 Fuldstændig vild');
-    if (done.some((s) => { const a = actById(s.act); return a.env !== 'inde' && slotWeather(plan.wx, SLOTS[plan.steps.indexOf(s)]).wet; })) badges.push('☔ Vejr-trodser');
+    if (done.some((s) => { const a = actById(s.act); return a.env !== 'inde' && slotWeather(plan.wx, plan.slots[plan.steps.indexOf(s)]).wet; })) badges.push('☔ Vejr-trodser');
     if (plan.wx.daily.tmax < 5 && done.some((s) => actById(s.act).env !== 'inde')) badges.push('🥶 Kuldekriger');
 
     app.innerHTML = `
@@ -635,7 +764,7 @@
         <ul class="report-list">
           ${plan.steps.map((s, i) => {
             const a = actById(s.act);
-            return `<li class="${s.status}"><span>${SLOTS[i].time}</span><div><b>${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${esc(a.t)}</b>
+            return `<li class="${s.status}"><span>${plan.slots[i].time}</span><div><b>${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${esc(a.t)}</b>
               ${s.bonus ? '<span class="badge ok">⚡ udfordring klaret</span>' : ''}
               ${s.note ? `<p class="small note">“${esc(s.note)}”</p>` : ''}</div></li>`;
           }).join('')}
@@ -652,7 +781,7 @@
 
   function shareText(plan) {
     const [rIcon, rName] = rank(points(plan));
-    const lines = plan.steps.map((s, i) => `${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${SLOTS[i].time} ${actById(s.act).t}${s.bonus ? ' ⚡' : ''}`);
+    const lines = plan.steps.map((s, i) => `${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${plan.slots[i].time} ${actById(s.act).t}${s.bonus ? ' ⚡' : ''}`);
     return `🎲 Sidequest: ${plan.theme}\n${cap(fmtDate(plan.date))}\n\n${lines.join('\n')}\n\n${rIcon} ${rName} – ⭐ ${points(plan)} point`;
   }
 
@@ -668,7 +797,7 @@
     app.innerHTML = `<div class="loading"><div class="dice">🎲</div><p>Tjekker vejret i ${esc(st.loc.name)} og ruller terningerne…</p></div>`;
     const wx = await getWeather(st.loc, st.date);
     await new Promise((r) => setTimeout(r, 700)); // lidt spænding
-    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx });
+    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx, start: st.start, mode: st.mode });
     save();
     renderPlan();
     window.scrollTo({ top: 0 });
@@ -738,16 +867,16 @@
   function useJoker(i) {
     const plan = store.plan;
     if (!plan.jokers) return;
-    const slot = SLOTS[i];
+    const slot = plan.slots[i];
     const step = plan.steps[i];
     const used = usedIds(plan, i);
     used.add(step.act); // ikke den samme igen
-    const a = chooseFor(slot, plan, used);
+    const a = chooseFor(slot, plan, used, { idx: i });
     if (!a) return toast('Ingen flere idéer til dette tidspunkt 🤷');
     used.add(a.id);
     step.act = a.id;
     step.planB = null;
-    if (a.env !== 'inde') { const b = chooseFor(slot, plan, used, { indoorOnly: true }); if (b) step.planB = b.id; }
+    if (a.env !== 'inde') { const b = chooseFor(slot, plan, used, { indoorOnly: true, idx: i }); if (b) step.planB = b.id; }
     plan.jokers--;
     save();
     toast(`🃏 Ny idé: ${a.t}`);
@@ -792,7 +921,7 @@
       save();
       if (ai > 0) {
         const a = actById(plan.steps[ai].act);
-        notify(`${SLOTS[ai].icon} ${SLOTS[ai].label}: ${a.t}`, 'Nyt stop og ny udfordring er låst op!');
+        notify(`${plan.slots[ai].icon} ${plan.slots[ai].label}: ${a.t}`, 'Nyt stop og ny udfordring er låst op!');
         navigator.vibrate?.([100, 50, 100]);
       }
       if (view === 'plan') renderPlan();
@@ -814,8 +943,10 @@
     const st = store.settings;
     switch (act) {
       case 'set':
-        st[el.dataset.key] = el.dataset.key === 'alc' ? +el.dataset.val : el.dataset.val;
+        st[el.dataset.key] = ['alc', 'start'].includes(el.dataset.key) ? +el.dataset.val : el.dataset.val;
         save(); renderSetup(); break;
+      case 'startnow':
+        store.plan.startedEarly = true; save(); renderPlan(); break;
       case 'geo':
         if (!navigator.geolocation) return toast('Din browser understøtter ikke position.');
         navigator.geolocation.getCurrentPosition(
@@ -831,7 +962,7 @@
       case 'undo':
         Object.assign(store.plan.steps[i], { status: 'todo', bonus: false, doneAt: null }); save(); renderPlan(); break;
       case 'joker':
-        if (confirm(`Brug en joker og få en ny idé til ${SLOTS[i].label.toLowerCase()}? (${store.plan.jokers} tilbage)`)) useJoker(i);
+        if (confirm(`Brug en joker og få en ny idé til ${store.plan.slots[i].label.toLowerCase()} kl. ${store.plan.slots[i].time}? (${store.plan.jokers} tilbage)`)) useJoker(i);
         break;
       case 'planb': swapPlanB(i); break;
       case 'mission':
