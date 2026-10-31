@@ -68,6 +68,9 @@
   const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } };
   let store = load();
   store.settings = store.settings || { budget: null, alc: null, date: null, loc: DEFAULT_LOC };
+  // Ældre versioner gemte alkohol som true/false – nu 0 (uden), 1 (med) eller 2 (øl-dag)
+  if (typeof store.settings.alc === 'boolean') store.settings.alc = store.settings.alc ? 1 : 0;
+  if (store.plan && typeof store.plan.alc === 'boolean') store.plan.alc = store.plan.alc ? 1 : 0;
   function save() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
     catch (e) {
@@ -194,9 +197,13 @@
     if (a.need) w *= 4;
     if (sw.nice) w *= a.env === 'inde' ? 0.5 : 2;
     if ((sw.wet || sw.t < 3) && a.env === 'inde') w *= 1.4;
-    if (ctx.alc && ['eftermiddag', 'middag', 'aften'].includes(slot.id)) {
-      if (a.alc === 1) w *= 1.8;
-      if (a.alc === 0) w *= 0.4;
+    if (a.vild) w *= 1.8;
+    if (ctx.alc === 2) {
+      if (a.alc === 1) w *= slot.id === 'morgen' ? 3 : 6;
+      if (a.alc === 0) w *= 0.2;
+    } else if (ctx.alc && !['morgen', 'formiddag'].includes(slot.id)) {
+      if (a.alc === 1) w *= 2.5;
+      if (a.alc === 0) w *= 0.3;
     }
     if (ctx.budget === 'dyr' && a.b === 'dyr') w *= 1.6;
     if (ctx.budget === 'billig' && a.kr === 0) w *= 1.2;
@@ -216,18 +223,40 @@
     return { budget: plan.budget, alc: plan.alc, season: seasonOf(plan.date), month: d.getMonth() + 1, md: mmdd(plan.date), snowDay };
   }
 
+  const isBeer = (id) => actById(id)?.alc === 1;
+  const isSober = (id) => !!actById(id)?.sober;
+  const beerCount = (plan) => plan.steps.filter((st) => isBeer(st.act)).length;
+
+  // Sikkerhed: efter et øl-stop (også som Plan B) vælges aldrig vand, sauna, kørsel, højder eller økser,
+  // og et øl-stop vælges aldrig før et af dem.
+  function safeWithBeer(a, plan, idx) {
+    const before = plan.steps.slice(0, idx);
+    const after = plan.steps.slice(idx + 1);
+    if (a.sober && before.some((st) => isBeer(st.act) || isBeer(st.planB))) return false;
+    if (a.alc === 1 && after.some((st) => isSober(st.act) || isSober(st.planB))) return false;
+    return true;
+  }
+
   function chooseFor(slot, plan, used, { indoorOnly = false } = {}) {
     const ctx = makeCtx(plan);
+    const idx = SLOTS.indexOf(slot);
     const sw = slotWeather(plan.wx, slot);
-    const specials = plan.steps.filter((st) => actById(st.act)?.win).length;
-    let pool = ACTIVITIES.filter((a) => !used.has(a.id) && eligible(a, slot, ctx) && fits(a, sw, ctx) && (!indoorOnly || a.env === 'inde')
+    const specials = plan.steps.filter((st, i) => i !== idx && actById(st.act)?.win).length;
+    const base = (a) => !used.has(a.id) && a.s.includes(slot.id) && (a.alc !== 1 || ctx.alc) && safeWithBeer(a, plan, idx);
+    let pool = ACTIVITIES.filter((a) => base(a) && eligible(a, slot, ctx) && fits(a, sw, ctx) && (!indoorOnly || a.env === 'inde')
       && !(a.win && specials >= 2));
-    // Har man valgt alkohol, skal mindst ét af dagens stop have det med
-    if (ctx.alc && !indoorOnly && slot.id === 'aften' && !plan.steps.some((st) => actById(st.act)?.alc === 1)) {
-      const alcPool = pool.filter((a) => a.alc === 1);
-      if (alcPool.length) pool = alcPool;
+    // Øl-niveau: tving en vis andel øl-stop ind, og sørg for et minimum i løbet af dagen
+    if (ctx.alc && !indoorOnly) {
+      const beerPool = pool.filter((a) => a.alc === 1);
+      const minBeer = ctx.alc === 2 ? 4 : 2;
+      const slotsLeft = SLOTS.length - idx;
+      const missing = minBeer - beerCount(plan);
+      const chance = ctx.alc === 2
+        ? (slot.id === 'morgen' ? 0.5 : 0.85)
+        : (['morgen', 'formiddag'].includes(slot.id) ? 0.1 : 0.4);
+      if (beerPool.length && (missing >= slotsLeft || Math.random() < chance)) pool = beerPool;
     }
-    if (!pool.length) pool = ACTIVITIES.filter((a) => !used.has(a.id) && a.s.includes(slot.id) && a.env === 'inde' && (a.alc !== 1 || ctx.alc));
+    if (!pool.length) pool = ACTIVITIES.filter((a) => base(a) && a.env === 'inde');
     if (!pool.length) return null;
     return weightedPick(pool.map((a) => ({ a, w: weight(a, slot, sw, ctx) })));
   }
@@ -242,15 +271,16 @@
     const special = specialOf(date);
     const plan = {
       date, budget, alc, loc, wx,
-      theme: special ? special.theme : `${pick(THEME_A)} ${pick(THEME_B)}`,
-      mission: pick(MISSIONS), missionDone: false,
+      theme: special ? special.theme : alc === 2 ? pick(THEME_BEER) : `${pick(THEME_A)} ${pick(THEME_B)}`,
+      mission: pick(alc ? [...MISSIONS, ...MISSIONS_ALC, ...MISSIONS_ALC] : MISSIONS), missionDone: false,
       jokers: 3, notified: [], createdAt: Date.now(), steps: [],
     };
     const used = new Set();
     for (const slot of SLOTS) {
       const a = chooseFor(slot, plan, used);
       used.add(a.id);
-      const step = { slot: slot.id, act: a.id, planB: null, status: 'todo', bonus: false, note: '', photo: null, doneAt: null };
+      const kaos = alc && Math.random() < (alc === 2 ? 0.6 : 0.3) ? pick(KAOS_ALC) : pick(KAOS);
+      const step = { slot: slot.id, act: a.id, planB: null, kaos, status: 'todo', bonus: false, note: '', photo: null, doneAt: null };
       if (a.env !== 'inde') {
         const b = chooseFor(slot, plan, used, { indoorOnly: true });
         if (b) { step.planB = b.id; used.add(b.id); }
@@ -359,7 +389,7 @@
         <h2>2. Budget</h2>
         <div class="big-choice">
           <button class="${st.budget === 'billig' ? 'on' : ''}" data-action="set" data-key="budget" data-val="billig">
-            <span class="em">🪙</span><b>Billig</b><small>Ca. 0–400 kr pr. person for hele dagen. Kreativitet frem for kreditkort.</small></button>
+            <span class="em">🪙</span><b>Billig</b><small>Ca. 0–400 kr pr. person for hele dagen (lidt mere på en øl-dag). Kreativitet frem for kreditkort.</small></button>
           <button class="${st.budget === 'dyr' ? 'on' : ''}" data-action="set" data-key="budget" data-val="dyr">
             <span class="em">💎</span><b>Dyr</b><small>Gå all in. Oplevelser, restauranter og det, I plejer at sige nej til.</small></button>
         </div>
@@ -367,12 +397,15 @@
 
       <section class="card">
         <h2>3. Alkohol?</h2>
-        <div class="big-choice">
-          <button class="${st.alc === true ? 'on' : ''}" data-action="set" data-key="alc" data-val="1">
-            <span class="em">🍻</span><b>Med alkohol</b><small>Ølsmagning, cocktails og bodegaer kan dukke op. Kun 18+ – drik med omtanke.</small></button>
-          <button class="${st.alc === false ? 'on' : ''}" data-action="set" data-key="alc" data-val="0">
-            <span class="em">🧃</span><b>Uden alkohol</b><small>Mocktails, kakao og klar hjerne hele dagen.</small></button>
+        <div class="big-choice three">
+          <button class="${st.alc === 0 ? 'on' : ''}" data-action="set" data-key="alc" data-val="0">
+            <span class="em">🧃</span><span><b>Uden alkohol</b><small>Klar hjerne, vilde oplevelser, mocktails.</small></span></button>
+          <button class="${st.alc === 1 ? 'on' : ''}" data-action="set" data-key="alc" data-val="1">
+            <span class="em">🍻</span><span><b>Med alkohol</b><small>Et par øl-stop i løbet af dagen og aftenen.</small></span></button>
+          <button class="${st.alc === 2 ? 'on' : ''}" data-action="set" data-key="alc" data-val="2">
+            <span class="em">🍺</span><span><b>Øl-dag!</b><small>Bryghuse, beer pong, pubcrawl og øl-milen. Typisk 4–6 øl-stop.</small></span></button>
         </div>
+        <p class="muted small">Kun 18+. Drik med omtanke. Planen lægger aldrig vand, sauna, kørsel eller højder efter et øl-stop.</p>
       </section>
 
       <section class="card">
@@ -387,10 +420,10 @@
         </form>
       </section>
 
-      <button class="btn primary xl" data-action="generate" ${st.budget && st.alc !== null ? '' : 'disabled'}>
+      <button class="btn primary xl" data-action="generate" ${st.budget && st.alc != null ? '' : 'disabled'}>
         🎲 Rul dagens sidequest
       </button>
-      <p class="muted small center">${st.budget && st.alc !== null ? 'Klar? Tryk og få din plan.' : 'Vælg budget og alkohol for at fortsætte.'}</p>
+      <p class="muted small center">${st.budget && st.alc != null ? 'Klar? Tryk og få din plan.' : 'Vælg budget og alkohol for at fortsætte.'}</p>
     `;
 
     $('#cityform').addEventListener('submit', async (e) => {
@@ -444,7 +477,7 @@
           <span class="chip">${SEASON_META[season].icon} ${SEASON_META[season].label}</span>
           ${special ? `<span class="chip hot">${special.icon} ${special.name}</span>` : ''}
           <span class="chip">${plan.budget === 'dyr' ? '💎 Dyr' : '🪙 Billig'}</span>
-          <span class="chip">${plan.alc ? '🍻 Med alkohol' : '🧃 Alkoholfri'}</span>
+          <span class="chip">${['🧃 Alkoholfri', '🍻 Med alkohol', '🍺 Øl-dag'][plan.alc]}</span>
         </div>
         <h1 class="theme">${esc(plan.theme)}</h1>
         <p class="muted">${cap(fmtDate(plan.date))} · 📍 ${esc(plan.loc.name)}</p>
@@ -461,6 +494,7 @@
       </header>
 
       ${banner}
+      ${plan.alc === 2 && mode !== 'past' ? `<div class="banner">🍺 <b>Øl-dag-regler:</b> ét glas vand til hver øl, spis ordentligt til hvert måltid, og ingen kører bil. Det er helt okay at tage en alkoholfri – point tæller stadig.</div>` : ''}
       ${mode === 'live' ? renderNow(plan, ai) : ''}
       ${renderMission(plan)}
 
@@ -517,6 +551,7 @@
           <div class="quest-label">⚡ Udfordring (+${POINTS.bonus} point)</div>
           ${esc(a.q)}
         </div>
+        ${step.kaos ? `<div class="kaos"><span class="quest-label">🌀 Kaos-regel</span> ${esc(step.kaos)}</div>` : ''}
         <div class="actions">
           <button class="btn primary" data-action="complete" data-i="${ai}">✅ Klaret!</button>
           ${b ? `<button class="btn ${badWx ? 'primary alt' : 'ghost'}" data-action="planb" data-i="${ai}">☔ Skift til Plan B</button>` : ''}
@@ -558,8 +593,8 @@
           ${plan.alc && a.alcTip ? `<p class="small tip">${esc(a.alcTip)}</p>` : ''}
           <div class="chips small"><span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
           ${unlocked
-            ? `<div class="quest small"><span class="quest-label">⚡ Udfordring</span> ${esc(a.q)}</div>`
-            : `<div class="quest small locked">🔒 Udfordringen låses op kl. ${slot.time}</div>`}
+            ? `<div class="quest small"><span class="quest-label">⚡ Udfordring</span> ${esc(a.q)}</div>${s.kaos ? `<div class="kaos small"><span class="quest-label">🌀 Kaos</span> ${esc(s.kaos)}</div>` : ''}`
+            : `<div class="quest small locked">🔒 Udfordring og kaos-regel låses op kl. ${slot.time}</div>`}
           ${s.photo ? `<img class="thumb" src="${s.photo}" alt="">` : ''}
           ${s.note ? `<p class="small note">“${esc(s.note)}”</p>` : ''}
           ${i !== ai && s.status === 'todo' && dayMode(plan) !== 'past' && plan.jokers ? `<button class="link small" data-action="joker" data-i="${i}">🃏 Byt med joker</button>` : ''}
@@ -582,6 +617,8 @@
     if (done.length && done.every((s) => s.bonus)) badges.push('⚡ Udfordrings-mester');
     if (plan.missionDone) badges.push('🕵️ Hemmelig agent');
     if (plan.jokers === 3) badges.push('🃏 Ingen jokere brugt');
+    if (done.filter((st) => isBeer(st.act)).length >= 4) badges.push('🍺 Ølkonge');
+    if (done.filter((st) => actById(st.act).vild).length >= 3) badges.push('🤪 Fuldstændig vild');
     if (done.some((s) => { const a = actById(s.act); return a.env !== 'inde' && slotWeather(plan.wx, SLOTS[plan.steps.indexOf(s)]).wet; })) badges.push('☔ Vejr-trodser');
     if (plan.wx.daily.tmax < 5 && done.some((s) => actById(s.act).env !== 'inde')) badges.push('🥶 Kuldekriger');
 
@@ -777,7 +814,7 @@
     const st = store.settings;
     switch (act) {
       case 'set':
-        st[el.dataset.key] = el.dataset.key === 'alc' ? el.dataset.val === '1' : el.dataset.val;
+        st[el.dataset.key] = el.dataset.key === 'alc' ? +el.dataset.val : el.dataset.val;
         save(); renderSetup(); break;
       case 'geo':
         if (!navigator.geolocation) return toast('Din browser understøtter ikke position.');

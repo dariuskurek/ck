@@ -182,3 +182,12 @@ input:focus, textarea:focus { border-color: var(--accent); }
 @keyframes fall { to { transform: translateY(110vh) rotate(540deg); opacity: .6; } }
 
 @media (max-width: 380px) { .big-choice { grid-template-columns: 1fr; } }
+
+/* v2: tre alkohol-valg og kaos-regler */
+.big-choice.three { grid-template-columns: 1fr; }
+.big-choice.three button { flex-direction: row; align-items: center; gap: 12px; }
+.big-choice.three button > span:last-child { display: flex; flex-direction: column; }
+.kaos { background: color-mix(in srgb, var(--accent) 14%, var(--card2)); border: 1px dashed var(--accent); border-radius: 12px; padding: 10px 12px; margin: 10px 0; }
+.kaos.small { padding: 6px 10px; font-size: .84rem; }
+.kaos .quest-label { color: var(--accent); }
+.kaos.small .quest-label { display: inline; }
