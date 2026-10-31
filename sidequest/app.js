@@ -6,7 +6,7 @@
   'use strict';
 
   const STORE_KEY = 'sidequest.v1';
-  const POINTS = { done: 100, bonus: 50, mission: 200, joker: 25 };
+  const POINTS = { done: 100, bonus: 50, mission: 200, joker: 25, secret: 30 };
   const DEFAULT_LOC = { name: 'København', lat: 55.6761, lon: 12.5683 };
 
   // Typisk dansk klima pr. måned – bruges hvis vejret ikke kan hentes
@@ -360,9 +360,31 @@
   // Fordeler "stop-kaptajner" på skift i tilfældig rækkefølge
   function assignCaptains(plan) {
     const ppl = [...plan.people].sort(() => Math.random() - 0.5);
-    plan.steps.forEach((st, i) => { st.captain = ppl.length ? ppl[i % ppl.length] : null; st.kaos = pickKaos(plan.alc, plan.people); });
+    const n = ppl.length;
+    plan.steps.forEach((st, i) => {
+      st.kaos = pickKaos(plan.alc, plan.people);
+      // Roller på skift: kaptajn, fotograf (≥2 spillere), dommer (≥3 spillere)
+      st.captain = n ? ppl[i % n] : null;
+      st.roles = {};
+      if (n) st.roles.captain = ppl[i % n];
+      if (n >= 2) st.roles.photo = ppl[(i + 1) % n];
+      if (n >= 3) st.roles.judge = ppl[(i + 2) % n];
+      // Hver spiller får sin egen hemmelige opgave
+      const pool = plan.alc ? [...SECRETS, ...SECRETS_ALC] : SECRETS;
+      const shuffled = [...pool].sort(() => Math.random() - 0.5);
+      st.secrets = Object.fromEntries(plan.people.map((p, k) => [p, { task: shuffled[k % shuffled.length], done: false }]));
+    });
     return plan;
   }
+
+  /* ───────────── Øl- og vand-tæller ───────────── */
+  const TEAM = 'Holdet';
+  const drinkers = (plan) => (plan.people?.length ? plan.people : [TEAM]);
+  function drinks(plan, name) {
+    plan.drinks = plan.drinks || {};
+    return (plan.drinks[name] = plan.drinks[name] || { beer: 0, water: 0 });
+  }
+  const totalBeers = (plan) => Object.values(plan.drinks || {}).reduce((s, d) => s + d.beer, 0);
 
   function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop', people = [] }) {
     const special = specialOf(date);
@@ -716,6 +738,7 @@
       ${banner}
       ${plan.alc === 2 && mode !== 'past' ? `<div class="banner">🍺 <b>Øl-dag-regler:</b> ét glas vand til hver øl, spis ordentligt til hvert måltid, og ingen kører bil. Det er helt okay at tage en alkoholfri – point tæller stadig.</div>` : ''}
       ${mode === 'live' ? renderNow(plan, ai) : ''}
+      ${mode === 'live' ? renderTeam(plan, ai) : ''}
       ${mode !== 'past' ? renderPrep(plan, mode) : ''}
       ${renderMission(plan)}
 
@@ -732,6 +755,16 @@
       <p class="muted small center">Vejrdata: Open-Meteo · Tjek altid åbningstider og book i god tid.</p>
     `;
     document.title = ai >= 0 ? `Nu: ${actById(plan.steps[ai].act).t} – Sidequest` : 'Sidequest';
+  }
+
+  function guideFor(a) {
+    return GUIDE[a.id] || null;
+  }
+  const guideList = (g) => `<ol class="guide-steps">${g.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>`;
+  function rolesLine(st, small = false) {
+    if (!st.roles || !Object.keys(st.roles).length) return '';
+    return `<div class="roles ${small ? 'small' : ''}">${ROLES.filter((r) => st.roles[r.id]).map((r) =>
+      `<span class="role" title="${esc(r.desc)}">${r.icon} <b>${esc(st.roles[r.id])}</b> ${small ? '' : `<small>${r.name.toLowerCase()} – ${esc(r.desc)}</small>`}</span>`).join('')}</div>`;
   }
 
   function priceTag(a) { return a.id.includes('#') ? 'Inkl. i missionen' : a.kr === 0 ? 'Gratis' : `ca. ${a.kr} kr`; }
@@ -771,8 +804,9 @@
           <span class="chip">${sw.icon} ${sw.t}° · 💧${sw.pp}%</span>
           <span class="chip">${envTag(a)}</span>
           <span class="chip">💰 ${priceTag(a)}</span>
-          ${step.captain ? `<span class="chip hot">👑 Kaptajn: ${esc(step.captain)}</span>` : ''}
         </div>
+        ${rolesLine(step)}
+        ${guideFor(a) ? `<details class="guide" open><summary>📖 Sådan gør I</summary>${guideList(guideFor(a))}</details>` : ''}
         ${badWx ? `<div class="banner warn">☔ Vejret er ikke med jer lige nu (${sw.text.toLowerCase()}, ${sw.t}°). ${b ? `Plan B: <b>${esc(b.t)}</b>.` : plan.mode === 'epic' ? 'Regntøj på – missionen fortsætter! Søg ly undervejs.' : 'Brug en joker for en indendørs idé.'}</div>` : ''}
         <div class="quest">
           <div class="quest-label">⚡ Udfordring (+${POINTS.bonus} point)</div>
@@ -787,6 +821,57 @@
           <button class="btn ghost sm" data-action="skip" data-i="${ai}">⏭️ Spring over</button>
         </div>
       </section>`;
+  }
+
+  function renderTeam(plan, ai) {
+    const hasPeople = plan.people?.length > 0;
+    if (!hasPeople && !plan.alc) return '';
+    const scores = hasPeople ? Object.fromEntries(personScores(plan)) : {};
+    const step = ai >= 0 ? plan.steps[ai] : null;
+    const rows = drinkers(plan).map((name) => {
+      const d = drinks(plan, name);
+      const sec = step?.secrets?.[name];
+      const needWater = plan.alc && d.beer - d.water >= 3;
+      return `<li class="player">
+        <div class="pl-head"><b>${esc(name)}</b>${hasPeople ? `<span class="pts">⭐ ${scores[name] ?? 0}</span>` : ''}</div>
+        <div class="pl-actions">
+          ${plan.alc ? `<span class="counter">🍺 <b>${d.beer}</b>
+              <button class="cbtn" data-action="drink" data-kind="beer" data-name="${esc(name)}" data-d="-1" aria-label="Én øl mindre">−</button>
+              <button class="cbtn plus" data-action="drink" data-kind="beer" data-name="${esc(name)}" data-d="1" aria-label="Én øl mere">+</button></span>
+            <span class="counter">💧 <b>${d.water}</b>
+              <button class="cbtn plus" data-action="drink" data-kind="water" data-name="${esc(name)}" data-d="1" aria-label="Ét glas vand">+</button></span>` : ''}
+          ${sec ? `<button class="btn ghost sm" data-action="secret" data-name="${esc(name)}">${sec.done ? '✅ Opgave klaret' : '🤫 Hemmelig opgave'}</button>` : ''}
+        </div>
+        ${needWater ? `<div class="small water">💧 ${hasPeople ? esc(name) + ': t' : 'T'}id til et glas vand!</div>` : ''}
+      </li>`;
+    }).join('');
+    return `<section class="card team">
+      <div class="row between"><h2>👥 Holdet</h2>${plan.alc ? `<span class="badge">🍺 ${totalBeers(plan)} i alt</span>` : ''}</div>
+      ${hasPeople ? `<p class="muted small">Hver spiller har en hemmelig opgave i hvert stop – tryk og læs den, uden at de andre ser med (+${POINTS.secret} point).${plan.alc ? ' Tæl øl og vand løbende.' : ''}</p>` : '<p class="muted small">Tæl jeres øl og vand løbende. Skriv deltagernes navne ind næste gang for at tælle pr. person.</p>'}
+      <ul class="players">${rows}</ul>
+    </section>`;
+  }
+
+  function openSecret(name) {
+    const plan = store.plan;
+    const ai = activeIndex(plan);
+    const sec = plan.steps[ai]?.secrets?.[name];
+    if (!sec) return;
+    const m = modal(`
+      <h2>🤫 Kun for ${esc(name)}</h2>
+      <p class="muted">Sørg for, at de andre ikke kigger med!</p>
+      <div class="secret-box" id="sbox"><button class="btn primary" id="reveal">👀 Vis min opgave</button></div>
+      <div class="actions"><button class="btn ghost" id="sclose">Luk</button></div>`);
+    $('#reveal', m).onclick = () => {
+      $('#sbox', m).innerHTML = `<div class="quest"><div class="quest-label">Din hemmelige opgave (+${POINTS.secret})</div>${esc(sec.task)}</div>
+        <button class="btn primary" id="sdone">${sec.done ? '↩️ Markér som ikke klaret' : '✅ Jeg klarede den!'}</button>`;
+      $('#sdone', m).onclick = () => {
+        sec.done = !sec.done; save(); m.remove();
+        if (sec.done) { celebrate(); toast(`🤫 ${name} klarede sin hemmelige opgave! Afslør den for de andre.`); }
+        renderPlan();
+      };
+    };
+    $('#sclose', m).onclick = () => m.remove();
   }
 
   function renderMission(plan) {
@@ -818,10 +903,11 @@
           <h3>${esc(a.t)}</h3>
           <p class="small">${esc(a.d)}</p>
           ${plan.alc && a.alcTip ? `<p class="small tip">${esc(a.alcTip)}</p>` : ''}
-          <div class="chips small">${s.captain ? `<span class="chip">👑 ${esc(s.captain)}</span>` : ''}<span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
+          ${rolesLine(s, true)}<div class="chips small"><span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
           ${unlocked
             ? `<div class="quest small"><span class="quest-label">⚡ Udfordring</span> ${esc(a.q)}</div>${s.kaos ? `<div class="kaos small"><span class="quest-label">🌀 Kaos</span> ${esc(s.kaos)}</div>` : ''}`
             : `<div class="quest small locked">🔒 Udfordring og kaos-regel låses op kl. ${slot.time}</div>`}
+          ${guideFor(a) ? `<details class="guide"><summary>📖 Sådan foregår det</summary>${guideList(guideFor(a))}</details>` : ''}
           ${s.photo ? `<img class="thumb" src="${s.photo}" alt="">` : ''}
           ${s.note ? `<p class="small note">“${esc(s.note)}”</p>` : ''}
           ${i !== ai && s.status === 'todo' && dayMode(plan) !== 'past' && plan.jokers ? `<button class="link small" data-action="joker" data-i="${i}">🃏 Byt med joker</button>` : ''}
@@ -859,6 +945,7 @@
         <div class="chips center">${badges.map((b) => `<span class="chip hot">${b}</span>`).join('') || '<span class="chip">Ingen badges i dag – næste gang!</span>'}</div>
       </header>
       ${plan.people?.length ? renderLeaderboard(plan) : ''}
+      ${plan.drinks && Object.keys(plan.drinks).length ? renderDrinkStats(plan) : ''}
       <section class="card">
         <h2>Sådan gik det</h2>
         <ul class="report-list">
@@ -880,16 +967,31 @@
       </div>`;
   }
 
-  // Personlige point: kaptajn på et klaret stop = 50, helt i et stop = 50, mission = 100 til alle
+  // Personlige point: kaptajn 50, fotograf/dommer 20, helt 50 (på klarede stop), hemmelig opgave 30, mission 100 til alle
   function personScores(plan) {
     const sc = Object.fromEntries(plan.people.map((n) => [n, 0]));
     plan.steps.forEach((st) => {
+      Object.entries(st.secrets || {}).forEach(([n, x]) => { if (x.done && n in sc) sc[n] += POINTS.secret; });
       if (st.status !== 'done') return;
-      if (st.captain in sc) sc[st.captain] += 50;
+      const roles = st.roles || (st.captain ? { captain: st.captain } : {});
+      if (roles.captain in sc) sc[roles.captain] += 50;
+      if (roles.photo in sc) sc[roles.photo] += 20;
+      if (roles.judge in sc) sc[roles.judge] += 20;
       (st.heroes || []).forEach((h) => { if (h in sc) sc[h] += 50; });
     });
     if (plan.missionDone) plan.people.forEach((n) => (sc[n] += 100));
     return Object.entries(sc).sort((a, b) => b[1] - a[1]);
+  }
+
+  function renderDrinkStats(plan) {
+    const rows = Object.entries(plan.drinks).filter(([, d]) => d.beer || d.water).sort((a, b) => b[1].beer - a[1].beer);
+    if (!rows.length) return '';
+    const water = rows.reduce((s, [, d]) => s + d.water, 0);
+    const hydro = [...rows].sort((a, b) => b[1].water - a[1].water)[0];
+    return `<section class="card"><h2>🍺 Øl-regnskab</h2>
+      <p><b>${totalBeers(plan)}</b> øl og <b>${water}</b> glas vand i alt.</p>
+      <ol class="leader">${rows.map(([n, d]) => `<li><span>${esc(n)}</span><span>🍺 <b>${d.beer}</b> · 💧 <b>${d.water}</b></span></li>`).join('')}</ol>
+      ${hydro && hydro[1].water ? `<p class="small">💧 Dagens vandhelt: <b>${esc(hydro[0])}</b></p>` : ''}</section>`;
   }
 
   function renderLeaderboard(plan) {
@@ -903,7 +1005,8 @@
   function shareText(plan) {
     const [rIcon, rName] = rank(points(plan));
     const lines = plan.steps.map((s, i) => `${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${plan.slots[i].time} ${actById(s.act).t}${s.bonus ? ' ⚡' : ''}`);
-    const lb = plan.people?.length ? '\n\n👥 ' + personScores(plan).map(([n, p]) => `${n}: ${p}`).join(' · ') : '';
+    const lb = (plan.people?.length ? '\n\n👥 ' + personScores(plan).map(([n, p]) => `${n}: ${p}`).join(' · ') : '')
+      + (totalBeers(plan) ? `\n🍺 ${totalBeers(plan)} øl i alt` : '');
     return `🎲 Sidequest: ${plan.theme}\n${cap(fmtDate(plan.date))}\n\n${lines.join('\n')}\n\n${rIcon} ${rName} – ⭐ ${points(plan)} point${lb}`;
   }
 
@@ -1091,6 +1194,15 @@
         if (confirm(`Brug en joker og få en ny idé til ${store.plan.slots[i].label.toLowerCase()} kl. ${store.plan.slots[i].time}? (${store.plan.jokers} tilbage)`)) useJoker(i);
         break;
       case 'planb': swapPlanB(i); break;
+      case 'drink': {
+        const d = drinks(store.plan, el.dataset.name);
+        d[el.dataset.kind] = Math.max(0, d[el.dataset.kind] + +el.dataset.d);
+        save(); renderPlan();
+        if (el.dataset.kind === 'beer' && +el.dataset.d > 0) toast(`🍺 Skål, ${el.dataset.name}! (${d.beer})`);
+        if (el.dataset.kind === 'water') toast('💧 Godt valg!');
+        break;
+      }
+      case 'secret': openSecret(el.dataset.name); break;
       case 'rmperson':
         st.people.splice(i, 1); save(); renderSetup(); break;
       case 'prep':

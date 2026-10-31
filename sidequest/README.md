@@ -12,8 +12,11 @@
    - **budget og alkohol-valg**
 4. Hvert udendørs stop har en indendørs **Plan B**.
 5. **Deltagere**: skriv navnene ind. Hvert stop får en 👑 kaptajn på skift, kaos-reglerne bruger jeres navne, og rapporten viser en pointtavle med dagens MVP.
-6. **Forbered dagen**: en tjekliste over, hvad der skal bookes, købes og pakkes (mængder regnes ud fra antal deltagere, og vejret tilføjer fx regntøj). Listen kan sendes til gruppechatten.
-7. **Heldagsmission**: i stedet for separate stop kan I vælge én sammenhængende oplevelse (fx Mystery-rejsen, Øl-pilgrimsfærden, Overlevelsesdagen, Karakter-dagen, Ja-dagen, Luksusdagen, Roadtrip-roulette), hvor appen styrer hele dagen kapitel for kapitel. Starter dagen sent, springes valgfrie kapitler over.
+6. **Sådan gør I**: hver aktivitet har en trin-for-trin guide (inkl. spilleregler til fx beer pong og Kings Cup), så alle ved, hvad der foregår.
+7. **Holdet**: roller på skift i hvert stop (👑 kaptajn, 📸 fotograf, ⚖️ dommer), en hemmelig personlig opgave pr. spiller pr. stop, og live point pr. spiller.
+8. **Øl-tæller**: tæl øl 🍺 og vand 💧 pr. spiller (eller for holdet). Appen minder om vand, når nogen er 3 øl foran, og rapporten viser et øl-regnskab.
+9. **Forbered dagen**: en tjekliste over, hvad der skal bookes, købes og pakkes (mængder regnes ud fra antal deltagere, og vejret tilføjer fx regntøj). Listen kan sendes til gruppechatten.
+10. **Heldagsmission**: i stedet for separate stop kan I vælge én sammenhængende oplevelse (fx Mystery-rejsen, Øl-pilgrimsfærden, Overlevelsesdagen, Karakter-dagen, Ja-dagen, Luksusdagen, Roadtrip-roulette), hvor appen styrer hele dagen kapitel for kapitel. Starter dagen sent, springes valgfrie kapitler over.
 
 ## Brug den i løbet af dagen
 - **NU-kortet** viser det aktuelle stop. Stop låses op, når klokken når deres tidspunkt, eller når I har klaret det forrige.

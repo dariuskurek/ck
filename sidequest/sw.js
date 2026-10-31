@@ -1,5 +1,5 @@
 /* Simpel offline-cache af app-skallen. Vejr-API'et hentes altid fra nettet. */
-const CACHE = 'sidequest-v4';
+const CACHE = 'sidequest-v5';
 const SHELL = ['./', 'index.html', 'style.css', 'data.js', 'app.js', 'icon.svg', 'manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {
