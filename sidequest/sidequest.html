@@ -206,6 +206,26 @@ input:focus, textarea:focus { border-color: var(--accent); }
 .seg.times button { min-width: 64px; flex: 0 1 auto; padding: 8px 12px; }
 .epic-intro { background: var(--card2); border-radius: 12px; padding: 10px 12px; font-size: .92rem; }
 
+/* v4: deltagere, forberedelse og pointtavle */
+.chip.person { display: inline-flex; align-items: center; gap: 4px; padding-right: 4px; }
+.chip .x { background: none; border: 0; color: var(--muted); font-size: 1rem; line-height: 1; padding: 0 4px; }
+.chip.pick { border: 2px solid transparent; cursor: pointer; font-size: .9rem; padding: 6px 12px; }
+.chip.pick.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 25%, var(--card2)); }
+.prepcard summary { cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; font-size: 1.05rem; }
+.prepcard summary::-webkit-details-marker { display: none; }
+.prepcard summary::after { content: "▾"; color: var(--muted); margin-left: 8px; }
+.prepcard[open] summary::after { content: "▴"; }
+.prepcard h3 { margin: 14px 0 6px; font-size: .95rem; }
+.prep { list-style: none; padding: 0; margin: 0; }
+.prep li { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+.prep .check { font-weight: 400; align-items: flex-start; margin: 0; }
+.prep .check input { flex: none; margin-top: 2px; }
+.prep input:checked + span { text-decoration: line-through; color: var(--muted); }
+.leader { list-style: none; padding: 0; margin: 0; }
+.leader li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+.leader b { color: var(--accent2); }
+.row .btn { white-space: nowrap; flex: none; }
+
 </style>
 </head>
 <body>
@@ -900,6 +920,138 @@ const EPICS = [
     ] },
 ];
 
+/* ═════════════ FORBEREDELSE ═════════════
+ * Hvad skal købes, pakkes eller bookes på forhånd til hver aktivitet/mission.
+ *  buy   købes på forhånd   pack  findes frem/pakkes   book  bookes/reserveres
+ *  {2} i teksten = 2 pr. person (ganges med antal deltagere)
+ */
+const PREP = {
+  'm-togroulette': { buy: ['Rejsekort/billetter med penge på'], pack: ['En terning'] },
+  'm-mysterytog': { buy: ['Rejsekort/billetter med penge på'], pack: ['En terning', 'Opladet telefon + powerbank'] },
+  'm-vinterbad': { buy: ['Kakaopulver eller kakaomælk'], pack: ['Badetøj og håndklæde', 'Termokande', 'Badesko', 'Varmt tøj til bagefter'] },
+  'm-dukkert': { buy: ['Rundstykker – {2} stk', 'Juice', 'Smør, ost og pålæg'], pack: ['Badetøj og håndklæde', 'Tæppe'] },
+  'm-sauna': { pack: ['Badetøj og håndklæde', 'Badesko'], book: 'Saunagus i havnesauna eller vinterbadeklub' },
+  'm-kostume': { pack: ['Alt i skabene, der kan bruges til kostume'] },
+  'm-byttehandel': { buy: ['Papirclips – {1} stk'] },
+  'm-oelbrunch': { book: 'Bord til brunch' },
+  'm-hjemmebrunch': { buy: ['Mel, mælk og æg (pandekager)', 'Skøre toppings – 1 hemmelig pr. person'] },
+  'm-drop-in': { pack: ['Træningstøj', 'Vandflaske'], book: 'Drop-in hold (aerial yoga, boksning, pole o.l.)' },
+  'm-morgenloeb': { pack: ['Løbetøj og -sko'] },
+  'f-busking': { pack: ['Hat eller kasket til penge', 'Evt. instrument eller grydeske'] },
+  'f-faldskaerm': { pack: ['Tøj, der sidder tæt', 'Sko med snøre'], book: 'Tandemspring – bookes typisk uger før' },
+  'f-paintball': { pack: ['Tøj, der må blive beskidt'], book: 'Paintball/laser tag-bane' },
+  'f-oekse': { pack: ['Lukkede sko'], book: 'Øksekast-bane' },
+  'f-trampolin': { buy: ['Skridsikre trampolinsokker (ofte krav)'], book: 'Hoppetid i trampolinpark' },
+  'f-escape': { book: 'Escape room' },
+  'f-kajak': { pack: ['Skiftetøj', 'Vandtæt pose til telefonen'], book: 'Kajak/SUP-udlejning' },
+  'f-wakeboard': { pack: ['Badetøj og håndklæde'], book: 'Tid i wakeboard-kabelpark' },
+  'f-boulder': { pack: ['Træningstøj'] },
+  'f-hest': { pack: ['Lange bukser og støvler'], book: 'Ridetur' },
+  'f-geocache': { pack: ['Kuglepen', 'Lille "skat" til at bytte'] },
+  'f-loppe': { buy: ['Kontanter – 50 kr pr. person'] },
+  'f-skoejter': { pack: ['Handsker og hue', 'Tykke sokker'] },
+  'f-kaelk': { pack: ['Kælk, bakke eller plastiksække', 'Varmt, vandtæt tøj'] },
+  'f-drage': { buy: ['Drage (eller materialer til at bygge en)'] },
+  'f-svampe': { pack: ['Kurv eller papirpose', 'Kniv', 'Svampe-app på telefonen'] },
+  'f-aeble': { pack: ['Poser eller kasser'] },
+  'f-jordbaer': { pack: ['Kontanter/MobilePay'] },
+  'f-dyrepark': { book: 'Billetter online (ofte billigere)' },
+  'f-rally': { book: 'Rally-/driftoplevelse' },
+  'f-oelmile': { buy: ['Små øl – {4} stk', 'Vand – {1} fl.'], pack: ['Løbesko', 'Stopur (telefonen)'] },
+  'f-oeldiscgolf': { buy: ['Øl – {3} stk', 'Frisbees (eller lej på banen)'], pack: ['Køletaske'] },
+  'f-brygkursus': { book: 'Brygkursus på bryghus' },
+  'f-bryghuscrawl': { book: 'Tjek åbningstider på bryghusene' },
+  'f-cykel': { pack: ['Cykel med luft i dækkene', 'Lappegrej', 'Vandflaske'] },
+  'f-fremmedpodcast': { pack: ['Opladet telefon (optager)'] },
+  'l-alfabet': { pack: ['En bog til at vælge bogstavet'] },
+  'l-boelle': { buy: ['Pølser – {2} stk', 'Pølsebrød – {2} stk', 'Ketchup og sennep', 'Tændstikker'], pack: ['Kniv til grillpinde'] },
+  'l-smoerrebroed': { book: 'Bord på frokostrestaurant' },
+  'l-oelpoelser': { buy: ['Dåseøl – {2} stk'] },
+  'l-grill': { buy: ['Engangsgrill', 'Pølser og halloumi – {2} stk', 'Majs', 'Én "mærkelig" grillting pr. person', 'Tændstikker'], pack: ['Tæppe', 'Spand til at slukke grillen'] },
+  'l-dimsum': { book: 'Bord til dim sum' },
+  'l-sandwichduel': { buy: ['Ingredienser for max 40 kr pr. person (købes i hemmelighed)'] },
+  'l-insekter': { book: 'Bord på stedet' },
+  'e-beerpong': { buy: ['Øl – {6} stk', 'Plastikkopper – 20 stk', 'Bordtennisbolde – 4 stk', 'Vand og sodavand'], pack: ['Langt bord'] },
+  'e-oelbowling': { book: 'Bowlingbane' },
+  'e-bryghus': { book: 'Rundvisning/smagning på bryghus' },
+  'e-blindoel': { buy: ['6 forskellige øl (inkl. den billigste i butikken)', 'Malertape + tusch til mærkning'], pack: ['Ens glas – 6 pr. person'] },
+  'e-oelverden': { pack: ['Glas og oplukker'] },
+  'e-shuffle': { book: 'Shuffleboard-bord (mange barer tager reservation)' },
+  'e-oelyoga': { buy: ['Øl – {2} stk'], pack: ['Yogamåtter'] },
+  'e-gokart': { book: 'Gokart-race' },
+  'e-vr': { book: 'VR-arena' },
+  'e-skattejagt': { buy: ['Lille præmie til skatten', 'Papir og tusch til ledetråde'] },
+  'e-graeskar': { buy: ['Græskar – {1} stk', 'Udskæringssæt eller skarp kniv + ske', 'Fyrfadslys'], pack: ['Avispapir til bordet'] },
+  'e-keramik': { book: 'Paint & sip / keramikkursus' },
+  'e-strand': { pack: ['Poser til skrald og skatte', 'Handsker'] },
+  'e-sommerbad': { pack: ['Badetøj og håndklæde', 'Solcreme'] },
+  'e-loevkrig': { pack: ['Tøj, der må blive beskidt'] },
+  'e-sneboldkrig': { pack: ['Vandtætte handsker', 'Varmt tøj'] },
+  'a-mysterybox': { buy: ['3 hemmelige ingredienser pr. person (max 40 kr)'], pack: ['Basisvarer: olie, salt, krydderier'] },
+  'a-oelmiddag': { book: 'Bord med ølmenu/pairing' },
+  'a-oelmad': { buy: ['Øl til madlavning – 4–6 stk', 'Kød eller kylling til braisering', 'Mel og gær (ølbrød/dej)', 'Is og en mørk øl (dessert)'] },
+  'a-moules': { book: 'Bord på belgisk restaurant' },
+  'a-tasting': { pack: ['Pænt tøj'], book: 'Smagsmenu – bookes gerne uger før' },
+  'a-kbbq': { book: 'Bord på koreansk BBQ' },
+  'a-dumplings': { buy: ['Dumpling-plader – {10} stk', 'Hakket kød eller tofu', 'Kål, ingefær, hvidløg og forårsløg', 'Soja og chiliolie'] },
+  'a-trangia': { buy: ['Pasta', 'Pesto', 'Parmesan', 'Sprit/gas til stormkøkkenet'], pack: ['Stormkøkken/Trangia', 'Tæppe', 'Pandelampe'] },
+  'a-halloween': { buy: ['Græskar til suppe', 'Sort pasta', 'Rødbeder (dessert)', 'Stearinlys'], pack: ['Kostumer'] },
+  'a-julefrokost': { buy: ['Sild', 'Frikadeller', 'Ris, mælk og fløde (risalamande)', 'Kirsebærsauce', 'En hel mandel'], pack: ['Nissehuer'] },
+  'a-fondue': { buy: ['Fondue-ost – 200 g pr. person', 'Flute/brød', 'Grøntsager', 'Hvidvin til fonduen'], pack: ['Fonduegryde eller tykbundet gryde'] },
+  'a-tapas': { pack: ['En terning'], book: 'Bord på tapasrestaurant' },
+  'a-pizza': { buy: ['Pizzadej (eller mel og gær)', 'Tomatsauce og ost', 'Toppings i mange farver'] },
+  'n-pubcrawl': { buy: ['Kontanter/MobilePay'], pack: ['En terning'] },
+  'n-bodega': { buy: ['Kontanter – nogle bodegaer tager ikke kort'] },
+  'n-kostumecrawl': { pack: ['Kostumer efter fælles tema'] },
+  'n-oelbar30': { book: 'Tjek åbningstider – populære ølbarer bliver fyldt' },
+  'n-kingscup': { buy: ['Øl – {6} stk', 'Plastikkopper', 'Vand og sodavand'], pack: ['Spillekort', 'Et stort glas til midten'] },
+  'n-oelquiz': { book: 'Tilmeld hold til pubquizzen' },
+  'n-cocktailbar': { book: 'Bord på cocktailbar' },
+  'n-hjemmebar': { buy: ['1–2 flasker spiritus', 'Juice, tonic og sodavand', 'Citroner og limes', 'Is'], pack: ['Ordbog eller ord-app'] },
+  'n-silentdisco': { pack: ['Hovedtelefoner', 'Fælles playliste'] },
+  'n-karaokebar': { book: 'Privat karaokerum' },
+  'n-karaokehjem': { pack: ['Mikrofon (eller hårbørste)', 'Papir og tusch til dommerskilte'] },
+  'n-standup': { book: 'Skriv jer på open mic-listen' },
+  'n-koncert': { book: 'Billetter – tjek last minute-salg' },
+  'n-stjerner': { buy: ['Kakao'], pack: ['Tæpper', 'Termokande', 'Stjernekort-app'] },
+  'n-baal': { buy: ['Snobrødsdej', 'Skumfiduser', 'Tændstikker'], pack: ['Lommelygte', 'Tæpper'] },
+  'n-shelter': { buy: ['Aftensmad og morgenmad til bål', 'Tændstikker'], pack: ['Soveposer', 'Liggeunderlag', 'Pandelamper', 'Varmt tøj'] },
+  'n-gyser': { buy: ['Popcorn', 'Slik og sodavand'], pack: ['Puder og tæpper til pudeborg'] },
+  'n-natbad': { pack: ['Badetøj og håndklæde'], book: 'Aftensauna' },
+  'n-natlob': { pack: ['Pandelamper – 1 pr. person', 'Lille "skat" til at gemme'] },
+  'n-glow': { pack: ['Hvidt tøj (lyser i UV)'], book: 'Glow-golf-bane' },
+  'n-mocktail': { buy: ['Juice og sodavand', 'Frugt og mynte', 'Is'] },
+  'n-julelys': { buy: ['Kakao'], pack: ['Termokande'] },
+  'n-solnedgang': { buy: ['Snacks'], pack: ['Tæpper'] },
+
+  /* Heldagsmissioner */
+  'x-mystery': { buy: ['Rejsekort/billetter med penge på', 'Snacks til turen'], pack: ['En terning', 'Powerbank', 'Kuglepen og notesbog'] },
+  'x-oelpilgrim': { buy: ['Øl til øl-OL – {6} stk', 'Plastikkopper og bordtennisbolde', 'Vand – {2} fl.', 'Morgenmad: æg, bacon, brød'], pack: ['Papir til pilgrim-pas', 'En terning', 'Frisbee'], book: 'Smagning på bryghus + bord til øl-middag' },
+  'x-vildmark': { buy: ['Pølser og brød – {3} stk', 'Mad til gryderet eller pasta', 'Snobrødsdej', 'Tændstikker'], pack: ['Rygsæk', 'Vand – 1,5 l pr. person', 'Kniv', 'Pandelamper', 'Tæppe/sovepose', 'Regnjakke', 'Gryde'] },
+  'x-kostume': { buy: ['Kostume-dele i genbrugsbutik (ca. 50 kr pr. person)'], pack: ['Alt i skabene, der kan bruges til kostume'] },
+  'x-jadag': { buy: ['Kontanter/MobilePay'], pack: ['Opladet telefon'] },
+  'x-luksus': { pack: ['Pænt tøj til aftenen', 'Badetøj'], book: 'Spa, adrenalin-oplevelse, smagsmenu og evt. rooftop-bar – book uger før' },
+  'x-yderpunkter': { pack: ['Et "flag" (stof eller sok)', 'Vandflaske', 'Gode sko eller cykel', 'Powerbank'] },
+  'x-hule': { buy: ['Mel, mælk og æg (pandekager)', 'Pizzadej og toppings', 'Snacks og popcorn'], pack: ['Alle puder og tæpper i huset', 'Lyskæder', 'Brætspil', 'Sølvpapir til medaljer'] },
+  'x-roadtrip': { buy: ['Benzin/strøm på bilen', 'Snacks, I aldrig har prøvet'], pack: ['Bil + kørekort', 'En terning', 'Fælles playliste', 'Kabel til musik'] },
+};
+
+/* Kaos-regler med navne – {navn} erstattes af en tilfældig deltager */
+const KAOS_NAMED = [
+  '{navn} bestemmer alt i dette stop.',
+  '{navn} skal fortælle en pinlig historie.',
+  '{navn} vælger, hvad alle skal bestille.',
+  '{navn} er fotograf og må ikke selv være på billederne.',
+  '{navn} må kun tale i rim de næste 10 minutter.',
+  'Alle skal give {navn} et kompliment, før I går videre.',
+  '{navn} skal finde på dagens motto og råbe det højt.',
+];
+const KAOS_NAMED_ALC = [
+  '{navn} er skålmester – kun {navn} må udbringe skåler.',
+  '{navn} vælger næste omgang til hele gruppen.',
+  '{navn} skal lave en skåltale på mindst 30 sekunder.',
+];
+
 </script>
 <script>
 /* Sidequest – en tilfældig heldagsplan til weekenden
@@ -1014,6 +1166,7 @@ const EPICS = [
   if (store.plan && !store.plan.slots) { store.plan.slots = SLOTS.map((x) => ({ ...x })); store.plan.mode = 'stop'; }
   if (store.settings.start == null) store.settings.start = 9;
   if (!store.settings.mode) store.settings.mode = 'stop';
+  if (!Array.isArray(store.settings.people)) store.settings.people = [];
   function save() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
     catch (e) {
@@ -1253,17 +1406,29 @@ const EPICS = [
     return plan;
   }
 
-  const pickKaos = (alc) => (alc && Math.random() < (alc === 2 ? 0.6 : 0.3) ? pick(KAOS_ALC) : pick(KAOS));
+  function pickKaos(alc, people = []) {
+    if (people.length && Math.random() < 0.4) {
+      const tpl = alc && Math.random() < 0.4 ? pick(KAOS_NAMED_ALC) : pick(KAOS_NAMED);
+      return tpl.replaceAll('{navn}', pick(people));
+    }
+    return alc && Math.random() < (alc === 2 ? 0.6 : 0.3) ? pick(KAOS_ALC) : pick(KAOS);
+  }
+  // Fordeler "stop-kaptajner" på skift i tilfældig rækkefølge
+  function assignCaptains(plan) {
+    const ppl = [...plan.people].sort(() => Math.random() - 0.5);
+    plan.steps.forEach((st, i) => { st.captain = ppl.length ? ppl[i % ppl.length] : null; st.kaos = pickKaos(plan.alc, plan.people); });
+    return plan;
+  }
 
-  function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop' }) {
+  function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop', people = [] }) {
     const special = specialOf(date);
     const plan = {
-      date, budget, alc, loc, wx, start, mode, slots: buildSlots(start), startedEarly: false,
+      date, budget, alc, loc, wx, start, mode, people: [...people], prepDone: {}, slots: buildSlots(start), startedEarly: false,
       theme: special ? special.theme : alc === 2 ? pick(THEME_BEER) : `${pick(THEME_A)} ${pick(THEME_B)}`,
       mission: pick(alc ? [...MISSIONS, ...MISSIONS_ALC, ...MISSIONS_ALC] : MISSIONS), missionDone: false,
       jokers: 3, notified: [], createdAt: Date.now(), steps: [],
     };
-    if (mode === 'epic') return buildEpicPlan(plan);
+    if (mode === 'epic') return assignCaptains(buildEpicPlan(plan));
     const used = new Set();
     for (const slot of plan.slots) {
       const a = chooseFor(slot, plan, used);
@@ -1276,7 +1441,72 @@ const EPICS = [
       }
       plan.steps.push(step);
     }
-    return plan;
+    return assignCaptains(plan);
+  }
+
+  /* ───────────── Forberedelse: indkøb, pakning og booking ───────────── */
+  function qty(text, n) {
+    return text.replace(/\{(\d+)\}( [^\s,()–]+)?/g, (_, k, unit = '') => (n ? `${k * n}${unit}` : `${k}${unit} pr. person`));
+  }
+
+  function prepList(plan) {
+    const n = plan.people?.length || 0;
+    const groups = { book: [], buy: [], pack: [] };
+    const seen = new Set();
+    const add = (g, text, src) => {
+      const t = qty(text, n);
+      const key = g + ':' + t;
+      if (seen.has(key)) return;
+      seen.add(key);
+      groups[g].push({ key, text: t, src });
+    };
+    const ids = plan.mode === 'epic' ? [plan.epic] : plan.steps.map((st) => st.act);
+    ids.forEach((id) => {
+      const pr = PREP[id];
+      if (!pr) return;
+      const src = plan.mode === 'epic' ? epicById(id).t : actById(id).t;
+      if (pr.book) add('book', pr.book, src);
+      (pr.buy || []).forEach((x) => add('buy', x, src));
+      (pr.pack || []).forEach((x) => add('pack', x, src));
+    });
+    // Ud fra vejret og valgene
+    const d = plan.wx.daily;
+    const wet = plan.slots.some((sl) => slotWeather(plan.wx, sl).wet);
+    if (wet || d.pp >= 50) add('pack', 'Regntøj – der er regn i udsigt', 'Vejret');
+    if (d.tmin < 6) add('pack', 'Varmt tøj, hue og handsker', 'Vejret');
+    if (d.tmax >= 20 && d.pp < 40) add('pack', 'Solcreme og solbriller', 'Vejret');
+    if (plan.alc) {
+      add('pack', 'Vandflaske – drik vand mellem øllene', 'Øl');
+      add('book', 'Aftal hjemtransport (ingen kører efter øl)', 'Øl');
+    }
+    add('pack', 'Opladet telefon + powerbank', 'Hele dagen');
+    add('pack', 'Betalingskort/MobilePay', 'Hele dagen');
+    return groups;
+  }
+
+  function prepText(plan) {
+    const g = prepList(plan);
+    const sec = (title, list) => (list.length ? `${title}\n${list.map((x) => `${plan.prepDone?.[x.key] ? '✅' : '⬜'} ${x.text}`).join('\n')}\n` : '');
+    return `🎲 Sidequest – forberedelse til ${fmtDate(plan.date)} kl. ${plan.slots[0].time}\n${plan.people?.length ? `👥 ${plan.people.join(', ')}\n` : ''}\n`
+      + sec('📅 Book på forhånd:', g.book) + sec('🛒 Køb ind:', g.buy) + sec('🎒 Pak/find frem:', g.pack);
+  }
+
+  function renderPrep(plan, mode) {
+    const g = prepList(plan);
+    const all = [...g.book, ...g.buy, ...g.pack];
+    if (!all.length) return '';
+    plan.prepDone = plan.prepDone || {};
+    const doneN = all.filter((x) => plan.prepDone[x.key]).length;
+    const open = mode === 'preview' || (mode === 'live' && plan.steps[0].status === 'todo' && doneN < all.length);
+    const list = (title, items) => (items.length ? `<h3>${title}</h3><ul class="prep">${items.map((x) => `
+      <li><label class="check"><input type="checkbox" data-action="prep" data-key="${esc(x.key)}" ${plan.prepDone[x.key] ? 'checked' : ''}>
+        <span>${esc(x.text)} <small class="muted">· ${esc(x.src)}</small></span></label></li>`).join('')}</ul>` : '');
+    return `<details class="card prepcard" ${open ? 'open' : ''}>
+      <summary><b>🧾 Forbered dagen</b> <span class="badge ${doneN === all.length ? 'ok' : ''}">${doneN}/${all.length}</span></summary>
+      <p class="muted small">Det her skal købes, pakkes eller bookes, før I går i gang${plan.people?.length ? ` – mængder er regnet ud til ${plan.people.length} personer` : ''}.</p>
+      ${list('📅 Book på forhånd', g.book)}${list('🛒 Køb ind', g.buy)}${list('🎒 Pak / find frem', g.pack)}
+      <button class="btn ghost sm" data-action="shareprep">📤 Send listen til gruppen</button>
+    </details>`;
   }
 
   /* ───────────── Dagens forløb ───────────── */
@@ -1429,7 +1659,17 @@ const EPICS = [
       </section>
 
       <section class="card">
-        <h2>6. Hvor er I?</h2>
+        <h2>6. Hvem er med?</h2>
+        <p class="muted small">Skriv navnene ind. Så får hvert stop en kaptajn, kaos-reglerne bruger jeres navne, I får en pointtavle, og indkøbslisten regnes ud til jeres antal.</p>
+        <div class="chips">${st.people.map((n, k) => `<span class="chip person">${esc(n)} <button class="x" data-action="rmperson" data-i="${k}" aria-label="Fjern ${esc(n)}">×</button></span>`).join('') || '<span class="muted small">Ingen deltagere endnu (valgfrit)</span>'}</div>
+        <form class="row" id="personform">
+          <input id="person" placeholder="Navn (fx Anna)" maxlength="20" autocomplete="off">
+          <button class="btn ghost" type="submit">＋ Tilføj</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>7. Hvor er I?</h2>
         <p class="muted small">Bruges kun til at hente vejrudsigten. Nu: <b id="locname">${esc(st.loc.name)}</b></p>
         <div class="row">
           <button class="btn ghost" data-action="geo">📍 Brug min position</button>
@@ -1451,6 +1691,14 @@ const EPICS = [
       if (Number.isNaN(hh)) return;
       st.start = Math.min(21, Math.max(5, hh + (mm || 0) / 60));
       save(); renderSetup();
+    });
+    $('#personform').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const names = $('#person').value.split(',').map((x) => x.trim()).filter(Boolean);
+      if (!names.length) return;
+      names.forEach((nm) => { if (st.people.length < 20 && !st.people.includes(nm)) st.people.push(nm); });
+      save(); renderSetup();
+      $('#person').focus();
     });
     $('#cityform').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1508,6 +1756,7 @@ const EPICS = [
         <h1 class="theme">${esc(plan.theme)}</h1>
         ${plan.mode === 'epic' ? `<p class="epic-intro">${epicById(plan.epic).icon} <b>Heldagsmission: ${esc(epicById(plan.epic).t)}.</b> ${esc(epicById(plan.epic).d)}</p>` : ''}
         <p class="muted">${cap(fmtDate(plan.date))} · ⏰ fra kl. ${plan.slots[0].time} · 📍 ${esc(plan.loc.name)}</p>
+        ${plan.people?.length ? `<p class="small">👥 ${plan.people.map(esc).join(' · ')}</p>` : ''}
         <div class="wxbar">
           <div class="wxbig">${dIcon}</div>
           <div>
@@ -1517,12 +1766,13 @@ const EPICS = [
           </div>
         </div>
         <div class="progress"><div style="width:${(doneCount / plan.steps.length) * 100}%"></div></div>
-        <div class="muted small row between"><span>${doneCount}/${plan.steps.length} stop klaret</span><span>Ca. ${totalCost(plan)} kr pr. person</span></div>
+        <div class="muted small row between"><span>${doneCount}/${plan.steps.length} stop klaret</span><span>Ca. ${totalCost(plan)} kr pr. person${plan.people?.length > 1 ? ` · ${totalCost(plan) * plan.people.length} kr i alt` : ''}</span></div>
       </header>
 
       ${banner}
       ${plan.alc === 2 && mode !== 'past' ? `<div class="banner">🍺 <b>Øl-dag-regler:</b> ét glas vand til hver øl, spis ordentligt til hvert måltid, og ingen kører bil. Det er helt okay at tage en alkoholfri – point tæller stadig.</div>` : ''}
       ${mode === 'live' ? renderNow(plan, ai) : ''}
+      ${mode !== 'past' ? renderPrep(plan, mode) : ''}
       ${renderMission(plan)}
 
       <h2 class="section">Dagens plan</h2>
@@ -1577,6 +1827,7 @@ const EPICS = [
           <span class="chip">${sw.icon} ${sw.t}° · 💧${sw.pp}%</span>
           <span class="chip">${envTag(a)}</span>
           <span class="chip">💰 ${priceTag(a)}</span>
+          ${step.captain ? `<span class="chip hot">👑 Kaptajn: ${esc(step.captain)}</span>` : ''}
         </div>
         ${badWx ? `<div class="banner warn">☔ Vejret er ikke med jer lige nu (${sw.text.toLowerCase()}, ${sw.t}°). ${b ? `Plan B: <b>${esc(b.t)}</b>.` : plan.mode === 'epic' ? 'Regntøj på – missionen fortsætter! Søg ly undervejs.' : 'Brug en joker for en indendørs idé.'}</div>` : ''}
         <div class="quest">
@@ -1623,7 +1874,7 @@ const EPICS = [
           <h3>${esc(a.t)}</h3>
           <p class="small">${esc(a.d)}</p>
           ${plan.alc && a.alcTip ? `<p class="small tip">${esc(a.alcTip)}</p>` : ''}
-          <div class="chips small"><span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
+          <div class="chips small">${s.captain ? `<span class="chip">👑 ${esc(s.captain)}</span>` : ''}<span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
           ${unlocked
             ? `<div class="quest small"><span class="quest-label">⚡ Udfordring</span> ${esc(a.q)}</div>${s.kaos ? `<div class="kaos small"><span class="quest-label">🌀 Kaos</span> ${esc(s.kaos)}</div>` : ''}`
             : `<div class="quest small locked">🔒 Udfordring og kaos-regel låses op kl. ${slot.time}</div>`}
@@ -1663,6 +1914,7 @@ const EPICS = [
         <div class="rank"><div class="em-xl">${rIcon}</div><div><div class="score big">⭐ ${p} point</div><b>${rName}</b></div></div>
         <div class="chips center">${badges.map((b) => `<span class="chip hot">${b}</span>`).join('') || '<span class="chip">Ingen badges i dag – næste gang!</span>'}</div>
       </header>
+      ${plan.people?.length ? renderLeaderboard(plan) : ''}
       <section class="card">
         <h2>Sådan gik det</h2>
         <ul class="report-list">
@@ -1670,6 +1922,7 @@ const EPICS = [
             const a = actById(s.act);
             return `<li class="${s.status}"><span>${plan.slots[i].time}</span><div><b>${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${esc(a.t)}</b>
               ${s.bonus ? '<span class="badge ok">⚡ udfordring klaret</span>' : ''}
+              ${s.heroes?.length ? `<span class="badge">🦸 ${s.heroes.map(esc).join(', ')}</span>` : ''}
               ${s.note ? `<p class="small note">“${esc(s.note)}”</p>` : ''}</div></li>`;
           }).join('')}
         </ul>
@@ -1683,10 +1936,31 @@ const EPICS = [
       </div>`;
   }
 
+  // Personlige point: kaptajn på et klaret stop = 50, helt i et stop = 50, mission = 100 til alle
+  function personScores(plan) {
+    const sc = Object.fromEntries(plan.people.map((n) => [n, 0]));
+    plan.steps.forEach((st) => {
+      if (st.status !== 'done') return;
+      if (st.captain in sc) sc[st.captain] += 50;
+      (st.heroes || []).forEach((h) => { if (h in sc) sc[h] += 50; });
+    });
+    if (plan.missionDone) plan.people.forEach((n) => (sc[n] += 100));
+    return Object.entries(sc).sort((a, b) => b[1] - a[1]);
+  }
+
+  function renderLeaderboard(plan) {
+    const rows = personScores(plan);
+    const medal = ['🥇', '🥈', '🥉'];
+    return `<section class="card"><h2>👥 Pointtavle</h2><ol class="leader">${rows.map(([n, p], k) =>
+      `<li><span>${medal[k] || k + 1 + '.'} ${esc(n)}</span><b>${p}</b></li>`).join('')}</ol>
+      ${rows.length && rows[0][1] > 0 ? `<p class="small">🏆 Dagens MVP: <b>${esc(rows[0][0])}</b></p>` : ''}</section>`;
+  }
+
   function shareText(plan) {
     const [rIcon, rName] = rank(points(plan));
     const lines = plan.steps.map((s, i) => `${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${plan.slots[i].time} ${actById(s.act).t}${s.bonus ? ' ⚡' : ''}`);
-    return `🎲 Sidequest: ${plan.theme}\n${cap(fmtDate(plan.date))}\n\n${lines.join('\n')}\n\n${rIcon} ${rName} – ⭐ ${points(plan)} point`;
+    const lb = plan.people?.length ? '\n\n👥 ' + personScores(plan).map(([n, p]) => `${n}: ${p}`).join(' · ') : '';
+    return `🎲 Sidequest: ${plan.theme}\n${cap(fmtDate(plan.date))}\n\n${lines.join('\n')}\n\n${rIcon} ${rName} – ⭐ ${points(plan)} point${lb}`;
   }
 
   /* ───────────── Handlinger ───────────── */
@@ -1701,7 +1975,7 @@ const EPICS = [
     app.innerHTML = `<div class="loading"><div class="dice">🎲</div><p>Tjekker vejret i ${esc(st.loc.name)} og ruller terningerne…</p></div>`;
     const wx = await getWeather(st.loc, st.date);
     await new Promise((r) => setTimeout(r, 700)); // lidt spænding
-    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx, start: st.start, mode: st.mode });
+    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx, start: st.start, mode: st.mode, people: st.people });
     save();
     renderPlan();
     window.scrollTo({ top: 0 });
@@ -1714,6 +1988,8 @@ const EPICS = [
       <h2>✅ ${esc(a.t)}</h2>
       <label class="check big"><input type="checkbox" id="bonus"> Vi klarede udfordringen (+${POINTS.bonus})</label>
       <p class="small muted">${esc(a.q)}</p>
+      ${plan.people?.length ? `<label class="small">Hvem var stoppets helte? (+${POINTS.bonus} hver)</label>
+      <div class="chips heroes">${plan.people.map((n) => `<button type="button" class="chip pick" data-name="${esc(n)}">${esc(n)}</button>`).join('')}</div>` : ''}
       <label class="small">Et minde fra stoppet (valgfrit)</label>
       <textarea id="note" rows="2" placeholder="Hvad skete der?"></textarea>
       <label class="btn ghost file">📸 Tilføj billede<input type="file" id="photo" accept="image/*" capture="environment" hidden></label>
@@ -1721,6 +1997,7 @@ const EPICS = [
       <div class="actions"><button class="btn primary" id="save">Gem (+${POINTS.done})</button><button class="btn ghost" id="cancel">Annullér</button></div>
     `);
     let photo = null;
+    m.querySelectorAll('.pick').forEach((b) => (b.onclick = () => b.classList.toggle('on')));
     $('#photo', m).addEventListener('change', async (e) => {
       const f = e.target.files[0];
       if (!f) return;
@@ -1729,7 +2006,8 @@ const EPICS = [
     });
     $('#cancel', m).onclick = () => m.remove();
     $('#save', m).onclick = () => {
-      Object.assign(plan.steps[i], { status: 'done', bonus: $('#bonus', m).checked, note: $('#note', m).value.trim(), photo, doneAt: Date.now() });
+      const heroes = [...m.querySelectorAll('.pick.on')].map((b) => b.dataset.name);
+      Object.assign(plan.steps[i], { status: 'done', heroes, bonus: $('#bonus', m).checked, note: $('#note', m).value.trim(), photo, doneAt: Date.now() });
       save(); m.remove();
       celebrate();
       const ni = activeIndex(plan);
@@ -1869,6 +2147,23 @@ const EPICS = [
         if (confirm(`Brug en joker og få en ny idé til ${store.plan.slots[i].label.toLowerCase()} kl. ${store.plan.slots[i].time}? (${store.plan.jokers} tilbage)`)) useJoker(i);
         break;
       case 'planb': swapPlanB(i); break;
+      case 'rmperson':
+        st.people.splice(i, 1); save(); renderSetup(); break;
+      case 'prep':
+        store.plan.prepDone = store.plan.prepDone || {};
+        store.plan.prepDone[el.dataset.key] = el.checked; save();
+        { // Opdater tælleren uden at gentegne (så listen forbliver åben)
+          const box = el.closest('details'); const all = box.querySelectorAll('input[data-action=prep]');
+          const n = [...all].filter((x) => x.checked).length; const badge = box.querySelector('summary .badge');
+          badge.textContent = `${n}/${all.length}`; badge.classList.toggle('ok', n === all.length);
+        }
+        break;
+      case 'shareprep': {
+        const text = prepText(store.plan);
+        if (navigator.share) { try { await navigator.share({ text }); } catch { /* annulleret */ } }
+        else { await navigator.clipboard?.writeText(text); toast('📋 Listen er kopieret – indsæt den i gruppechatten.'); }
+        break;
+      }
       case 'mission':
         store.plan.missionDone = el.checked; save(); if (el.checked) celebrate(); renderPlan(); break;
       case 'notify': {

@@ -11,7 +11,9 @@
    - **vejret ved hvert tidspunkt**: udendørs aktiviteter fravælges ved regn, kulde og storm, og efter solnedgang vælges kun aktiviteter, der fungerer i mørke. Nogle aktiviteter kræver bestemt vejr (stjernekig kræver klar himmel, dragefly kræver vind, kælkning kræver sne)
    - **budget og alkohol-valg**
 4. Hvert udendørs stop har en indendørs **Plan B**.
-5. **Heldagsmission**: i stedet for separate stop kan I vælge én sammenhængende oplevelse (fx Mystery-rejsen, Øl-pilgrimsfærden, Overlevelsesdagen, Karakter-dagen, Ja-dagen, Luksusdagen, Roadtrip-roulette), hvor appen styrer hele dagen kapitel for kapitel. Starter dagen sent, springes valgfrie kapitler over.
+5. **Deltagere**: skriv navnene ind. Hvert stop får en 👑 kaptajn på skift, kaos-reglerne bruger jeres navne, og rapporten viser en pointtavle med dagens MVP.
+6. **Forbered dagen**: en tjekliste over, hvad der skal bookes, købes og pakkes (mængder regnes ud fra antal deltagere, og vejret tilføjer fx regntøj). Listen kan sendes til gruppechatten.
+7. **Heldagsmission**: i stedet for separate stop kan I vælge én sammenhængende oplevelse (fx Mystery-rejsen, Øl-pilgrimsfærden, Overlevelsesdagen, Karakter-dagen, Ja-dagen, Luksusdagen, Roadtrip-roulette), hvor appen styrer hele dagen kapitel for kapitel. Starter dagen sent, springes valgfrie kapitler over.
 
 ## Brug den i løbet af dagen
 - **NU-kortet** viser det aktuelle stop. Stop låses op, når klokken når deres tidspunkt, eller når I har klaret det forrige.

@@ -195,3 +195,23 @@ input:focus, textarea:focus { border-color: var(--accent); }
 /* v3: starttid og heldagsmission */
 .seg.times button { min-width: 64px; flex: 0 1 auto; padding: 8px 12px; }
 .epic-intro { background: var(--card2); border-radius: 12px; padding: 10px 12px; font-size: .92rem; }
+
+/* v4: deltagere, forberedelse og pointtavle */
+.chip.person { display: inline-flex; align-items: center; gap: 4px; padding-right: 4px; }
+.chip .x { background: none; border: 0; color: var(--muted); font-size: 1rem; line-height: 1; padding: 0 4px; }
+.chip.pick { border: 2px solid transparent; cursor: pointer; font-size: .9rem; padding: 6px 12px; }
+.chip.pick.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 25%, var(--card2)); }
+.prepcard summary { cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; font-size: 1.05rem; }
+.prepcard summary::-webkit-details-marker { display: none; }
+.prepcard summary::after { content: "▾"; color: var(--muted); margin-left: 8px; }
+.prepcard[open] summary::after { content: "▴"; }
+.prepcard h3 { margin: 14px 0 6px; font-size: .95rem; }
+.prep { list-style: none; padding: 0; margin: 0; }
+.prep li { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+.prep .check { font-weight: 400; align-items: flex-start; margin: 0; }
+.prep .check input { flex: none; margin-top: 2px; }
+.prep input:checked + span { text-decoration: line-through; color: var(--muted); }
+.leader { list-style: none; padding: 0; margin: 0; }
+.leader li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+.leader b { color: var(--accent2); }
+.row .btn { white-space: nowrap; flex: none; }

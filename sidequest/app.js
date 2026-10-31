@@ -110,6 +110,7 @@
   if (store.plan && !store.plan.slots) { store.plan.slots = SLOTS.map((x) => ({ ...x })); store.plan.mode = 'stop'; }
   if (store.settings.start == null) store.settings.start = 9;
   if (!store.settings.mode) store.settings.mode = 'stop';
+  if (!Array.isArray(store.settings.people)) store.settings.people = [];
   function save() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
     catch (e) {
@@ -349,17 +350,29 @@
     return plan;
   }
 
-  const pickKaos = (alc) => (alc && Math.random() < (alc === 2 ? 0.6 : 0.3) ? pick(KAOS_ALC) : pick(KAOS));
+  function pickKaos(alc, people = []) {
+    if (people.length && Math.random() < 0.4) {
+      const tpl = alc && Math.random() < 0.4 ? pick(KAOS_NAMED_ALC) : pick(KAOS_NAMED);
+      return tpl.replaceAll('{navn}', pick(people));
+    }
+    return alc && Math.random() < (alc === 2 ? 0.6 : 0.3) ? pick(KAOS_ALC) : pick(KAOS);
+  }
+  // Fordeler "stop-kaptajner" på skift i tilfældig rækkefølge
+  function assignCaptains(plan) {
+    const ppl = [...plan.people].sort(() => Math.random() - 0.5);
+    plan.steps.forEach((st, i) => { st.captain = ppl.length ? ppl[i % ppl.length] : null; st.kaos = pickKaos(plan.alc, plan.people); });
+    return plan;
+  }
 
-  function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop' }) {
+  function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop', people = [] }) {
     const special = specialOf(date);
     const plan = {
-      date, budget, alc, loc, wx, start, mode, slots: buildSlots(start), startedEarly: false,
+      date, budget, alc, loc, wx, start, mode, people: [...people], prepDone: {}, slots: buildSlots(start), startedEarly: false,
       theme: special ? special.theme : alc === 2 ? pick(THEME_BEER) : `${pick(THEME_A)} ${pick(THEME_B)}`,
       mission: pick(alc ? [...MISSIONS, ...MISSIONS_ALC, ...MISSIONS_ALC] : MISSIONS), missionDone: false,
       jokers: 3, notified: [], createdAt: Date.now(), steps: [],
     };
-    if (mode === 'epic') return buildEpicPlan(plan);
+    if (mode === 'epic') return assignCaptains(buildEpicPlan(plan));
     const used = new Set();
     for (const slot of plan.slots) {
       const a = chooseFor(slot, plan, used);
@@ -372,7 +385,72 @@
       }
       plan.steps.push(step);
     }
-    return plan;
+    return assignCaptains(plan);
+  }
+
+  /* ───────────── Forberedelse: indkøb, pakning og booking ───────────── */
+  function qty(text, n) {
+    return text.replace(/\{(\d+)\}( [^\s,()–]+)?/g, (_, k, unit = '') => (n ? `${k * n}${unit}` : `${k}${unit} pr. person`));
+  }
+
+  function prepList(plan) {
+    const n = plan.people?.length || 0;
+    const groups = { book: [], buy: [], pack: [] };
+    const seen = new Set();
+    const add = (g, text, src) => {
+      const t = qty(text, n);
+      const key = g + ':' + t;
+      if (seen.has(key)) return;
+      seen.add(key);
+      groups[g].push({ key, text: t, src });
+    };
+    const ids = plan.mode === 'epic' ? [plan.epic] : plan.steps.map((st) => st.act);
+    ids.forEach((id) => {
+      const pr = PREP[id];
+      if (!pr) return;
+      const src = plan.mode === 'epic' ? epicById(id).t : actById(id).t;
+      if (pr.book) add('book', pr.book, src);
+      (pr.buy || []).forEach((x) => add('buy', x, src));
+      (pr.pack || []).forEach((x) => add('pack', x, src));
+    });
+    // Ud fra vejret og valgene
+    const d = plan.wx.daily;
+    const wet = plan.slots.some((sl) => slotWeather(plan.wx, sl).wet);
+    if (wet || d.pp >= 50) add('pack', 'Regntøj – der er regn i udsigt', 'Vejret');
+    if (d.tmin < 6) add('pack', 'Varmt tøj, hue og handsker', 'Vejret');
+    if (d.tmax >= 20 && d.pp < 40) add('pack', 'Solcreme og solbriller', 'Vejret');
+    if (plan.alc) {
+      add('pack', 'Vandflaske – drik vand mellem øllene', 'Øl');
+      add('book', 'Aftal hjemtransport (ingen kører efter øl)', 'Øl');
+    }
+    add('pack', 'Opladet telefon + powerbank', 'Hele dagen');
+    add('pack', 'Betalingskort/MobilePay', 'Hele dagen');
+    return groups;
+  }
+
+  function prepText(plan) {
+    const g = prepList(plan);
+    const sec = (title, list) => (list.length ? `${title}\n${list.map((x) => `${plan.prepDone?.[x.key] ? '✅' : '⬜'} ${x.text}`).join('\n')}\n` : '');
+    return `🎲 Sidequest – forberedelse til ${fmtDate(plan.date)} kl. ${plan.slots[0].time}\n${plan.people?.length ? `👥 ${plan.people.join(', ')}\n` : ''}\n`
+      + sec('📅 Book på forhånd:', g.book) + sec('🛒 Køb ind:', g.buy) + sec('🎒 Pak/find frem:', g.pack);
+  }
+
+  function renderPrep(plan, mode) {
+    const g = prepList(plan);
+    const all = [...g.book, ...g.buy, ...g.pack];
+    if (!all.length) return '';
+    plan.prepDone = plan.prepDone || {};
+    const doneN = all.filter((x) => plan.prepDone[x.key]).length;
+    const open = mode === 'preview' || (mode === 'live' && plan.steps[0].status === 'todo' && doneN < all.length);
+    const list = (title, items) => (items.length ? `<h3>${title}</h3><ul class="prep">${items.map((x) => `
+      <li><label class="check"><input type="checkbox" data-action="prep" data-key="${esc(x.key)}" ${plan.prepDone[x.key] ? 'checked' : ''}>
+        <span>${esc(x.text)} <small class="muted">· ${esc(x.src)}</small></span></label></li>`).join('')}</ul>` : '');
+    return `<details class="card prepcard" ${open ? 'open' : ''}>
+      <summary><b>🧾 Forbered dagen</b> <span class="badge ${doneN === all.length ? 'ok' : ''}">${doneN}/${all.length}</span></summary>
+      <p class="muted small">Det her skal købes, pakkes eller bookes, før I går i gang${plan.people?.length ? ` – mængder er regnet ud til ${plan.people.length} personer` : ''}.</p>
+      ${list('📅 Book på forhånd', g.book)}${list('🛒 Køb ind', g.buy)}${list('🎒 Pak / find frem', g.pack)}
+      <button class="btn ghost sm" data-action="shareprep">📤 Send listen til gruppen</button>
+    </details>`;
   }
 
   /* ───────────── Dagens forløb ───────────── */
@@ -525,7 +603,17 @@
       </section>
 
       <section class="card">
-        <h2>6. Hvor er I?</h2>
+        <h2>6. Hvem er med?</h2>
+        <p class="muted small">Skriv navnene ind. Så får hvert stop en kaptajn, kaos-reglerne bruger jeres navne, I får en pointtavle, og indkøbslisten regnes ud til jeres antal.</p>
+        <div class="chips">${st.people.map((n, k) => `<span class="chip person">${esc(n)} <button class="x" data-action="rmperson" data-i="${k}" aria-label="Fjern ${esc(n)}">×</button></span>`).join('') || '<span class="muted small">Ingen deltagere endnu (valgfrit)</span>'}</div>
+        <form class="row" id="personform">
+          <input id="person" placeholder="Navn (fx Anna)" maxlength="20" autocomplete="off">
+          <button class="btn ghost" type="submit">＋ Tilføj</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>7. Hvor er I?</h2>
         <p class="muted small">Bruges kun til at hente vejrudsigten. Nu: <b id="locname">${esc(st.loc.name)}</b></p>
         <div class="row">
           <button class="btn ghost" data-action="geo">📍 Brug min position</button>
@@ -547,6 +635,14 @@
       if (Number.isNaN(hh)) return;
       st.start = Math.min(21, Math.max(5, hh + (mm || 0) / 60));
       save(); renderSetup();
+    });
+    $('#personform').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const names = $('#person').value.split(',').map((x) => x.trim()).filter(Boolean);
+      if (!names.length) return;
+      names.forEach((nm) => { if (st.people.length < 20 && !st.people.includes(nm)) st.people.push(nm); });
+      save(); renderSetup();
+      $('#person').focus();
     });
     $('#cityform').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -604,6 +700,7 @@
         <h1 class="theme">${esc(plan.theme)}</h1>
         ${plan.mode === 'epic' ? `<p class="epic-intro">${epicById(plan.epic).icon} <b>Heldagsmission: ${esc(epicById(plan.epic).t)}.</b> ${esc(epicById(plan.epic).d)}</p>` : ''}
         <p class="muted">${cap(fmtDate(plan.date))} · ⏰ fra kl. ${plan.slots[0].time} · 📍 ${esc(plan.loc.name)}</p>
+        ${plan.people?.length ? `<p class="small">👥 ${plan.people.map(esc).join(' · ')}</p>` : ''}
         <div class="wxbar">
           <div class="wxbig">${dIcon}</div>
           <div>
@@ -613,12 +710,13 @@
           </div>
         </div>
         <div class="progress"><div style="width:${(doneCount / plan.steps.length) * 100}%"></div></div>
-        <div class="muted small row between"><span>${doneCount}/${plan.steps.length} stop klaret</span><span>Ca. ${totalCost(plan)} kr pr. person</span></div>
+        <div class="muted small row between"><span>${doneCount}/${plan.steps.length} stop klaret</span><span>Ca. ${totalCost(plan)} kr pr. person${plan.people?.length > 1 ? ` · ${totalCost(plan) * plan.people.length} kr i alt` : ''}</span></div>
       </header>
 
       ${banner}
       ${plan.alc === 2 && mode !== 'past' ? `<div class="banner">🍺 <b>Øl-dag-regler:</b> ét glas vand til hver øl, spis ordentligt til hvert måltid, og ingen kører bil. Det er helt okay at tage en alkoholfri – point tæller stadig.</div>` : ''}
       ${mode === 'live' ? renderNow(plan, ai) : ''}
+      ${mode !== 'past' ? renderPrep(plan, mode) : ''}
       ${renderMission(plan)}
 
       <h2 class="section">Dagens plan</h2>
@@ -673,6 +771,7 @@
           <span class="chip">${sw.icon} ${sw.t}° · 💧${sw.pp}%</span>
           <span class="chip">${envTag(a)}</span>
           <span class="chip">💰 ${priceTag(a)}</span>
+          ${step.captain ? `<span class="chip hot">👑 Kaptajn: ${esc(step.captain)}</span>` : ''}
         </div>
         ${badWx ? `<div class="banner warn">☔ Vejret er ikke med jer lige nu (${sw.text.toLowerCase()}, ${sw.t}°). ${b ? `Plan B: <b>${esc(b.t)}</b>.` : plan.mode === 'epic' ? 'Regntøj på – missionen fortsætter! Søg ly undervejs.' : 'Brug en joker for en indendørs idé.'}</div>` : ''}
         <div class="quest">
@@ -719,7 +818,7 @@
           <h3>${esc(a.t)}</h3>
           <p class="small">${esc(a.d)}</p>
           ${plan.alc && a.alcTip ? `<p class="small tip">${esc(a.alcTip)}</p>` : ''}
-          <div class="chips small"><span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
+          <div class="chips small">${s.captain ? `<span class="chip">👑 ${esc(s.captain)}</span>` : ''}<span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
           ${unlocked
             ? `<div class="quest small"><span class="quest-label">⚡ Udfordring</span> ${esc(a.q)}</div>${s.kaos ? `<div class="kaos small"><span class="quest-label">🌀 Kaos</span> ${esc(s.kaos)}</div>` : ''}`
             : `<div class="quest small locked">🔒 Udfordring og kaos-regel låses op kl. ${slot.time}</div>`}
@@ -759,6 +858,7 @@
         <div class="rank"><div class="em-xl">${rIcon}</div><div><div class="score big">⭐ ${p} point</div><b>${rName}</b></div></div>
         <div class="chips center">${badges.map((b) => `<span class="chip hot">${b}</span>`).join('') || '<span class="chip">Ingen badges i dag – næste gang!</span>'}</div>
       </header>
+      ${plan.people?.length ? renderLeaderboard(plan) : ''}
       <section class="card">
         <h2>Sådan gik det</h2>
         <ul class="report-list">
@@ -766,6 +866,7 @@
             const a = actById(s.act);
             return `<li class="${s.status}"><span>${plan.slots[i].time}</span><div><b>${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${esc(a.t)}</b>
               ${s.bonus ? '<span class="badge ok">⚡ udfordring klaret</span>' : ''}
+              ${s.heroes?.length ? `<span class="badge">🦸 ${s.heroes.map(esc).join(', ')}</span>` : ''}
               ${s.note ? `<p class="small note">“${esc(s.note)}”</p>` : ''}</div></li>`;
           }).join('')}
         </ul>
@@ -779,10 +880,31 @@
       </div>`;
   }
 
+  // Personlige point: kaptajn på et klaret stop = 50, helt i et stop = 50, mission = 100 til alle
+  function personScores(plan) {
+    const sc = Object.fromEntries(plan.people.map((n) => [n, 0]));
+    plan.steps.forEach((st) => {
+      if (st.status !== 'done') return;
+      if (st.captain in sc) sc[st.captain] += 50;
+      (st.heroes || []).forEach((h) => { if (h in sc) sc[h] += 50; });
+    });
+    if (plan.missionDone) plan.people.forEach((n) => (sc[n] += 100));
+    return Object.entries(sc).sort((a, b) => b[1] - a[1]);
+  }
+
+  function renderLeaderboard(plan) {
+    const rows = personScores(plan);
+    const medal = ['🥇', '🥈', '🥉'];
+    return `<section class="card"><h2>👥 Pointtavle</h2><ol class="leader">${rows.map(([n, p], k) =>
+      `<li><span>${medal[k] || k + 1 + '.'} ${esc(n)}</span><b>${p}</b></li>`).join('')}</ol>
+      ${rows.length && rows[0][1] > 0 ? `<p class="small">🏆 Dagens MVP: <b>${esc(rows[0][0])}</b></p>` : ''}</section>`;
+  }
+
   function shareText(plan) {
     const [rIcon, rName] = rank(points(plan));
     const lines = plan.steps.map((s, i) => `${s.status === 'done' ? '✅' : s.status === 'skipped' ? '⏭️' : '⬜'} ${plan.slots[i].time} ${actById(s.act).t}${s.bonus ? ' ⚡' : ''}`);
-    return `🎲 Sidequest: ${plan.theme}\n${cap(fmtDate(plan.date))}\n\n${lines.join('\n')}\n\n${rIcon} ${rName} – ⭐ ${points(plan)} point`;
+    const lb = plan.people?.length ? '\n\n👥 ' + personScores(plan).map(([n, p]) => `${n}: ${p}`).join(' · ') : '';
+    return `🎲 Sidequest: ${plan.theme}\n${cap(fmtDate(plan.date))}\n\n${lines.join('\n')}\n\n${rIcon} ${rName} – ⭐ ${points(plan)} point${lb}`;
   }
 
   /* ───────────── Handlinger ───────────── */
@@ -797,7 +919,7 @@
     app.innerHTML = `<div class="loading"><div class="dice">🎲</div><p>Tjekker vejret i ${esc(st.loc.name)} og ruller terningerne…</p></div>`;
     const wx = await getWeather(st.loc, st.date);
     await new Promise((r) => setTimeout(r, 700)); // lidt spænding
-    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx, start: st.start, mode: st.mode });
+    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx, start: st.start, mode: st.mode, people: st.people });
     save();
     renderPlan();
     window.scrollTo({ top: 0 });
@@ -810,6 +932,8 @@
       <h2>✅ ${esc(a.t)}</h2>
       <label class="check big"><input type="checkbox" id="bonus"> Vi klarede udfordringen (+${POINTS.bonus})</label>
       <p class="small muted">${esc(a.q)}</p>
+      ${plan.people?.length ? `<label class="small">Hvem var stoppets helte? (+${POINTS.bonus} hver)</label>
+      <div class="chips heroes">${plan.people.map((n) => `<button type="button" class="chip pick" data-name="${esc(n)}">${esc(n)}</button>`).join('')}</div>` : ''}
       <label class="small">Et minde fra stoppet (valgfrit)</label>
       <textarea id="note" rows="2" placeholder="Hvad skete der?"></textarea>
       <label class="btn ghost file">📸 Tilføj billede<input type="file" id="photo" accept="image/*" capture="environment" hidden></label>
@@ -817,6 +941,7 @@
       <div class="actions"><button class="btn primary" id="save">Gem (+${POINTS.done})</button><button class="btn ghost" id="cancel">Annullér</button></div>
     `);
     let photo = null;
+    m.querySelectorAll('.pick').forEach((b) => (b.onclick = () => b.classList.toggle('on')));
     $('#photo', m).addEventListener('change', async (e) => {
       const f = e.target.files[0];
       if (!f) return;
@@ -825,7 +950,8 @@
     });
     $('#cancel', m).onclick = () => m.remove();
     $('#save', m).onclick = () => {
-      Object.assign(plan.steps[i], { status: 'done', bonus: $('#bonus', m).checked, note: $('#note', m).value.trim(), photo, doneAt: Date.now() });
+      const heroes = [...m.querySelectorAll('.pick.on')].map((b) => b.dataset.name);
+      Object.assign(plan.steps[i], { status: 'done', heroes, bonus: $('#bonus', m).checked, note: $('#note', m).value.trim(), photo, doneAt: Date.now() });
       save(); m.remove();
       celebrate();
       const ni = activeIndex(plan);
@@ -965,6 +1091,23 @@
         if (confirm(`Brug en joker og få en ny idé til ${store.plan.slots[i].label.toLowerCase()} kl. ${store.plan.slots[i].time}? (${store.plan.jokers} tilbage)`)) useJoker(i);
         break;
       case 'planb': swapPlanB(i); break;
+      case 'rmperson':
+        st.people.splice(i, 1); save(); renderSetup(); break;
+      case 'prep':
+        store.plan.prepDone = store.plan.prepDone || {};
+        store.plan.prepDone[el.dataset.key] = el.checked; save();
+        { // Opdater tælleren uden at gentegne (så listen forbliver åben)
+          const box = el.closest('details'); const all = box.querySelectorAll('input[data-action=prep]');
+          const n = [...all].filter((x) => x.checked).length; const badge = box.querySelector('summary .badge');
+          badge.textContent = `${n}/${all.length}`; badge.classList.toggle('ok', n === all.length);
+        }
+        break;
+      case 'shareprep': {
+        const text = prepText(store.plan);
+        if (navigator.share) { try { await navigator.share({ text }); } catch { /* annulleret */ } }
+        else { await navigator.clipboard?.writeText(text); toast('📋 Listen er kopieret – indsæt den i gruppechatten.'); }
+        break;
+      }
       case 'mission':
         store.plan.missionDone = el.checked; save(); if (el.checked) celebrate(); renderPlan(); break;
       case 'notify': {
