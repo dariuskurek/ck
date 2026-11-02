@@ -15,12 +15,13 @@ Siden henter billeder fra mappen `billeder/`:
 
 | Fil | Bruges til |
 |---|---|
-| `billeder/hero.jpg` | Polaroid-billedet i toppen (valgfri, ellers vises en pladsholder) |
-| `billeder/1.jpg` – `billeder/6.jpg` | Galleriet (billedtekster rettes øverst i `<script>` i `index.html`) |
+| `billeder/hero.jpg` | Stort billede i toppen (valgfri, ellers vises en mørk pladsholder) |
+| `billeder/foer.jpg` + `billeder/efter.jpg` | Før/efter-slideren (valgfri, begge skal findes) |
+| `billeder/1.jpg` – `billeder/5.jpg` | Galleriet (billedtekster rettes øverst i `<script>` i `index.html`) |
 
 Billeder, der ikke findes, vises som pladsholdere. Hent fx billederne fra virksomhedens egen Google-virksomhedsprofil, men brug kun billeder, som virksomheden selv har taget eller har tilladelse til. Billeder fra anmeldelser tilhører den, der har taget dem.
 
-## Kilder til oplysningerne
-- Adresse, telefon, CVR, startdato (25.03.1993), ejere og antal ansatte: [proff.dk](https://www.proff.dk/firma/taulov-autolakering-is-ved-jan-lykke-hansen-tommy-rauff-benzon/fredericia/bilv%C3%A6rksteder/GK2JX9I0064), [erhvervplus.dk](https://erhvervplus.dk/erhvervsbasen/taulov-autolakering-i-s-ved-jan-lykke-hansen-tommy-rauff-benzon-279746)
-- E-mail, åbningstider og "lakerer både biler og lastbiler": virksomhedsoversigter (Krak/Cylex), bør bekræftes med værkstedet
-- Branche: 95.31.20 Reparation og lakering af karosseri samt undervognsbehandling
+## Oplysninger
+- Åbningstider (man–tors 06–15, fre 05–10:30) og ydelser (biler, varevogne, løsdele, industriemner, forsikringsskader, private skader, salgsbiler) er oplyst af værkstedet.
+- Adresse, telefon, CVR og startår 1993: [proff.dk](https://www.proff.dk/firma/taulov-autolakering-is-ved-jan-lykke-hansen-tommy-rauff-benzon/fredericia/bilv%C3%A6rksteder/GK2JX9I0064), [erhvervplus.dk](https://erhvervplus.dk/erhvervsbasen/taulov-autolakering-i-s-ved-jan-lykke-hansen-tommy-rauff-benzon-279746). E-mail fra Krak/Cylex.
+- Åbningstider rettes i tabellen under Kontakt og i `HOURS` i `<script>` (bruges til "Åbent nu").

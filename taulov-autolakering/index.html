@@ -3,238 +3,318 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Taulov Autolakering – lakering af biler og lastbiler i Fredericia</title>
-<meta name="description" content="Lille lakeringsværksted i Taulov siden 1993. Vi lakerer personbiler, varebiler og lastbiler for private og firmaer. Få et gratis tilbud.">
+<title>Taulov Autolakering – autolakerer i Fredericia</title>
+<meta name="description" content="Autolakering i Taulov siden 1993. Vi lakerer biler, varevogne, løsdele og industriemner og klarer forsikringsskader, private skader og klargøring af salgsbiler. Få et gratis tilbud.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23c8352a'/%3E%3Ctext x='32' y='42' font-size='28' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ETA%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23d6332a'/%3E%3Ctext x='32' y='42' font-size='26' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ETA%3C/text%3E%3C/svg%3E">
 <style>
 :root {
-  --paper: #fbf7ef;
-  --paper-2: #f3ecdd;
-  --kraft: #e9dcc3;
-  --ink: #2a2622;
-  --muted: #6b6259;
-  --red: #c8352a;
-  --red-d: #a8291f;
-  --blue: #2f5d8a;
-  --yellow: #fff2a8;
-  --line: #d9cdb6;
-  --hand: "Kalam", "Comic Sans MS", cursive;
-  --body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --surface-2: #efede8;
+  --ink: #111316;
+  --ink-2: #1c1f24;
+  --muted: #646a73;
+  --line: #e4e1da;
+  --red: #d6332a;
+  --red-d: #b8271f;
+  --red-soft: #fbe9e7;
+  --radius: 20px;
+  --radius-s: 12px;
+  --shadow: 0 1px 2px rgba(17,19,22,.04), 0 8px 24px rgba(17,19,22,.06);
+  --display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 70px; }
-body {
-  margin: 0; font-family: var(--body); color: var(--ink); line-height: 1.6; font-size: 17px;
-  background-color: var(--paper);
-  background-image:
-    radial-gradient(rgba(120,90,40,.06) 1px, transparent 1px),
-    radial-gradient(rgba(120,90,40,.04) 1px, transparent 1px);
-  background-size: 22px 22px, 13px 13px;
-  background-position: 0 0, 7px 11px;
-}
-a { color: var(--blue); }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+body { margin: 0; font-family: var(--body); color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 16.5px; -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
 img { max-width: 100%; display: block; }
-.wrap { width: min(1060px, 100% - 32px); margin-inline: auto; }
-h1, h2, h3 { font-family: var(--hand); font-weight: 700; line-height: 1.15; margin: 0 0 .4em; }
-h1 { font-size: clamp(2.3rem, 6vw, 3.8rem); }
-h2 { font-size: clamp(1.9rem, 4.5vw, 2.7rem); }
-h3 { font-size: 1.45rem; }
+.wrap { width: min(1160px, 100% - 32px); margin-inline: auto; }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; line-height: 1.04; letter-spacing: -.02em; margin: 0 0 .45em; }
+h1 { font-size: clamp(2.5rem, 6.4vw, 4.6rem); }
+h2 { font-size: clamp(1.9rem, 4.2vw, 3rem); }
+h3 { font-size: 1.25rem; letter-spacing: -.01em; font-weight: 600; }
 p { margin: 0 0 1em; }
 .muted { color: var(--muted); }
-.small { font-size: .9rem; }
-.scribble { position: relative; white-space: nowrap; }
-.scribble::after {
-  content: ""; position: absolute; left: -2%; right: -2%; bottom: -.12em; height: .35em;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M2 14 C40 4, 80 18, 120 8 S180 6, 198 12' stroke='%23c8352a' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
-}
+.small { font-size: .88rem; }
+.kicker { display: inline-flex; align-items: center; gap: 8px; font-size: .8rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--red); margin-bottom: 14px; }
+.kicker::before { content: ""; width: 18px; height: 3px; border-radius: 3px; background: var(--red); }
+.accent { color: var(--red); }
+.center { text-align: center; }
+.center .kicker { justify-content: center; }
 
 /* Knapper */
-.btn {
-  display: inline-block; font-family: var(--hand); font-weight: 700; font-size: 1.2rem;
-  background: var(--red); color: #fff; text-decoration: none; padding: .55rem 1.3rem;
-  border: 2px solid var(--ink); border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-  box-shadow: 3px 3px 0 var(--ink); cursor: pointer; transition: transform .1s, box-shadow .1s;
-}
-.btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
-.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
-.btn--light { background: #fff; color: var(--ink); }
-.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.btn { display: inline-flex; align-items: center; gap: 8px; font: 600 1rem var(--body); background: var(--red); color: #fff; text-decoration: none; padding: .85rem 1.35rem; border-radius: 999px; border: 0; cursor: pointer; transition: background .2s, transform .2s, box-shadow .2s; box-shadow: 0 6px 18px rgba(214,51,42,.25); }
+.btn:hover { background: var(--red-d); transform: translateY(-1px); }
+.btn--ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
+.btn--ghost:hover { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.btn--white { background: #fff; color: var(--ink); box-shadow: none; }
+.btn--white:hover { background: #f1f1f1; }
+.btn--sm { padding: .55rem 1rem; font-size: .92rem; }
+.btn svg { width: 18px; height: 18px; }
 
-/* Top */
-.topbar { position: sticky; top: 0; z-index: 30; background: rgba(251,247,239,.95); border-bottom: 2px dashed var(--line); }
-.topbar__inner { display: flex; align-items: center; gap: 18px; height: 62px; }
-.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-family: var(--hand); font-size: 1.4rem; font-weight: 700; }
-.logo__badge { width: 38px; height: 38px; border-radius: 50%; background: var(--red); color: #fff; display: grid; place-items: center; font-size: 1rem; border: 2px solid var(--ink); transform: rotate(-8deg); }
-.nav { display: flex; gap: 18px; margin-left: auto; }
-.nav a { color: var(--ink); text-decoration: none; font-weight: 600; font-size: .95rem; }
-.nav a:hover { color: var(--red); text-decoration: underline wavy; }
-.topbar .btn { font-size: 1rem; padding: .3rem .9rem; }
+/* Topbar */
+.topbar { position: sticky; top: 0; z-index: 40; background: rgba(247,246,243,.85); backdrop-filter: saturate(1.4) blur(14px); border-bottom: 1px solid transparent; transition: border-color .2s; }
+.topbar.scrolled { border-color: var(--line); }
+.topbar__inner { display: flex; align-items: center; gap: 24px; height: 68px; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--display); font-weight: 800; font-size: 1.2rem; letter-spacing: -.02em; }
+.logo__mark { width: 34px; height: 34px; border-radius: 10px; background: var(--red); color: #fff; display: grid; place-items: center; font-size: .9rem; }
+.nav { display: flex; gap: 26px; margin-left: auto; }
+.nav a { text-decoration: none; font-size: .93rem; font-weight: 500; color: var(--muted); }
+.nav a:hover { color: var(--ink); }
 
 /* Hero */
-.hero { padding: clamp(40px, 7vw, 80px) 0 40px; }
-.hero__grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; }
-.hello { font-family: var(--hand); color: var(--red); font-size: 1.3rem; margin: 0 0 .3rem; transform: rotate(-2deg); display: inline-block; }
-.hero__lead { font-size: 1.15rem; max-width: 34em; }
-.hero__cta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 22px; }
-.hero__cta .or { font-family: var(--hand); font-size: 1.15rem; }
-.hero__cta .or a { color: var(--ink); font-weight: 700; }
+.hero { padding: clamp(36px, 6vw, 72px) 0 clamp(40px, 6vw, 72px); }
+.hero__grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(32px, 5vw, 64px); align-items: center; }
+.hero__lead { font-size: 1.13rem; color: var(--muted); max-width: 33em; }
+.hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.hero__img { position: relative; }
+.photo { aspect-ratio: 4/5; border-radius: 28px; overflow: hidden; background:
+  linear-gradient(160deg, #2a2e35, #111316); position: relative; box-shadow: var(--shadow); }
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+.photo .ph { position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255,255,255,.55); text-align: center; font-size: .92rem; padding: 20px; }
+.photo .ph::before { content: ""; position: absolute; inset: 0; background:
+  radial-gradient(500px 300px at 80% 0%, rgba(214,51,42,.55), transparent 60%),
+  linear-gradient(115deg, transparent 50%, rgba(255,255,255,.06) 50.3%, transparent 66%); }
+.photo .ph span { position: relative; }
+.badge { position: absolute; left: -18px; bottom: 28px; background: var(--surface); border-radius: 16px; padding: 14px 18px; box-shadow: 0 12px 30px rgba(17,19,22,.14); display: flex; align-items: center; gap: 12px; }
+.badge b { font-family: var(--display); font-size: 1.8rem; line-height: 1; }
+.badge span { font-size: .85rem; color: var(--muted); line-height: 1.3; }
+.swatches { position: absolute; right: -10px; top: 28px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); padding: 8px; border-radius: 14px; box-shadow: 0 12px 30px rgba(17,19,22,.14); }
+.swatches i { width: 30px; height: 30px; border-radius: 8px; display: block; }
 
-.polaroid { background: #fff; padding: 12px 12px 46px; box-shadow: 0 8px 22px rgba(60,40,10,.18); transform: rotate(2.5deg); position: relative; border: 1px solid #eee; }
-.polaroid .pic { aspect-ratio: 4/3; background: var(--kraft); display: grid; place-items: center; overflow: hidden; }
-.polaroid .pic img { width: 100%; height: 100%; object-fit: cover; }
-.polaroid .cap { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-family: var(--hand); font-size: 1.15rem; }
-.tape { position: absolute; width: 110px; height: 28px; background: rgba(255,236,150,.75); top: -14px; left: 50%; transform: translateX(-50%) rotate(-4deg); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+/* Trust-strip */
+.strip { border-block: 1px solid var(--line); background: var(--surface); }
+.strip ul { list-style: none; margin: 0; padding: 18px 0; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 28px; }
+.strip li { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: .95rem; }
+.strip li svg { width: 20px; height: 20px; color: var(--red); flex: none; }
 
 /* Sektioner */
-.section { padding: clamp(48px, 7vw, 84px) 0; }
-.section--kraft { background: var(--paper-2); border-top: 2px dashed var(--line); border-bottom: 2px dashed var(--line); }
-.center { text-align: center; }
-.intro { max-width: 40em; }
-.center .intro { margin-inline: auto; }
+.section { padding: clamp(60px, 9vw, 108px) 0; }
+.section--white { background: var(--surface); }
+.section--dark { background: var(--ink); color: #fff; }
+.section--dark .muted { color: rgba(255,255,255,.65); }
+.head { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-bottom: 36px; }
+.head p { max-width: 34em; margin: 0; }
 
-/* Privat / Firma */
-.who { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 28px; }
-.note {
-  background: #fff; border: 2px solid var(--ink); padding: 26px 26px 22px; position: relative;
-  border-radius: 6px 18px 8px 14px / 14px 6px 18px 8px; box-shadow: 5px 5px 0 rgba(42,38,34,.12);
-}
-.note:nth-child(1) { transform: rotate(-.8deg); }
-.note:nth-child(2) { transform: rotate(.8deg); background: #fffbe6; }
-.note h3 { display: flex; align-items: center; gap: 10px; }
-.note .tag { font-family: var(--body); font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--ink); color: #fff; padding: 2px 8px; border-radius: 4px; }
-.checks { list-style: none; padding: 0; margin: 0 0 18px; }
-.checks li { padding-left: 30px; position: relative; margin-bottom: 8px; }
-.checks li::before { content: "✔"; position: absolute; left: 4px; top: -1px; color: var(--red); font-family: var(--hand); font-size: 1.2rem; font-weight: 700; }
+/* Privat / Erhverv */
+.audience { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.aud { border-radius: var(--radius); padding: clamp(26px, 4vw, 40px); display: flex; flex-direction: column; }
+.aud--private { background: var(--surface); border: 1px solid var(--line); }
+.aud--biz { background: var(--ink-2); color: #fff; }
+.aud--biz .muted { color: rgba(255,255,255,.65); }
+.aud h3 { font-family: var(--display); font-size: 1.8rem; font-weight: 800; margin-bottom: .3em; }
+.aud .pill { align-self: flex-start; font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; background: var(--red-soft); color: var(--red); margin-bottom: 18px; }
+.aud--biz .pill { background: rgba(255,255,255,.1); color: #fff; }
+.ticks { list-style: none; padding: 0; margin: 6px 0 26px; display: grid; gap: 10px; }
+.ticks li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; }
+.ticks li::before { content: ""; width: 22px; height: 22px; border-radius: 50%; margin-top: 1px; background: var(--red) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5 9-10'/%3E%3C/svg%3E") center / 13px no-repeat; }
+.aud .btn { margin-top: auto; align-self: flex-start; }
 
 /* Ydelser */
-.services { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; margin-top: 26px; }
-.service { padding: 18px 20px; border: 2px dashed var(--line); border-radius: 12px; background: rgba(255,255,255,.6); }
-.service .ico { font-size: 1.8rem; }
-.service h3 { font-size: 1.3rem; margin: .2em 0 .25em; }
-.service p { margin: 0; color: var(--muted); font-size: .95rem; }
+.services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.service { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px; transition: transform .2s, box-shadow .2s, border-color .2s; }
+.service:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: transparent; }
+.service .ic { width: 46px; height: 46px; border-radius: 12px; background: var(--red-soft); color: var(--red); display: grid; place-items: center; margin-bottom: 18px; }
+.service .ic svg { width: 24px; height: 24px; }
+.service p { color: var(--muted); margin: 0; font-size: .96rem; }
+
+/* Nyt liv */
+.revive { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+.ba { position: relative; aspect-ratio: 4/3; border-radius: var(--radius); overflow: hidden; user-select: none; background: #222; }
+.ba > div { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 600; letter-spacing: .04em; }
+.ba .before { background: repeating-linear-gradient(135deg, #5b5550 0 10px, #635c56 10px 20px); color: rgba(255,255,255,.8); }
+.ba .before::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 30% 60%, rgba(140,80,40,.5) 0 12%, transparent 13%), radial-gradient(circle at 62% 35%, rgba(140,80,40,.45) 0 8%, transparent 9%); }
+.ba .after { background: radial-gradient(500px 280px at 70% 20%, #ff6a5c, var(--red) 45%, #7d140f); color: #fff; clip-path: inset(0 0 0 50%); }
+.ba .after::before { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.28) 46%, transparent 54%); }
+.ba img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ba .lbl { position: absolute; top: 14px; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; background: rgba(0,0,0,.55); color: #fff; padding: 4px 10px; border-radius: 999px; z-index: 2; }
+.ba .lbl--l { left: 14px; } .ba .lbl--r { right: 14px; }
+.ba .handle { position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; background: #fff; transform: translateX(-50%); z-index: 3; pointer-events: none; }
+.ba .handle::after { content: "↔"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 50%; background: #fff; color: var(--ink); display: grid; place-items: center; font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+.ba input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; z-index: 4; margin: 0; }
+.numbers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 28px; }
+.numbers div { border-top: 1px solid rgba(255,255,255,.15); padding-top: 14px; }
+.numbers b { font-family: var(--display); font-size: 2.1rem; display: block; line-height: 1.1; }
+.numbers span { font-size: .88rem; color: rgba(255,255,255,.65); }
 
 /* Om */
-.about { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-.signed { font-family: var(--hand); font-size: 1.5rem; color: var(--blue); transform: rotate(-2deg); display: inline-block; }
-.sticky { background: var(--yellow); padding: 22px 24px; box-shadow: 0 6px 14px rgba(60,40,10,.15); transform: rotate(-1.5deg); font-family: var(--hand); font-size: 1.25rem; line-height: 1.5; }
-.sticky ul { margin: 0; padding-left: 1.1em; }
+.about { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(32px, 6vw, 80px); align-items: start; }
+.facts { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 24px; }
+.facts div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.facts div:last-child { border: 0; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; font-weight: 600; text-align: right; }
 
 /* Galleri */
-.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 26px; margin-top: 28px; }
-.gallery .polaroid { padding: 10px 10px 40px; }
-.gallery .polaroid:nth-child(odd) { transform: rotate(-2deg); }
-.gallery .polaroid:nth-child(3n) { transform: rotate(1.5deg); }
-.gallery .polaroid img { cursor: zoom-in; }
-.ph { font-family: var(--hand); color: var(--muted); text-align: center; padding: 10px; font-size: 1.05rem; }
-.lightbox { position: fixed; inset: 0; background: rgba(20,15,10,.88); display: none; place-items: center; z-index: 100; padding: 16px; cursor: zoom-out; }
+.gallery { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 220px; gap: 14px; }
+.gallery figure { margin: 0; border-radius: var(--radius-s); overflow: hidden; position: relative; background: var(--surface-2); }
+.gallery figure:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+.gallery img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; cursor: zoom-in; }
+.gallery figure:hover img { transform: scale(1.04); }
+.gallery figcaption { position: absolute; left: 12px; bottom: 12px; font-size: .82rem; font-weight: 600; background: rgba(255,255,255,.92); padding: 4px 10px; border-radius: 999px; }
+.gallery .ph { width: 100%; height: 100%; display: grid; place-items: center; color: var(--muted); font-size: .88rem; background: repeating-linear-gradient(135deg, var(--surface-2) 0 12px, #f3f1ec 12px 24px); }
+.lightbox { position: fixed; inset: 0; background: rgba(10,10,12,.9); display: none; place-items: center; z-index: 100; padding: 16px; cursor: zoom-out; }
 .lightbox.open { display: grid; }
-.lightbox img { max-height: 90vh; border: 10px solid #fff; }
+.lightbox img { max-height: 90vh; border-radius: 12px; }
 
 /* Anmeldelser */
-.review-box { display: inline-block; background: #fff; border: 2px solid var(--ink); border-radius: 14px; padding: 26px 30px; box-shadow: 5px 5px 0 rgba(42,38,34,.12); max-width: 560px; }
-.stars { color: #e8a400; font-size: 1.8rem; letter-spacing: 3px; }
+.reviews { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(24px, 4vw, 40px); }
+.reviews h2 { margin: 0 0 .2em; font-size: clamp(1.6rem, 3.4vw, 2.2rem); }
+.reviews p { margin: 0; }
+.g-stars { color: #f5a400; font-size: 1.3rem; letter-spacing: 2px; }
 
 /* Kontakt */
-.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-.contact-list { list-style: none; padding: 0; margin: 0 0 22px; }
-.contact-list li { margin-bottom: 10px; }
-.contact-list b { display: inline-block; min-width: 82px; font-family: var(--hand); font-size: 1.15rem; }
-.hours { border-collapse: collapse; width: 100%; max-width: 360px; font-size: .97rem; }
-.hours th, .hours td { text-align: left; padding: 6px 0; border-bottom: 1px dashed var(--line); font-weight: 400; }
-.hours td { text-align: right; }
-.hours tr.today th, .hours tr.today td { font-weight: 800; color: var(--red); }
-.map { border: 2px solid var(--ink); border-radius: 12px; overflow: hidden; min-height: 340px; background: var(--kraft); box-shadow: 5px 5px 0 rgba(42,38,34,.12); }
-.map iframe { width: 100%; height: 100%; min-height: 340px; border: 0; display: block; }
+.contact { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: clamp(24px, 3.5vw, 36px); }
+.c-list { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 14px; }
+.c-list li { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: center; }
+.c-list .ic { width: 40px; height: 40px; border-radius: 10px; background: var(--red-soft); color: var(--red); display: grid; place-items: center; }
+.c-list .ic svg { width: 19px; height: 19px; }
+.c-list small { display: block; color: var(--muted); font-size: .8rem; }
+.c-list a { text-decoration: none; font-weight: 600; }
+.c-list a:hover { color: var(--red); }
+.hours { width: 100%; border-collapse: collapse; }
+.hours th, .hours td { padding: 9px 0; border-bottom: 1px solid var(--line); text-align: left; font-weight: 400; }
+.hours td { text-align: right; font-variant-numeric: tabular-nums; }
+.hours tr:last-child th, .hours tr:last-child td { border: 0; }
+.hours tr.today th, .hours tr.today td { font-weight: 700; color: var(--red); }
+.status { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 600; padding: 5px 12px; border-radius: 999px; background: var(--surface-2); margin-bottom: 12px; }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #9aa0a6; }
+.status.open { background: #e6f6ec; color: #1d7a43; }
+.status.open::before { background: #22a55a; }
+.map { border-radius: var(--radius); overflow: hidden; min-height: 300px; background: var(--surface-2); margin-top: 20px; }
+.map iframe { width: 100%; height: 300px; border: 0; display: block; }
 
-.footer { padding: 30px 0 40px; border-top: 2px dashed var(--line); font-size: .9rem; color: var(--muted); }
+/* CTA */
+.cta { background: var(--red); color: #fff; border-radius: 28px; padding: clamp(32px, 6vw, 64px); display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; position: relative; overflow: hidden; }
+.cta::after { content: ""; position: absolute; right: -80px; top: -80px; width: 280px; height: 280px; border-radius: 50%; background: rgba(255,255,255,.08); }
+.cta h2 { margin: 0 0 .2em; }
+.cta p { margin: 0; opacity: .85; }
+
+.footer { padding: 36px 0 44px; font-size: .88rem; color: var(--muted); }
 .footer__inner { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
 
 /* ===== TILBUDSPORTAL ===== */
-.portal { display: none; padding: 34px 0 70px; }
+.portal { display: none; padding: 28px 0 80px; }
 body.show-portal .site { display: none; }
 body.show-portal .portal { display: block; }
-.back { font-family: var(--hand); font-size: 1.15rem; color: var(--ink); text-decoration: none; }
-.back:hover { color: var(--red); }
-.portal__head { margin: 14px 0 24px; }
-.portal__box { background: #fff; border: 2px solid var(--ink); border-radius: 16px; padding: clamp(18px, 4vw, 34px); box-shadow: 6px 6px 0 rgba(42,38,34,.12); max-width: 780px; }
-.steps { display: flex; gap: 8px; margin: 0 0 26px; padding: 0; list-style: none; counter-reset: s; }
-.steps li { flex: 1; text-align: center; font-family: var(--hand); font-size: 1.05rem; color: var(--muted); padding-bottom: 8px; border-bottom: 4px solid var(--paper-2); counter-increment: s; }
-.steps li::before { content: counter(s) ". "; }
-.steps li.active { color: var(--ink); border-color: var(--red); font-weight: 700; }
-.steps li.done { color: var(--ink); border-color: var(--ink); }
+.portal__grid { display: grid; grid-template-columns: 1fr 300px; gap: 28px; align-items: start; }
+.back { display: inline-flex; gap: 6px; color: var(--muted); text-decoration: none; font-weight: 500; font-size: .95rem; }
+.back:hover { color: var(--ink); }
+.portal__head { margin: 18px 0 26px; }
+.portal__head h1 { font-size: clamp(2rem, 4.6vw, 3.2rem); }
+.portal__box { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: clamp(20px, 4vw, 38px); box-shadow: var(--shadow); }
+.aside { position: sticky; top: 92px; display: grid; gap: 14px; }
+.aside .card { padding: 22px; }
+.aside h3 { font-size: 1.05rem; margin-bottom: .6em; }
+.aside ol { margin: 0; padding-left: 1.2em; color: var(--muted); font-size: .93rem; display: grid; gap: 6px; }
+.progress { display: flex; gap: 6px; margin-bottom: 8px; }
+.progress span { flex: 1; height: 5px; border-radius: 5px; background: var(--surface-2); transition: background .3s; }
+.progress span.on { background: var(--red); }
+.step-label { font-size: .82rem; font-weight: 600; color: var(--muted); margin-bottom: 22px; }
 .step { display: none; }
-.step.active { display: block; }
-.step h2 { font-size: 1.8rem; }
-fieldset { border: 0; padding: 0; margin: 0 0 22px; }
-legend, .label { font-weight: 800; margin-bottom: 8px; display: block; padding: 0; }
-.opt-hint { font-weight: 400; color: var(--muted); font-size: .9rem; }
+.step.active { display: block; animation: fade .25s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } }
+.step h2 { font-size: 1.7rem; margin-bottom: .7em; }
+fieldset { border: 0; padding: 0; margin: 0 0 24px; }
+legend, .label { font-weight: 600; margin-bottom: 10px; display: block; padding: 0; }
+.opt { font-weight: 400; color: var(--muted); font-size: .88rem; }
 .choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
 .choices--big { grid-template-columns: 1fr 1fr; }
 .choice { position: relative; }
-.choice input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
-.choice span {
-  display: block; border: 2px solid var(--line); border-radius: 10px; padding: 12px 12px; text-align: center; cursor: pointer;
-  background: var(--paper); font-weight: 600; transition: border-color .15s, background .15s; height: 100%;
-}
-.choice span em { display: block; font-size: 1.7rem; font-style: normal; }
-.choices--big .choice span { padding: 20px 14px; font-size: 1.1rem; }
-.choices--big .choice small { display: block; font-weight: 400; color: var(--muted); font-size: .88rem; margin-top: 4px; }
-.choice input:checked + span { border-color: var(--red); background: #fdeeec; box-shadow: 3px 3px 0 var(--red); }
-.choice input:focus-visible + span { outline: 3px solid var(--blue); outline-offset: 2px; }
+.choice input { position: absolute; opacity: 0; inset: 0; cursor: pointer; margin: 0; }
+.choice span { display: block; height: 100%; border: 1.5px solid var(--line); border-radius: var(--radius-s); padding: 12px 14px; cursor: pointer; font-weight: 500; transition: border-color .15s, background .15s; background: var(--surface); }
+.choice span b { display: block; font-weight: 600; }
+.choice span small { display: block; color: var(--muted); font-size: .85rem; margin-top: 2px; }
+.choices--big .choice span { padding: 18px; }
+.choice span svg { width: 24px; height: 24px; color: var(--red); margin-bottom: 8px; display: block; }
+.choice:hover span { border-color: #c9c5bc; }
+.choice input:checked + span { border-color: var(--red); background: var(--red-soft); box-shadow: inset 0 0 0 1px var(--red); }
+.choice input:focus-visible + span { outline: 3px solid rgba(214,51,42,.35); outline-offset: 2px; }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.field { margin-bottom: 16px; }
-.field label { display: block; font-weight: 800; margin-bottom: 5px; }
-input[type=text], input[type=tel], input[type=email], input[type=number], textarea, select {
-  width: 100%; font: inherit; padding: 10px 12px; border: 2px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink);
-}
-input:focus, textarea:focus, select:focus { outline: none; border-color: var(--blue); background: #fff; }
+.field { margin-bottom: 18px; }
+.field label { display: block; font-weight: 600; margin-bottom: 6px; }
+input[type=text], input[type=tel], input[type=email], textarea { width: 100%; font: inherit; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: var(--radius-s); background: var(--surface); color: var(--ink); transition: border-color .15s, box-shadow .15s; }
+input:focus, textarea:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 4px rgba(17,19,22,.06); }
 textarea { min-height: 130px; resize: vertical; }
-.reg { text-transform: uppercase; font-weight: 800; letter-spacing: .1em; max-width: 220px; border-left: 14px solid #1f4fa0 !important; }
+.reg { text-transform: uppercase; font-weight: 700; letter-spacing: .12em; max-width: 220px; border-left: 14px solid #1f4fa0 !important; }
 .firm-only { display: none; }
 .is-firm .firm-only { display: block; }
-.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 18px; text-align: center; background: var(--paper); cursor: pointer; }
-.drop:hover, .drop.over { border-color: var(--red); }
+.drop { display: block; border: 1.5px dashed #cfcac0; border-radius: var(--radius-s); padding: 22px; text-align: center; cursor: pointer; color: var(--muted); transition: border-color .15s, background .15s; }
+.drop b { color: var(--ink); }
+.drop:hover, .drop.over { border-color: var(--red); background: var(--red-soft); }
 .drop input { display: none; }
 .thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.thumbs figure { margin: 0; width: 84px; height: 84px; border-radius: 8px; overflow: hidden; position: relative; border: 2px solid var(--line); }
+.thumbs figure { margin: 0; width: 84px; height: 84px; border-radius: 10px; overflow: hidden; position: relative; }
 .thumbs img { width: 100%; height: 100%; object-fit: cover; }
-.thumbs button { position: absolute; top: 2px; right: 2px; border: 0; background: rgba(0,0,0,.6); color: #fff; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; line-height: 1; }
-.nav-btns { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
-.error { color: var(--red); font-weight: 700; min-height: 1.4em; margin: 6px 0 0; }
-.summary { background: var(--paper); border: 2px dashed var(--line); border-radius: 12px; padding: 16px 18px; white-space: pre-wrap; font-size: .95rem; font-family: ui-monospace, Menlo, Consolas, monospace; max-height: 340px; overflow: auto; }
-.done-box { text-align: center; }
-.done-box .big { font-size: 3.2rem; }
-.side-note { font-family: var(--hand); font-size: 1.15rem; background: var(--yellow); padding: 14px 18px; transform: rotate(-1deg); margin: 0 0 22px; max-width: 780px; box-shadow: 0 4px 10px rgba(60,40,10,.12); }
+.thumbs button { position: absolute; top: 4px; right: 4px; border: 0; background: rgba(0,0,0,.6); color: #fff; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; line-height: 1; }
+.nav-btns { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+.error { color: var(--red); font-weight: 600; min-height: 1.4em; margin: 4px 0 6px; font-size: .93rem; }
+.summary { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-s); padding: 16px 18px; white-space: pre-wrap; font: .9rem/1.55 ui-monospace, Menlo, Consolas, monospace; max-height: 340px; overflow: auto; }
+.done { text-align: center; padding: 6px 0 12px; }
+.done .check { width: 64px; height: 64px; border-radius: 50%; background: #e6f6ec; color: #22a55a; display: grid; place-items: center; margin: 0 auto 14px; }
+.done .check svg { width: 32px; height: 32px; }
 
-@media (max-width: 860px) {
+@media (max-width: 960px) {
+  .services { grid-template-columns: 1fr 1fr; }
+  .gallery { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 180px; }
+  .portal__grid { grid-template-columns: 1fr; }
+  .aside { position: static; }
+}
+@media (max-width: 820px) {
   .nav { display: none; }
   .topbar__inner { justify-content: space-between; }
-  .hero__grid, .who, .about, .contact-grid { grid-template-columns: 1fr; }
-  .hero .polaroid { max-width: 420px; margin: 10px auto 0; }
+  .hero__grid, .audience, .revive, .about, .contact { grid-template-columns: 1fr; }
+  .photo { aspect-ratio: 4/3; }
+  .badge { left: 12px; }
+  .swatches { right: 12px; }
 }
-@media (max-width: 540px) {
-  .row, .choices--big { grid-template-columns: 1fr; }
-  .logo span:last-child { font-size: 1.15rem; }
-  .steps li { font-size: .9rem; }
+@media (max-width: 560px) {
+  .services, .row, .choices--big { grid-template-columns: 1fr; }
+  .gallery figure:nth-child(1) { grid-column: span 2; grid-row: span 1; }
+  .numbers { grid-template-columns: 1fr 1fr 1fr; }
+  .numbers b { font-size: 1.6rem; }
+  .strip ul { justify-content: flex-start; }
+  .topbar .btn { padding: .5rem .85rem; font-size: .88rem; }
 }
 </style>
 </head>
 <body>
 
-<header class="topbar">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3v-5l2-5h11l3 5h2v5h-2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 17h6M5 12h14"/></symbol>
+  <symbol id="i-van" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17V6h12v11M14 9h4l4 4v4h-2"/><circle cx="6" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M8 17h7"/></symbol>
+  <symbol id="i-part" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c0-3 2-5 5-5h8c3 0 5 2 5 5v2H3z"/><path d="M7 16v2M17 16v2M8 9l1-3h6l1 3"/></symbol>
+  <symbol id="i-factory" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l5 3V10l5 3V10l5 3V4h3v17z"/><path d="M7 17h2M12 17h2M17 17h2"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V3h9l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h2M14 7h2M8 11h2M14 11h2M8 15h2M14 15h2M10 21v-3h4v3"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+</svg>
+
+<header class="topbar" id="topbar">
   <div class="wrap topbar__inner">
-    <a href="#" class="logo" data-home><span class="logo__badge">TA</span><span>Taulov Autolakering</span></a>
+    <a href="#" class="logo" data-home><span class="logo__mark">TA</span>Taulov Autolakering</a>
     <nav class="nav" aria-label="Menu">
-      <a href="#privat-firma">Privat &amp; firma</a>
-      <a href="#ydelser">Det laver vi</a>
+      <a href="#ydelser">Ydelser</a>
+      <a href="#privat-erhverv">Privat &amp; erhverv</a>
       <a href="#om">Om os</a>
       <a href="#billeder">Billeder</a>
       <a href="#kontakt">Kontakt</a>
     </nav>
-    <a class="btn" href="#tilbud">Gratis tilbud</a>
+    <a class="btn btn--sm" href="#tilbud">Gratis tilbud</a>
   </div>
 </header>
 
@@ -244,132 +324,189 @@ textarea { min-height: 130px; resize: vertical; }
   <section class="hero">
     <div class="wrap hero__grid">
       <div>
-        <p class="hello">Hej og velkommen 👋</p>
-        <h1>Vi giver din bil <span class="scribble">ny lak</span>, og lastbilen med.</h1>
-        <p class="hero__lead">Vi er et lille lakeringsværksted i Taulov, som har lakeret biler siden 1993. Ingen kæde og intet callcenter. Ring, og du får fat i dem, der faktisk står med sprøjtepistolen.</p>
+        <span class="kicker">Autolakering i Taulov · siden 1993</span>
+        <h1>Vi giver det <span class="accent">nyt liv</span>, én lakering ad gangen.</h1>
+        <p class="hero__lead">Vi lakerer biler, varevogne, løsdele og industriemner. Vi klarer forsikringsskader og private skader og gør salgsbiler klar til forhandlerens plads. Lille værksted, kort vej fra telefon til lakboks.</p>
         <div class="hero__cta">
-          <a class="btn" href="#tilbud">Få et gratis tilbud</a>
-          <span class="or">eller ring på <a href="tel:+4575563800">75 56 38 00</a></span>
+          <a class="btn" href="#tilbud">Få et gratis tilbud <svg><use href="#i-arrow"/></svg></a>
+          <a class="btn btn--ghost" href="tel:+4575563800"><svg><use href="#i-phone"/></svg> 75 56 38 00</a>
         </div>
       </div>
-      <figure class="polaroid" style="margin:0">
-        <span class="tape" aria-hidden="true"></span>
-        <div class="pic" id="heroPic"><div class="ph">📷<br>Billede af værkstedet<br><span class="small">(billeder/hero.jpg)</span></div></div>
-        <figcaption class="cap">Værkstedet på H.&nbsp;C.&nbsp;Ørsteds Vej 8</figcaption>
-      </figure>
+      <div class="hero__img">
+        <div class="photo" id="heroPic"><div class="ph"><span>Billede af værkstedet<br><small>billeder/hero.jpg</small></span></div></div>
+        <div class="badge"><b>30+</b><span>års erfaring<br>i Taulov</span></div>
+        <div class="swatches" aria-hidden="true"><i style="background:#d6332a"></i><i style="background:#1c1f24"></i><i style="background:#c9ccd1"></i><i style="background:#1f4fa0"></i><i style="background:#f2f2ef"></i></div>
+      </div>
     </div>
   </section>
 
-  <section id="privat-firma" class="section section--kraft">
+  <div class="strip">
     <div class="wrap">
-      <div class="center">
-        <h2>Privat eller firma? Vi hjælper begge.</h2>
-        <p class="intro muted">Vi får både familiebilen med en ridse i døren og vognmandens trækker, der skal se skarp ud igen. Det er det samme omhyggelige arbejde, bare i forskellige størrelser.</p>
-      </div>
-      <div class="who">
-        <article class="note">
-          <h3>🚗 Til private <span class="tag">Privat</span></h3>
-          <ul class="checks">
-            <li>Ridser, buler og stenslag</li>
-            <li>Kofangere og spejle, der har fået et skrab</li>
-            <li>Skader efter uheld. Vi kan også tage snakken med dit forsikringsselskab</li>
-            <li>Ærlig snak om, hvad der kan betale sig at lave</li>
-          </ul>
-          <a class="btn btn--light" href="#tilbud" data-type="privat">Tilbud som privat</a>
-        </article>
-        <article class="note">
-          <h3>🚛 Til firmaer <span class="tag">Erhverv</span></h3>
-          <ul class="checks">
-            <li>Lastbiler, trækkere, trailere og varebiler</li>
-            <li>Vi åbner kl. 6, så bilen kan afleveres før arbejdstid</li>
-            <li>Faste aftaler for vognparker og værksteder</li>
-            <li>Faktura til firmaet med CVR</li>
-          </ul>
-          <a class="btn btn--light" href="#tilbud" data-type="firma">Tilbud som firma</a>
-        </article>
-      </div>
+      <ul>
+        <li><svg><use href="#i-check"/></svg>Gratis og uforpligtende tilbud</li>
+        <li><svg><use href="#i-check"/></svg>Forsikringsskader</li>
+        <li><svg><use href="#i-check"/></svg>Privat og erhverv</li>
+        <li><svg><use href="#i-check"/></svg>Åbent fra kl. 6</li>
+      </ul>
     </div>
-  </section>
+  </div>
 
   <section id="ydelser" class="section">
     <div class="wrap">
-      <h2>Det laver vi</h2>
-      <p class="intro muted">Kort fortalt: karosseri, lak og undervogn. Er du i tvivl om, hvorvidt vi kan hjælpe, så spørg bare.</p>
+      <div class="head">
+        <div><span class="kicker">Ydelser</span><h2>Det laver vi</h2></div>
+        <p class="muted">Er du i tvivl om, hvorvidt vi kan hjælpe? Så send et billede via tilbudsportalen, eller ring. Vi har lakeret meget andet end biler.</p>
+      </div>
       <div class="services">
-        <div class="service"><div class="ico">🎨</div><h3>Lakering</h3><p>Fra en enkelt dør til en helomlakering. Farven blandes, så den passer til resten af bilen.</p></div>
-        <div class="service"><div class="ico">🚛</div><h3>Lastbiler</h3><p>Førerhuse, kasser, trailere og hele trækkere. Der er plads til de store.</p></div>
-        <div class="service"><div class="ico">🔨</div><h3>Karosseri</h3><p>Buler og skader rettes ud, så underlaget er i orden, før der kommer lak på.</p></div>
-        <div class="service"><div class="ico">🎯</div><h3>Småskader</h3><p>Ridser og stenslag kan ofte klares lokalt, og det er billigere end at lakere hele delen.</p></div>
-        <div class="service"><div class="ico">🛡️</div><h3>Undervognsbehandling</h3><p>Rustbeskyttelse, så bilen klarer saltet og de danske vintre bedre.</p></div>
-        <div class="service"><div class="ico">📋</div><h3>Forsikringsskader</h3><p>Har du haft et uheld? Ring, så finder vi ud af, hvordan vi kommer videre.</p></div>
+        <article class="service"><div class="ic"><svg><use href="#i-car"/></svg></div><h3>Personbiler</h3><p>Fra en enkelt dør eller kofanger til hele bilen. Farven blandes, så den matcher den originale lak.</p></article>
+        <article class="service"><div class="ic"><svg><use href="#i-van"/></svg></div><h3>Varevogne</h3><p>Firmabiler og varevogne, der skal se ordentlige ud igen, så de kan komme hurtigt tilbage på vejen.</p></article>
+        <article class="service"><div class="ic"><svg><use href="#i-part"/></svg></div><h3>Løsdele</h3><p>Kofangere, spejle, skærme og andre dele. Kom med delen, så lakerer vi den.</p></article>
+        <article class="service"><div class="ic"><svg><use href="#i-factory"/></svg></div><h3>Industri &amp; andet</h3><p>Maskindele, emner og diverse industriting får ny lak og nyt liv. Spørg bare.</p></article>
+        <article class="service"><div class="ic"><svg><use href="#i-shield"/></svg></div><h3>Forsikrings&shy;skader</h3><p>Har du haft et uheld? Vi udbedrer skaden og hjælper dig igennem forløbet med forsikringen.</p></article>
+        <article class="service"><div class="ic"><svg><use href="#i-tag"/></svg></div><h3>Salgsbiler</h3><p>Klargøring af brugte biler til salg for forhandlere. Ridser og skrammer væk, så bilen sælger bedre.</p></article>
       </div>
     </div>
   </section>
 
-  <section id="om" class="section section--kraft">
+  <section id="privat-erhverv" class="section section--white">
+    <div class="wrap">
+      <div class="head">
+        <div><span class="kicker">Privat &amp; erhverv</span><h2>Samme omhu, uanset hvem du er</h2></div>
+      </div>
+      <div class="audience">
+        <article class="aud aud--private">
+          <span class="pill">Privat</span>
+          <h3>Din bil, din skade</h3>
+          <p class="muted">Ridsen fra indkøbsvognen, bulen fra parkeringskælderen eller skaden efter et uheld. Vi giver dig et ærligt bud på, hvad det koster.</p>
+          <ul class="ticks">
+            <li>Private skader og ridser</li>
+            <li>Forsikringsskader, hvor vi hjælper dig igennem</li>
+            <li>Løsdele som kofangere og spejle</li>
+            <li>Ærlig snak om, hvad der kan betale sig</li>
+          </ul>
+          <a class="btn" href="#tilbud" data-type="privat">Tilbud som privat <svg><use href="#i-arrow"/></svg></a>
+        </article>
+        <article class="aud aud--biz">
+          <span class="pill">Erhverv</span>
+          <h3>Firmaer &amp; forhandlere</h3>
+          <p class="muted">Vi arbejder for bilforhandlere, firmaer med varevogne og virksomheder, der har emner, der skal lakeres.</p>
+          <ul class="ticks">
+            <li>Klargøring af salgsbiler for forhandlere</li>
+            <li>Varevogne og firmabiler</li>
+            <li>Industriemner og løsdele</li>
+            <li>Åbent fra kl. 6, så bilen kan afleveres før arbejdstid</li>
+          </ul>
+          <a class="btn btn--white" href="#tilbud" data-type="firma">Tilbud som firma <svg><use href="#i-arrow"/></svg></a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--dark">
+    <div class="wrap revive">
+      <div>
+        <span class="kicker">Nyt liv</span>
+        <h2>Fra træt og ridset til som ny</h2>
+        <p class="muted">Det er det, vi bedst kan lide ved jobbet: når noget, der så slidt ud, forlader værkstedet og ser nyt ud igen. Det gælder en bil til salg, en varevogn med skrammer eller en maskindel fra industrien.</p>
+        <div class="numbers">
+          <div><b>1993</b><span>startet i Taulov</span></div>
+          <div><b>06:00</b><span>vi åbner tidligt</span></div>
+          <div><b>0 kr.</b><span>for et tilbud</span></div>
+        </div>
+      </div>
+      <div class="ba" id="ba" aria-label="Før og efter">
+        <div class="before" id="baBefore">FØR</div>
+        <div class="after" id="baAfter">EFTER</div>
+        <span class="lbl lbl--l">Før</span><span class="lbl lbl--r">Efter</span>
+        <div class="handle" id="baHandle"></div>
+        <input type="range" min="0" max="100" value="50" id="baRange" aria-label="Træk for at sammenligne før og efter">
+      </div>
+    </div>
+  </section>
+
+  <section id="om" class="section">
     <div class="wrap about">
       <div>
-        <h2>Lidt om os</h2>
-        <p>Taulov Autolakering blev startet i marts 1993. Siden har vi passet vores værksted i erhvervsområdet i Taulov, lige ved motorvejen mellem Fredericia og Kolding.</p>
-        <p>Vi er et lille hold på fire mand. Det betyder, at du taler med dem, der laver arbejdet, og at vi kender de fleste af vores kunder ved navn. Mange af dem har været hos os i årevis.</p>
-        <p class="signed">Tommy &amp; Jan</p>
+        <span class="kicker">Om os</span>
+        <h2>Lille værksted, lang erfaring</h2>
+        <p>Taulov Autolakering blev startet i 1993 og ligger i erhvervsområdet i Taulov, lige ved motorvejen mellem Fredericia og Kolding.</p>
+        <p>Vi er et lille hold, og det mærker man. Du taler med dem, der laver arbejdet, og vi kender de fleste af vores kunder ved navn. Mange af dem har været hos os i årevis.</p>
+        <p class="muted">Tommy &amp; Jan</p>
       </div>
-      <div class="sticky">
-        <strong>Godt at vide:</strong>
-        <ul>
-          <li>Åbent fra kl. 6 på hverdage</li>
-          <li>Fredag lukker vi kl. 12</li>
-          <li>Tilbud er altid gratis</li>
-          <li>Send gerne billeder af skaden, så går det hurtigere</li>
-        </ul>
-      </div>
+      <dl class="facts">
+        <div><dt>Grundlagt</dt><dd>1993</dd></div>
+        <div><dt>Adresse</dt><dd>H. C. Ørsteds Vej 8, Taulov</dd></div>
+        <div><dt>Vi lakerer</dt><dd>Biler, varevogne, løsdele, industri</dd></div>
+        <div><dt>Kunder</dt><dd>Private, firmaer &amp; forhandlere</dd></div>
+        <div><dt>CVR</dt><dd>16843482</dd></div>
+      </dl>
     </div>
   </section>
 
-  <section id="billeder" class="section">
+  <section id="billeder" class="section section--white">
     <div class="wrap">
-      <h2>Billeder fra værkstedet</h2>
-      <p class="muted">Lidt af det, vi har haft inde.</p>
+      <div class="head">
+        <div><span class="kicker">Fra værkstedet</span><h2>Billeder</h2></div>
+        <p class="muted">Lidt af det, vi har haft inde.</p>
+      </div>
       <div class="gallery" id="gallery"></div>
     </div>
   </section>
 
-  <section class="section section--kraft center">
+  <section class="section">
     <div class="wrap">
-      <h2>Hvad siger kunderne?</h2>
-      <div class="review-box">
-        <div class="stars" aria-hidden="true">★★★★★</div>
-        <p>Vi er ikke så gode til at rose os selv, så læs hellere, hvad andre skriver om os på Google.</p>
-        <a class="btn btn--light" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Taulov+Autolakering+I%2FS+H.C.+%C3%98rsteds+Vej+8+7000+Fredericia">Se anmeldelser på Google</a>
+      <div class="reviews">
+        <div>
+          <div class="g-stars" aria-hidden="true">★★★★★</div>
+          <h2>Hvad siger kunderne?</h2>
+          <p class="muted">Læs anmeldelserne på Google, eller skriv selv en, når vi har lavet noget for dig.</p>
+        </div>
+        <a class="btn btn--ghost" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Taulov+Autolakering+I%2FS+H.C.+%C3%98rsteds+Vej+8+7000+Fredericia">Se anmeldelser på Google <svg><use href="#i-arrow"/></svg></a>
       </div>
     </div>
   </section>
 
-  <section id="kontakt" class="section">
-    <div class="wrap contact-grid">
-      <div>
-        <h2>Kom forbi eller ring</h2>
-        <ul class="contact-list">
-          <li><b>Adresse</b> <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=H.C.+%C3%98rsteds+Vej+8+7000+Fredericia">H. C. Ørsteds Vej 8, Taulov, 7000 Fredericia</a></li>
-          <li><b>Telefon</b> <a href="tel:+4575563800">75 56 38 00</a></li>
-          <li><b>Mail</b> <a href="mailto:taulovautolak@mail.dk">taulovautolak@mail.dk</a></li>
-          <li><b>CVR</b> 16843482</li>
-        </ul>
-        <h3>Åbningstider</h3>
-        <table class="hours" id="hours">
-          <tr data-d="1"><th>Mandag</th><td>06:00 – 17:00</td></tr>
-          <tr data-d="2"><th>Tirsdag</th><td>06:00 – 17:00</td></tr>
-          <tr data-d="3"><th>Onsdag</th><td>06:00 – 17:00</td></tr>
-          <tr data-d="4"><th>Torsdag</th><td>06:00 – 17:00</td></tr>
-          <tr data-d="5"><th>Fredag</th><td>05:00 – 12:00</td></tr>
-          <tr data-d="6"><th>Lørdag</th><td>Lukket</td></tr>
-          <tr data-d="0"><th>Søndag</th><td>Lukket</td></tr>
-        </table>
-        <p class="muted small" style="margin-top:10px">Ring gerne i forvejen, så vi ved, du kommer.</p>
+  <section id="kontakt" class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="head"><div><span class="kicker">Kontakt</span><h2>Kom forbi eller ring</h2></div></div>
+      <div class="contact">
+        <div class="card">
+          <ul class="c-list">
+            <li><span class="ic"><svg><use href="#i-pin"/></svg></span><div><small>Adresse</small><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=H.C.+%C3%98rsteds+Vej+8+7000+Fredericia">H. C. Ørsteds Vej 8, Taulov, 7000 Fredericia</a></div></li>
+            <li><span class="ic"><svg><use href="#i-phone"/></svg></span><div><small>Telefon</small><a href="tel:+4575563800">75 56 38 00</a></div></li>
+            <li><span class="ic"><svg><use href="#i-mail"/></svg></span><div><small>E-mail</small><a href="mailto:taulovautolak@mail.dk">taulovautolak@mail.dk</a></div></li>
+          </ul>
+          <div class="map">
+            <iframe title="Kort over Taulov Autolakering" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+              src="https://maps.google.com/maps?q=Taulov%20Autolakering%2C%20H.C.%20%C3%98rsteds%20Vej%208%2C%207000%20Fredericia&amp;z=15&amp;output=embed"></iframe>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="display:flex;align-items:center;gap:8px"><svg style="width:20px;height:20px;color:var(--red)"><use href="#i-clock"/></svg>Åbningstider</h3>
+          <span class="status" id="status">–</span>
+          <table class="hours" id="hours">
+            <tr data-d="1"><th>Mandag</th><td>06:00 – 15:00</td></tr>
+            <tr data-d="2"><th>Tirsdag</th><td>06:00 – 15:00</td></tr>
+            <tr data-d="3"><th>Onsdag</th><td>06:00 – 15:00</td></tr>
+            <tr data-d="4"><th>Torsdag</th><td>06:00 – 15:00</td></tr>
+            <tr data-d="5"><th>Fredag</th><td>05:00 – 10:30</td></tr>
+            <tr data-d="6"><th>Lørdag</th><td>Lukket</td></tr>
+            <tr data-d="0"><th>Søndag</th><td>Lukket</td></tr>
+          </table>
+          <p class="muted small" style="margin:16px 0 0">Ring gerne i forvejen, så vi ved, du kommer.</p>
+        </div>
       </div>
-      <div class="map">
-        <iframe title="Kort over Taulov Autolakering" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-          src="https://maps.google.com/maps?q=Taulov%20Autolakering%2C%20H.C.%20%C3%98rsteds%20Vej%208%2C%207000%20Fredericia&amp;z=15&amp;output=embed"></iframe>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="wrap">
+      <div class="cta">
+        <div>
+          <h2>Hvad skal have nyt liv?</h2>
+          <p>Fortæl os det på 2 minutter, så vender vi tilbage med et gratis tilbud.</p>
+        </div>
+        <a class="btn btn--white" href="#tilbud">Start her <svg><use href="#i-arrow"/></svg></a>
       </div>
     </div>
   </section>
@@ -381,71 +518,70 @@ textarea { min-height: 130px; resize: vertical; }
   <div class="wrap">
     <a href="#" class="back" data-home>← Tilbage til forsiden</a>
     <div class="portal__head">
-      <h1 style="font-size:clamp(2rem,5vw,3rem)">Få et <span class="scribble">gratis</span> tilbud</h1>
-      <p class="muted" style="max-width:40em">Fortæl os, hvad der skal laves. Det tager 2–3 minutter. Vi kigger på det og vender tilbage, typisk inden for 1–2 hverdage. Det er helt uforpligtende.</p>
+      <span class="kicker">Tilbudsportal</span>
+      <h1>Få et gratis tilbud</h1>
+      <p class="muted" style="max-width:40em;margin:0">Fortæl os, hvad der skal laves. Det tager 2–3 minutter, og det er helt uforpligtende.</p>
     </div>
 
+    <div class="portal__grid">
     <form class="portal__box" id="quoteForm" novalidate>
-      <ol class="steps" id="steps">
-        <li class="active">Hvem er du?</li>
-        <li>Bil &amp; skade</li>
-        <li>Kontakt</li>
-      </ol>
+      <div class="progress" id="progress"><span class="on"></span><span></span><span></span></div>
+      <div class="step-label" id="stepLabel">Trin 1 af 3 · Hvem er du?</div>
 
       <!-- TRIN 1 -->
       <div class="step active" data-step="0">
         <fieldset>
           <legend>Er du privat eller firma?</legend>
           <div class="choices choices--big">
-            <label class="choice"><input type="radio" name="kundetype" value="Privat" required><span><em>🏠</em>Privat<small>Min egen bil</small></span></label>
-            <label class="choice"><input type="radio" name="kundetype" value="Firma"><span><em>🏢</em>Firma<small>Firmabil, varebil eller lastbil</small></span></label>
+            <label class="choice"><input type="radio" name="kundetype" value="Privat"><span><svg><use href="#i-home"/></svg><b>Privat</b><small>Min egen bil eller ting</small></span></label>
+            <label class="choice"><input type="radio" name="kundetype" value="Firma"><span><svg><use href="#i-building"/></svg><b>Firma</b><small>Forhandler, firmabil eller industri</small></span></label>
           </div>
         </fieldset>
         <div class="firm-only">
           <div class="row">
             <div class="field"><label for="firmanavn">Firmanavn</label><input type="text" id="firmanavn" name="firmanavn" autocomplete="organization"></div>
-            <div class="field"><label for="cvr">CVR <span class="opt-hint">(valgfrit)</span></label><input type="text" id="cvr" name="cvr" inputmode="numeric" maxlength="8"></div>
+            <div class="field"><label for="cvr">CVR <span class="opt">(valgfrit)</span></label><input type="text" id="cvr" name="cvr" inputmode="numeric" maxlength="8"></div>
           </div>
           <fieldset>
-            <legend>Hvor mange køretøjer drejer det sig om?</legend>
+            <legend>Hvor mange emner eller køretøjer?</legend>
             <div class="choices">
               <label class="choice"><input type="radio" name="antal" value="1"><span>1</span></label>
               <label class="choice"><input type="radio" name="antal" value="2–5"><span>2–5</span></label>
               <label class="choice"><input type="radio" name="antal" value="Flere end 5"><span>Flere end 5</span></label>
-              <label class="choice"><input type="radio" name="antal" value="Fast aftale"><span>Fast aftale</span></label>
+              <label class="choice"><input type="radio" name="antal" value="Løbende / fast aftale"><span>Løbende aftale</span></label>
             </div>
           </fieldset>
         </div>
         <fieldset>
-          <legend>Hvilket køretøj?</legend>
+          <legend>Hvad drejer det sig om?</legend>
           <div class="choices">
-            <label class="choice"><input type="radio" name="koeretoej" value="Personbil" required><span><em>🚗</em>Personbil</span></label>
-            <label class="choice"><input type="radio" name="koeretoej" value="Varebil"><span><em>🚐</em>Varebil</span></label>
-            <label class="choice"><input type="radio" name="koeretoej" value="Lastbil / trækker"><span><em>🚛</em>Lastbil</span></label>
-            <label class="choice"><input type="radio" name="koeretoej" value="Trailer / påhængsvogn"><span><em>🛻</em>Trailer</span></label>
-            <label class="choice"><input type="radio" name="koeretoej" value="Andet"><span><em>❓</em>Andet</span></label>
+            <label class="choice"><input type="radio" name="koeretoej" value="Personbil"><span><svg><use href="#i-car"/></svg>Personbil</span></label>
+            <label class="choice"><input type="radio" name="koeretoej" value="Varevogn"><span><svg><use href="#i-van"/></svg>Varevogn</span></label>
+            <label class="choice"><input type="radio" name="koeretoej" value="Løsdel"><span><svg><use href="#i-part"/></svg>Løsdel</span></label>
+            <label class="choice"><input type="radio" name="koeretoej" value="Industriemne / andet"><span><svg><use href="#i-factory"/></svg>Industri / andet</span></label>
           </div>
         </fieldset>
         <p class="error" data-error></p>
-        <div class="nav-btns"><span></span><button type="button" class="btn" data-next>Næste →</button></div>
+        <div class="nav-btns"><span></span><button type="button" class="btn" data-next>Næste <svg><use href="#i-arrow"/></svg></button></div>
       </div>
 
       <!-- TRIN 2 -->
       <div class="step" data-step="1">
-        <div class="row">
-          <div class="field"><label for="regnr">Nummerplade <span class="opt-hint">(valgfrit)</span></label><input class="reg" type="text" id="regnr" name="regnr" placeholder="AB 12 345" maxlength="9"></div>
-          <div class="field"><label for="model">Mærke og model</label><input type="text" id="model" name="model" placeholder="fx VW Golf 2018 / Scania R450"></div>
+        <div class="row vehicle-only">
+          <div class="field"><label for="regnr">Nummerplade <span class="opt">(valgfrit)</span></label><input class="reg" type="text" id="regnr" name="regnr" placeholder="AB 12 345" maxlength="9"></div>
+          <div class="field"><label for="model">Mærke og model</label><input type="text" id="model" name="model" placeholder="fx VW Golf 2018 / Ford Transit"></div>
         </div>
+        <div class="field item-only" style="display:none"><label for="emne">Hvad er det for en del eller et emne?</label><input type="text" id="emne" name="emne" placeholder="fx kofanger, spejlkappe, maskinskjold, stålramme"></div>
         <fieldset>
-          <legend>Hvad skal laves? <span class="opt-hint">(sæt gerne flere kryds)</span></legend>
+          <legend>Hvad skal laves? <span class="opt">(sæt gerne flere kryds)</span></legend>
           <div class="choices">
             <label class="choice"><input type="checkbox" name="opgave" value="Ridser"><span>Ridser</span></label>
             <label class="choice"><input type="checkbox" name="opgave" value="Buler"><span>Buler</span></label>
             <label class="choice"><input type="checkbox" name="opgave" value="Stenslag"><span>Stenslag</span></label>
-            <label class="choice"><input type="checkbox" name="opgave" value="Kofanger"><span>Kofanger</span></label>
             <label class="choice"><input type="checkbox" name="opgave" value="Skade efter uheld"><span>Skade efter uheld</span></label>
-            <label class="choice"><input type="checkbox" name="opgave" value="Helomlakering"><span>Helomlakering</span></label>
-            <label class="choice"><input type="checkbox" name="opgave" value="Rust / undervogn"><span>Rust / undervogn</span></label>
+            <label class="choice"><input type="checkbox" name="opgave" value="Klargøring af salgsbil"><span>Klargøring til salg</span></label>
+            <label class="choice"><input type="checkbox" name="opgave" value="Ny lak / nyt liv"><span>Ny lak / nyt liv</span></label>
+            <label class="choice"><input type="checkbox" name="opgave" value="Lakering af løsdel"><span>Lakering af løsdel</span></label>
             <label class="choice"><input type="checkbox" name="opgave" value="Andet"><span>Andet</span></label>
           </div>
         </fieldset>
@@ -462,24 +598,24 @@ textarea { min-height: 130px; resize: vertical; }
           </div>
         </fieldset>
         <div class="field">
-          <span class="label">Billeder af skaden <span class="opt-hint">(hjælper os meget)</span></span>
+          <span class="label">Billeder <span class="opt">(gør det meget nemmere for os at give en pris)</span></span>
           <label class="drop" id="drop">
             <input type="file" id="files" accept="image/*" multiple>
-            📷 <b>Tryk for at vælge billeder</b> eller træk dem herind
+            <b>Tryk for at vælge billeder</b> eller træk dem herind
           </label>
           <div class="thumbs" id="thumbs"></div>
         </div>
         <p class="error" data-error></p>
-        <div class="nav-btns"><button type="button" class="btn btn--light" data-prev>← Tilbage</button><button type="button" class="btn" data-next>Næste →</button></div>
+        <div class="nav-btns"><button type="button" class="btn btn--ghost" data-prev>← Tilbage</button><button type="button" class="btn" data-next>Næste <svg><use href="#i-arrow"/></svg></button></div>
       </div>
 
       <!-- TRIN 3 -->
       <div class="step" data-step="2">
         <div class="row">
-          <div class="field"><label for="navn">Dit navn</label><input type="text" id="navn" name="navn" autocomplete="name" required></div>
-          <div class="field"><label for="tlf">Telefon</label><input type="tel" id="tlf" name="tlf" autocomplete="tel" required></div>
+          <div class="field"><label for="navn">Dit navn</label><input type="text" id="navn" name="navn" autocomplete="name"></div>
+          <div class="field"><label for="tlf">Telefon</label><input type="tel" id="tlf" name="tlf" autocomplete="tel"></div>
         </div>
-        <div class="field"><label for="email">E-mail <span class="opt-hint">(valgfrit)</span></label><input type="email" id="email" name="email" autocomplete="email"></div>
+        <div class="field"><label for="email">E-mail <span class="opt">(valgfrit)</span></label><input type="email" id="email" name="email" autocomplete="email"></div>
         <fieldset>
           <legend>Hvornår skal det gerne laves?</legend>
           <div class="choices">
@@ -491,38 +627,56 @@ textarea { min-height: 130px; resize: vertical; }
         <fieldset>
           <legend>Hvordan vil du helst kontaktes?</legend>
           <div class="choices">
-            <label class="choice"><input type="radio" name="kontaktvia" value="Telefon" checked><span>📞 Telefon</span></label>
-            <label class="choice"><input type="radio" name="kontaktvia" value="SMS"><span>💬 SMS</span></label>
-            <label class="choice"><input type="radio" name="kontaktvia" value="E-mail"><span>✉️ E-mail</span></label>
+            <label class="choice"><input type="radio" name="kontaktvia" value="Telefon" checked><span>Telefon</span></label>
+            <label class="choice"><input type="radio" name="kontaktvia" value="SMS"><span>SMS</span></label>
+            <label class="choice"><input type="radio" name="kontaktvia" value="E-mail"><span>E-mail</span></label>
           </div>
         </fieldset>
         <p class="error" data-error></p>
-        <div class="nav-btns"><button type="button" class="btn btn--light" data-prev>← Tilbage</button><button type="submit" class="btn">Send forespørgsel ✓</button></div>
+        <div class="nav-btns"><button type="button" class="btn btn--ghost" data-prev>← Tilbage</button><button type="submit" class="btn">Send forespørgsel <svg><use href="#i-arrow"/></svg></button></div>
       </div>
 
       <!-- FÆRDIG -->
       <div class="step" data-step="3">
-        <div class="done-box">
-          <div class="big">🙌</div>
-          <h2>Tak! Nu mangler du kun at sende mailen.</h2>
-          <p>Dit mailprogram er åbnet med din forespørgsel. Tryk <b>Send</b> der. <span id="photoHint">Husk at <b>vedhæfte dine billeder</b> i mailen.</span></p>
-          <p class="muted small">Åbnede der ikke en mail? Kopiér teksten herunder og send den til <a href="mailto:taulovautolak@mail.dk">taulovautolak@mail.dk</a>, eller ring på <a href="tel:+4575563800">75 56 38 00</a>.</p>
+        <div class="done">
+          <div class="check"><svg><use href="#i-check"/></svg></div>
+          <h2>Næsten færdig. Tryk send i din mail.</h2>
+          <p>Dit mailprogram er åbnet med din forespørgsel. <span id="photoHint">Husk at <b>vedhæfte dine billeder</b>, før du sender.</span></p>
+          <p class="muted small">Åbnede der ikke en mail? Kopiér teksten og send den til <a href="mailto:taulovautolak@mail.dk">taulovautolak@mail.dk</a>, eller ring på <a href="tel:+4575563800">75 56 38 00</a>.</p>
         </div>
         <pre class="summary" id="summary"></pre>
-        <div class="nav-btns">
-          <button type="button" class="btn btn--light" id="copyBtn">📋 Kopiér tekst</button>
-          <a class="btn" id="mailAgain" href="#">✉️ Åbn mail igen</a>
+        <div class="nav-btns" style="margin-top:16px">
+          <button type="button" class="btn btn--ghost" id="copyBtn">Kopiér tekst</button>
+          <a class="btn" id="mailAgain" href="#">Åbn mail igen</a>
         </div>
         <p class="center" style="margin-top:20px"><a href="#" class="back" id="newQuote">Start en ny forespørgsel</a></p>
       </div>
     </form>
+
+    <aside class="aside">
+      <div class="card">
+        <h3>Sådan foregår det</h3>
+        <ol>
+          <li>Du fortæller, hvad der skal laves</li>
+          <li>Vi kigger på det, gerne ud fra billeder</li>
+          <li>Du får et gratis tilbud</li>
+          <li>Vi aftaler en dag, der passer dig</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3>Hellere snakke?</h3>
+        <p class="muted small" style="margin-bottom:12px">Ring på hverdage fra kl. 6. Om fredagen lukker vi kl. 10:30.</p>
+        <a class="btn btn--ghost btn--sm" href="tel:+4575563800"><svg><use href="#i-phone"/></svg> 75 56 38 00</a>
+      </div>
+    </aside>
+    </div>
   </div>
 </section>
 
 <footer class="footer">
   <div class="wrap footer__inner">
     <span>© <span id="year">2026</span> Taulov Autolakering I/S · H. C. Ørsteds Vej 8 · 7000 Fredericia · CVR 16843482</span>
-    <span>Lavet med ❤️ og lidt for meget kaffe</span>
+    <a href="tel:+4575563800" style="text-decoration:none;font-weight:600;color:var(--ink)">75 56 38 00</a>
   </div>
 </footer>
 
@@ -531,35 +685,41 @@ textarea { min-height: 130px; resize: vertical; }
 // Læg billeder i mappen "billeder/" ved siden af denne fil.
 const GALLERI = [
   { fil: "billeder/1.jpg", tekst: "Lige ud af lakboksen" },
-  { fil: "billeder/2.jpg", tekst: "Trækker klar til lak" },
-  { fil: "billeder/3.jpg", tekst: "Før…" },
-  { fil: "billeder/4.jpg", tekst: "…og efter" },
-  { fil: "billeder/5.jpg", tekst: "Værkstedet" },
-  { fil: "billeder/6.jpg", tekst: "Spejlblank" },
+  { fil: "billeder/2.jpg", tekst: "Varevogn" },
+  { fil: "billeder/3.jpg", tekst: "Løsdele" },
+  { fil: "billeder/4.jpg", tekst: "Industriemne" },
+  { fil: "billeder/5.jpg", tekst: "Salgsbil klar" },
 ];
+// Valgfrit: rigtige før/efter-billeder til slideren
+const FOER = "billeder/foer.jpg", EFTER = "billeder/efter.jpg";
 const MAIL = "taulovautolak@mail.dk";
+// Åbningstider: [dag (0=søndag), åbner, lukker] i minutter
+const HOURS = { 1: [360, 900], 2: [360, 900], 3: [360, 900], 4: [360, 900], 5: [300, 630] };
 
 function loadImage(src) {
   return new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
 }
-async function buildGallery() {
+async function buildImages() {
   const el = document.getElementById("gallery");
   const imgs = await Promise.all(GALLERI.map((g) => loadImage(g.fil)));
   imgs.forEach((img, i) => {
     const fig = document.createElement("figure");
-    fig.className = "polaroid"; fig.style.margin = "0";
-    const pic = document.createElement("div"); pic.className = "pic";
     if (img) {
-      img.alt = GALLERI[i].tekst; pic.appendChild(img);
+      img.alt = GALLERI[i].tekst; fig.appendChild(img);
       img.addEventListener("click", () => openLightbox(img.src, img.alt));
     } else {
-      pic.innerHTML = '<div class="ph">📷<br>Billede kommer</div>';
+      fig.innerHTML = '<div class="ph">Billede kommer</div>';
     }
-    const cap = document.createElement("figcaption"); cap.className = "cap"; cap.textContent = GALLERI[i].tekst;
-    fig.append(pic, cap); el.appendChild(fig);
+    const cap = document.createElement("figcaption"); cap.textContent = GALLERI[i].tekst; fig.appendChild(cap);
+    el.appendChild(fig);
   });
   const hero = await loadImage("billeder/hero.jpg");
   if (hero) { hero.alt = "Værkstedet"; const p = document.getElementById("heroPic"); p.innerHTML = ""; p.appendChild(hero); }
+  const [f, e] = await Promise.all([loadImage(FOER), loadImage(EFTER)]);
+  if (f && e) {
+    const b = document.getElementById("baBefore"), a = document.getElementById("baAfter");
+    b.textContent = ""; a.textContent = ""; f.alt = "Før"; e.alt = "Efter"; b.appendChild(f); a.appendChild(e);
+  }
 }
 function openLightbox(src, alt) {
   let lb = document.querySelector(".lightbox");
@@ -572,19 +732,39 @@ function openLightbox(src, alt) {
   const im = lb.querySelector("img"); im.src = src; im.alt = alt; lb.classList.add("open");
 }
 
+// Før/efter-slider
+const baRange = document.getElementById("baRange");
+baRange.addEventListener("input", () => {
+  const v = baRange.value;
+  document.getElementById("baAfter").style.clipPath = `inset(0 0 0 ${v}%)`;
+  document.getElementById("baHandle").style.left = v + "%";
+});
+
+// Åbent nu?
+function openStatus() {
+  const now = new Date(), d = now.getDay(), m = now.getHours() * 60 + now.getMinutes();
+  const el = document.getElementById("status");
+  const h = HOURS[d];
+  const fmt = (x) => String(Math.floor(x / 60)).padStart(2, "0") + ":" + String(x % 60).padStart(2, "0");
+  if (h && m >= h[0] && m < h[1]) { el.textContent = "Åbent nu · lukker " + fmt(h[1]); el.classList.add("open"); }
+  else if (h && m < h[0]) el.textContent = "Lukket · åbner i dag kl. " + fmt(h[0]);
+  else el.textContent = "Lukket lige nu";
+  const row = document.querySelector(`#hours tr[data-d="${d}"]`); if (row) row.classList.add("today");
+}
+
+// Topbar-kant ved scroll
+addEventListener("scroll", () => document.getElementById("topbar").classList.toggle("scrolled", scrollY > 8), { passive: true });
+
 // ---------- Navigation: forside / portal ----------
 function route() {
   const portal = location.hash === "#tilbud";
   document.body.classList.toggle("show-portal", portal);
   if (portal) window.scrollTo(0, 0);
-  else if (location.hash.length > 1) {
-    const t = document.getElementById(location.hash.slice(1));
-    if (t) t.scrollIntoView();
-  }
+  else if (location.hash.length > 1) { const t = document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); }
 }
-window.addEventListener("hashchange", route);
+addEventListener("hashchange", route);
 document.querySelectorAll("[data-home]").forEach((a) => a.addEventListener("click", (e) => {
-  e.preventDefault(); history.pushState("", "", location.pathname + location.search); route(); window.scrollTo(0, 0);
+  e.preventDefault(); history.pushState("", "", location.pathname + location.search); route(); scrollTo(0, 0);
 }));
 document.querySelectorAll("[data-type]").forEach((a) => a.addEventListener("click", () => {
   const r = document.querySelector(`input[name=kundetype][value="${a.dataset.type === "firma" ? "Firma" : "Privat"}"]`);
@@ -594,31 +774,36 @@ document.querySelectorAll("[data-type]").forEach((a) => a.addEventListener("clic
 // ---------- Tilbudsformular ----------
 const form = document.getElementById("quoteForm");
 const steps = [...form.querySelectorAll(".step")];
-const stepLabels = [...document.querySelectorAll("#steps li")];
-let current = 0;
-let photos = [];
+const LABELS = ["Hvem er du?", "Hvad skal laves?", "Dine kontaktoplysninger"];
+let current = 0, photos = [];
 const DRAFT_KEY = "taulov-tilbud-kladde";
 
 function show(i) {
   current = i;
   steps.forEach((s, n) => s.classList.toggle("active", n === i));
-  stepLabels.forEach((l, n) => { l.classList.toggle("active", n === i); l.classList.toggle("done", n < i); });
-  document.getElementById("steps").style.display = i > 2 ? "none" : "";
+  document.querySelectorAll("#progress span").forEach((s, n) => s.classList.toggle("on", n <= i));
+  document.getElementById("progress").style.display = i > 2 ? "none" : "";
+  document.getElementById("stepLabel").textContent = i > 2 ? "" : `Trin ${i + 1} af 3 · ${LABELS[i]}`;
   form.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 const val = (n) => (form.elements[n] && form.elements[n].value || "").trim();
 const checked = (n) => [...form.querySelectorAll(`input[name="${n}"]:checked`)].map((x) => x.value);
+const isItem = () => /Løsdel|Industri/.test(checked("koeretoej")[0] || "");
+
+function toggleKind() {
+  form.classList.toggle("is-firm", checked("kundetype")[0] === "Firma");
+  form.querySelector(".vehicle-only").style.display = isItem() ? "none" : "";
+  form.querySelector(".item-only").style.display = isItem() ? "" : "none";
+}
 
 function validate(i) {
   const errs = [];
   if (i === 0) {
     if (!checked("kundetype").length) errs.push("Vælg om du er privat eller firma.");
     if (checked("kundetype")[0] === "Firma" && !val("firmanavn")) errs.push("Skriv firmanavnet.");
-    if (!checked("koeretoej").length) errs.push("Vælg køretøj.");
+    if (!checked("koeretoej").length) errs.push("Vælg hvad det drejer sig om.");
   }
-  if (i === 1) {
-    if (!checked("opgave").length && val("beskrivelse").length < 5) errs.push("Sæt mindst ét kryds, eller skriv kort hvad der skal laves.");
-  }
+  if (i === 1 && !checked("opgave").length && val("beskrivelse").length < 5) errs.push("Sæt mindst ét kryds, eller skriv kort hvad der skal laves.");
   if (i === 2) {
     if (!val("navn")) errs.push("Skriv dit navn.");
     if (val("tlf").replace(/\D/g, "").length < 8) errs.push("Skriv et telefonnummer (8 cifre).");
@@ -628,25 +813,17 @@ function validate(i) {
   steps[i].querySelector("[data-error]").textContent = errs.join(" ");
   return !errs.length;
 }
-
 form.addEventListener("click", (e) => {
   if (e.target.closest("[data-next]") && validate(current)) show(current + 1);
   if (e.target.closest("[data-prev]")) show(current - 1);
 });
-form.addEventListener("change", (e) => {
-  if (e.target.name === "kundetype") form.classList.toggle("is-firm", e.target.value === "Firma");
-  saveDraft();
-});
+form.addEventListener("change", (e) => { if (["kundetype", "koeretoej"].includes(e.target.name)) toggleKind(); saveDraft(); });
 form.addEventListener("input", saveDraft);
 form.elements.regnr.addEventListener("input", (e) => { e.target.value = e.target.value.toUpperCase(); });
 
 // Billeder
-const fileInput = document.getElementById("files");
-const drop = document.getElementById("drop");
-function addFiles(list) {
-  [...list].filter((f) => f.type.startsWith("image/")).forEach((f) => photos.push(f));
-  renderThumbs();
-}
+const fileInput = document.getElementById("files"), drop = document.getElementById("drop");
+function addFiles(list) { [...list].filter((f) => f.type.startsWith("image/")).forEach((f) => photos.push(f)); renderThumbs(); }
 function renderThumbs() {
   const t = document.getElementById("thumbs"); t.innerHTML = "";
   photos.forEach((f, i) => {
@@ -664,37 +841,37 @@ drop.addEventListener("drop", (e) => addFiles(e.dataTransfer.files));
 
 function buildText() {
   const firm = checked("kundetype")[0] === "Firma";
-  const L = [];
-  L.push("TILBUDSFORESPØRGSEL – Taulov Autolakering", "");
+  const L = ["TILBUDSFORESPØRGSEL – Taulov Autolakering", ""];
   L.push("Kundetype: " + (checked("kundetype")[0] || "-"));
   if (firm) {
     L.push("Firma: " + (val("firmanavn") || "-"));
     if (val("cvr")) L.push("CVR: " + val("cvr"));
-    if (checked("antal").length) L.push("Antal køretøjer: " + checked("antal")[0]);
+    if (checked("antal").length) L.push("Antal: " + checked("antal")[0]);
   }
-  L.push("", "KØRETØJ");
+  L.push("", "HVAD");
   L.push("Type: " + (checked("koeretoej")[0] || "-"));
-  if (val("regnr")) L.push("Nummerplade: " + val("regnr"));
-  if (val("model")) L.push("Mærke/model: " + val("model"));
+  if (isItem()) { if (val("emne")) L.push("Del/emne: " + val("emne")); }
+  else {
+    if (val("regnr")) L.push("Nummerplade: " + val("regnr"));
+    if (val("model")) L.push("Mærke/model: " + val("model"));
+  }
   L.push("", "OPGAVE");
   L.push("Skal laves: " + (checked("opgave").join(", ") || "-"));
   if (checked("forsikring").length) L.push("Forsikringssag: " + checked("forsikring")[0]);
   if (val("beskrivelse")) L.push("Beskrivelse: " + val("beskrivelse"));
   if (photos.length) L.push(`Billeder: ${photos.length} stk. (vedhæftet)`);
   L.push("", "KONTAKT");
-  L.push("Navn: " + val("navn"));
-  L.push("Telefon: " + val("tlf"));
+  L.push("Navn: " + val("navn"), "Telefon: " + val("tlf"));
   if (val("email")) L.push("E-mail: " + val("email"));
-  L.push("Foretrukken kontakt: " + (checked("kontaktvia")[0] || "-"));
-  L.push("Hvornår: " + (checked("hvornaar")[0] || "-"));
+  L.push("Foretrukken kontakt: " + (checked("kontaktvia")[0] || "-"), "Hvornår: " + (checked("hvornaar")[0] || "-"));
   return L.join("\n");
 }
 function mailLink() {
   const firm = checked("kundetype")[0] === "Firma";
-  const subj = `Tilbud: ${checked("koeretoej")[0] || "køretøj"}${val("regnr") ? " " + val("regnr") : ""} – ${firm ? val("firmanavn") : val("navn")}`;
+  const what = isItem() ? (val("emne") || checked("koeretoej")[0]) : (checked("koeretoej")[0] + (val("regnr") ? " " + val("regnr") : ""));
+  const subj = `Tilbud: ${what} – ${firm ? val("firmanavn") : val("navn")}`;
   return `mailto:${MAIL}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(buildText())}`;
 }
-
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   for (let i = 0; i < 3; i++) if (!validate(i)) { show(i); return; }
@@ -703,18 +880,18 @@ form.addEventListener("submit", (e) => {
   const link = mailLink();
   document.getElementById("mailAgain").href = link;
   show(3);
-  window.location.href = link;
+  location.href = link;
   try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
 });
 document.getElementById("copyBtn").addEventListener("click", async (e) => {
-  try { await navigator.clipboard.writeText(buildText()); e.target.textContent = "✓ Kopieret"; }
+  try { await navigator.clipboard.writeText(buildText()); e.target.textContent = "Kopieret ✓"; }
   catch (_) { const r = document.createRange(); r.selectNodeContents(document.getElementById("summary")); getSelection().removeAllRanges(); getSelection().addRange(r); }
 });
 document.getElementById("newQuote").addEventListener("click", (e) => {
-  e.preventDefault(); form.reset(); photos = []; renderThumbs(); form.classList.remove("is-firm"); show(0);
+  e.preventDefault(); form.reset(); photos = []; renderThumbs(); toggleKind(); show(0);
 });
 
-// Kladde gemmes i browseren, så intet går tabt
+// Kladde gemmes i browseren
 function saveDraft() {
   const data = {};
   [...form.elements].forEach((el) => {
@@ -732,15 +909,13 @@ function loadDraft() {
     if (el.type === "checkbox" || el.type === "radio") el.checked = data[el.name].includes(el.value);
     else el.value = data[el.name];
   });
-  form.classList.toggle("is-firm", checked("kundetype")[0] === "Firma");
 }
 
-// Start
 document.getElementById("year").textContent = new Date().getFullYear();
-const today = document.querySelector(`#hours tr[data-d="${new Date().getDay()}"]`);
-if (today) today.classList.add("today");
+openStatus();
 loadDraft();
-buildGallery();
+toggleKind();
+buildImages();
 route();
 </script>
 </body>
