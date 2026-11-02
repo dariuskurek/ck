@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Taulov Autolakering – Autolakerer i Fredericia</title>
+  <meta name="description" content="Taulov Autolakering I/S – autolakering og karosseri­reparation af biler og lastbiler på H. C. Ørsteds Vej 8 i Taulov, Fredericia. Siden 1993.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --ink: #111418;
+  --ink-2: #1b2027;
+  --paper: #f6f5f2;
+  --white: #ffffff;
+  --red: #e63b2e;
+  --red-d: #c22d22;
+  --muted: #5d6570;
+  --line: #e2e0db;
+  --radius: 14px;
+  --head: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+body { margin: 0; font-family: var(--body); color: var(--ink); background: var(--paper); line-height: 1.6; }
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+.wrap { width: min(1140px, 100% - 32px); margin-inline: auto; }
+
+h1, h2, h3 { font-family: var(--head); line-height: 1.05; margin: 0 0 .5em; letter-spacing: .01em; }
+h1 { font-size: clamp(2.6rem, 7vw, 5rem); text-transform: uppercase; }
+h1 span { color: var(--red); }
+h2 { font-size: clamp(2rem, 4.5vw, 3rem); text-transform: uppercase; }
+h3 { font-size: 1.4rem; }
+.eyebrow { font-size: .78rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--red); margin: 0 0 .6rem; }
+.muted { color: var(--muted); }
+.small { font-size: .875rem; }
+
+/* Buttons */
+.btn { display: inline-block; background: var(--red); color: #fff; text-decoration: none; font-weight: 600; padding: .85rem 1.4rem; border-radius: 999px; border: 2px solid var(--red); transition: background .2s, transform .2s; }
+.btn:hover { background: var(--red-d); border-color: var(--red-d); transform: translateY(-1px); }
+.btn--ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.4); }
+.btn--ghost:hover { background: rgba(255,255,255,.08); border-color: #fff; }
+.btn--small { padding: .5rem 1rem; font-size: .9rem; white-space: nowrap; }
+
+/* Topbar */
+.topbar { position: sticky; top: 0; z-index: 50; background: rgba(17,20,24,.92); backdrop-filter: blur(10px); color: #fff; }
+.topbar__inner { display: flex; align-items: center; gap: 24px; height: 64px; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--head); font-size: 1.35rem; text-transform: uppercase; letter-spacing: .03em; }
+.logo b { color: var(--red); font-weight: 800; }
+.logo__mark { width: 30px; height: 30px; border-radius: 8px; background: conic-gradient(from 200deg, var(--red), #ff8a3d, var(--red)); box-shadow: inset 0 0 0 3px var(--ink); }
+.nav { display: flex; gap: 22px; margin-left: auto; }
+.nav a { text-decoration: none; font-size: .92rem; opacity: .8; }
+.nav a:hover { opacity: 1; color: var(--red); }
+
+/* Hero */
+.hero { position: relative; color: #fff; background: var(--ink); overflow: hidden; padding: clamp(72px, 12vw, 140px) 0 64px; }
+.hero__bg { position: absolute; inset: 0; background:
+  radial-gradient(900px 500px at 85% 20%, rgba(230,59,46,.45), transparent 60%),
+  radial-gradient(700px 400px at 10% 110%, rgba(255,138,61,.18), transparent 60%),
+  linear-gradient(115deg, transparent 55%, rgba(255,255,255,.05) 55.2%, transparent 70%),
+  linear-gradient(180deg, #14181d, #0c0e11); }
+.hero__bg.has-photo { background-size: cover; background-position: center; }
+.hero__bg.has-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(12,14,17,.92) 30%, rgba(12,14,17,.45)); }
+.hero__inner { position: relative; }
+.hero__lead { max-width: 560px; font-size: 1.1rem; color: rgba(255,255,255,.8); }
+.hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0 0; }
+.facts { list-style: none; padding: 0; margin: 56px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: rgba(255,255,255,.12); border-radius: var(--radius); overflow: hidden; max-width: 720px; }
+.facts li { background: rgba(17,20,24,.85); padding: 18px 20px; }
+.facts strong { display: block; font-family: var(--head); font-size: 1.6rem; text-transform: uppercase; }
+.facts span { font-size: .85rem; color: rgba(255,255,255,.65); }
+
+/* Sections */
+.section { padding: clamp(64px, 9vw, 110px) 0; }
+.section--dark { background: var(--ink-2); color: #fff; }
+.section--dark p { color: rgba(255,255,255,.8); }
+.section--tint { background: #ecebe6; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; margin-top: 28px; }
+.card { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px; transition: transform .2s, box-shadow .2s; }
+.card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(17,20,24,.08); }
+.card__icon { font-size: 1.8rem; width: 52px; height: 52px; display: grid; place-items: center; background: #fdecea; border-radius: 12px; margin-bottom: 14px; }
+.card p { color: var(--muted); margin: 0; }
+
+.split { display: grid; grid-template-columns: 1.2fr 1fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0; }
+.stats div { border: 1px solid rgba(255,255,255,.12); border-radius: var(--radius); padding: 22px; }
+.stats dt { font-family: var(--head); font-size: 2.6rem; color: var(--red); line-height: 1; }
+.stats dd { margin: 6px 0 0; color: rgba(255,255,255,.7); font-size: .9rem; }
+
+/* Gallery */
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 28px; }
+.gallery figure { margin: 0; aspect-ratio: 4 / 3; border-radius: var(--radius); overflow: hidden; background: #ddd; position: relative; }
+.gallery img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; cursor: zoom-in; }
+.gallery figure:hover img { transform: scale(1.04); }
+.gallery figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 24px 14px 10px; font-size: .85rem; color: #fff; background: linear-gradient(transparent, rgba(0,0,0,.65)); }
+.gallery .ph { display: grid; place-items: center; text-align: center; padding: 20px; color: var(--muted); font-size: .9rem;
+  background: repeating-linear-gradient(135deg, #e8e6e1 0 14px, #efede9 14px 28px); border: 2px dashed #cfccc5; }
+.gallery .ph b { display: block; font-family: var(--head); font-size: 1.3rem; color: var(--ink); text-transform: uppercase; }
+
+.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,.9); display: none; place-items: center; z-index: 100; padding: 16px; cursor: zoom-out; }
+.lightbox.open { display: grid; }
+.lightbox img { max-height: 90vh; border-radius: 8px; }
+
+/* Reviews */
+.review-cta { background: var(--white); border-radius: var(--radius); padding: 36px; border: 1px solid var(--line); max-width: 720px; }
+.stars { color: #f4b400; font-size: 1.6rem; letter-spacing: 4px; }
+
+/* Contact */
+.split--contact { align-items: stretch; }
+.contact { list-style: none; padding: 0; margin: 20px 0 28px; display: grid; gap: 14px; }
+.contact li { display: grid; grid-template-columns: 90px 1fr; gap: 12px; }
+.contact span { font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); padding-top: 3px; }
+.contact a { font-weight: 600; text-decoration: none; }
+.contact a:hover { color: var(--red); }
+.hours-title { margin-top: 8px; }
+.hours { border-collapse: collapse; width: 100%; max-width: 380px; }
+.hours th, .hours td { text-align: left; padding: 8px 0; border-bottom: 1px solid var(--line); font-weight: 400; }
+.hours td { text-align: right; }
+.hours tr.today th, .hours tr.today td { font-weight: 700; color: var(--red); }
+.map { border-radius: var(--radius); overflow: hidden; min-height: 380px; border: 1px solid var(--line); background: #e5e3de; }
+.map iframe { width: 100%; height: 100%; min-height: 380px; border: 0; display: block; }
+
+.footer { background: var(--ink); color: rgba(255,255,255,.6); font-size: .85rem; padding: 26px 0; }
+.footer__inner { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.footer a { color: #fff; text-decoration: none; font-weight: 600; }
+
+@media (max-width: 860px) {
+  .nav { display: none; }
+  .topbar__inner { justify-content: space-between; }
+  .split { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .logo__text { font-size: 1.1rem; }
+  .facts { grid-template-columns: 1fr; }
+  .contact li { grid-template-columns: 1fr; gap: 2px; }
+}
+</style>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23111418'/%3E%3Cpath d='M14 40c6-14 30-14 36 0' stroke='%23e63b2e' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar__inner">
+    <a href="#" class="logo" aria-label="Taulov Autolakering – til toppen">
+      <span class="logo__mark" aria-hidden="true"></span>
+      <span class="logo__text">Taulov <b>Autolakering</b></span>
+    </a>
+    <nav class="nav" aria-label="Hovedmenu">
+      <a href="#ydelser">Ydelser</a>
+      <a href="#om">Om os</a>
+      <a href="#galleri">Galleri</a>
+      <a href="#anmeldelser">Anmeldelser</a>
+      <a href="#kontakt">Kontakt</a>
+    </nav>
+    <a class="btn btn--small" href="tel:+4575563800">Ring 75 56 38 00</a>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero__bg" aria-hidden="true"></div>
+    <div class="wrap hero__inner">
+      <p class="eyebrow">Autolakerer i Taulov · Fredericia · siden 1993</p>
+      <h1>Lak, der ser ud som<br><span>den kom fra fabrikken.</span></h1>
+      <p class="hero__lead">Vi lakerer både personbiler og lastbiler. Fra en ridse i kofangeren til en helomlakering af en trækker: lokalt håndværk med over 30 års erfaring på H.&nbsp;C.&nbsp;Ørsteds Vej i Taulov.</p>
+      <div class="hero__cta">
+        <a class="btn" href="#kontakt">Få et tilbud</a>
+        <a class="btn btn--ghost" href="#ydelser">Se ydelser</a>
+      </div>
+      <ul class="facts">
+        <li><strong>1993</strong><span>Grundlagt</span></li>
+        <li><strong>Bil &amp; lastbil</strong><span>Vi lakerer begge</span></li>
+        <li><strong>Taulov</strong><span>Tæt på motorvejen</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- YDELSER -->
+  <section id="ydelser" class="section">
+    <div class="wrap">
+      <p class="eyebrow">Det laver vi</p>
+      <h2>Ydelser</h2>
+      <div class="cards">
+        <article class="card">
+          <div class="card__icon" aria-hidden="true">🚗</div>
+          <h3>Autolakering af personbiler</h3>
+          <p>Delopretning og lakering af enkelte paneler, eller en komplet omlakering. Vi matcher farven præcist til bilens originale lak.</p>
+        </article>
+        <article class="card">
+          <div class="card__icon" aria-hidden="true">🚛</div>
+          <h3>Lastbiler &amp; erhverv</h3>
+          <p>Lakering af lastbiler, førerhuse, trailere og varebiler. Vi har plads og udstyr til de store køretøjer.</p>
+        </article>
+        <article class="card">
+          <div class="card__icon" aria-hidden="true">🔧</div>
+          <h3>Karosseri­reparation</h3>
+          <p>Udbedring af buler, ridser og skader efter uheld, så karosseriet er klar til ny lak.</p>
+        </article>
+        <article class="card">
+          <div class="card__icon" aria-hidden="true">🛡️</div>
+          <h3>Undervognsbehandling</h3>
+          <p>Rustbeskyttelse af undervognen, der forlænger bilens levetid gennem danske vintre med salt og fugt.</p>
+        </article>
+        <article class="card">
+          <div class="card__icon" aria-hidden="true">🎯</div>
+          <h3>Spot-reparation</h3>
+          <p>Mindre ridser og stenslag udbedres lokalt. Hurtigt, og billigere end at lakere hele delen.</p>
+        </article>
+        <article class="card">
+          <div class="card__icon" aria-hidden="true">📋</div>
+          <h3>Forsikringsskader</h3>
+          <p>Har du haft en skade? Kontakt os, så hjælper vi med at få bilen vurderet og repareret.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- OM -->
+  <section id="om" class="section section--dark">
+    <div class="wrap split">
+      <div>
+        <p class="eyebrow">Om os</p>
+        <h2>Et lille værksted med lang erfaring</h2>
+        <p>Taulov Autolakering I/S blev startet i marts 1993 og har siden da lakeret biler og lastbiler fra hele trekantområdet. Værkstedet drives af indehaverne <strong>Tommy Rauff Benzon</strong> og <strong>Jan Lykke Hansen</strong> sammen med et lille, fast hold af medarbejdere.</p>
+        <p>Vi ligger i erhvervsområdet i Taulov, tæt på motorvejen, så det er nemt at aflevere bilen på vej til arbejde. Vi åbner tidligt.</p>
+      </div>
+      <dl class="stats">
+        <div><dt>30+</dt><dd>års erfaring</dd></div>
+        <div><dt>4</dt><dd>faste medarbejdere</dd></div>
+        <div><dt>06:00</dt><dd>vi åbner tidligt</dd></div>
+        <div><dt>7000</dt><dd>Fredericia · Taulov</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- GALLERI -->
+  <section id="galleri" class="section">
+    <div class="wrap">
+      <p class="eyebrow">Fra værkstedet</p>
+      <h2>Galleri</h2>
+      <p class="muted">Billeder fra værkstedet og færdige opgaver.</p>
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </section>
+
+  <!-- ANMELDELSER -->
+  <section id="anmeldelser" class="section section--tint">
+    <div class="wrap">
+      <p class="eyebrow">Hvad kunderne siger</p>
+      <h2>Anmeldelser</h2>
+      <div class="review-cta">
+        <div class="stars" aria-hidden="true">★★★★★</div>
+        <p>Se, hvad andre kunder skriver om os på Google, eller del din egen oplevelse.</p>
+        <div class="hero__cta">
+          <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Taulov+Autolakering+I%2FS+H.C.+%C3%98rsteds+Vej+8+7000+Fredericia">Læs anmeldelser på Google</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KONTAKT -->
+  <section id="kontakt" class="section">
+    <div class="wrap split split--contact">
+      <div>
+        <p class="eyebrow">Kontakt</p>
+        <h2>Kom forbi eller ring</h2>
+        <ul class="contact">
+          <li><span>Adresse</span><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=H.C.+%C3%98rsteds+Vej+8+7000+Fredericia">H. C. Ørsteds Vej 8, Taulov<br>7000 Fredericia</a></li>
+          <li><span>Telefon</span><a href="tel:+4575563800">75 56 38 00</a></li>
+          <li><span>E-mail</span><a href="mailto:taulovautolak@mail.dk">taulovautolak@mail.dk</a></li>
+          <li><span>CVR</span>16843482</li>
+        </ul>
+        <h3 class="hours-title">Åbningstider</h3>
+        <table class="hours" id="hours">
+          <tr data-d="1"><th>Mandag</th><td>06:00 – 17:00</td></tr>
+          <tr data-d="2"><th>Tirsdag</th><td>06:00 – 17:00</td></tr>
+          <tr data-d="3"><th>Onsdag</th><td>06:00 – 17:00</td></tr>
+          <tr data-d="4"><th>Torsdag</th><td>06:00 – 17:00</td></tr>
+          <tr data-d="5"><th>Fredag</th><td>05:00 – 12:00</td></tr>
+          <tr data-d="6"><th>Lørdag</th><td>Lukket</td></tr>
+          <tr data-d="0"><th>Søndag</th><td>Lukket</td></tr>
+        </table>
+        <p class="muted small">Ring gerne inden, hvis du vil være sikker på, at vi har tid.</p>
+      </div>
+      <div class="map">
+        <iframe title="Kort over Taulov Autolakering" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          src="https://maps.google.com/maps?q=Taulov%20Autolakering%2C%20H.C.%20%C3%98rsteds%20Vej%208%2C%207000%20Fredericia&amp;z=15&amp;output=embed"></iframe>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <span>© <span id="year">2026</span> Taulov Autolakering I/S · H. C. Ørsteds Vej 8 · 7000 Fredericia · CVR 16843482</span>
+    <a href="tel:+4575563800">75 56 38 00</a>
+  </div>
+</footer>
+
+<script>
+// Billeder: læg filerne i mappen "billeder/" med disse navne.
+// Billeder, der ikke findes, vises som pladsholdere i galleriet.
+const GALLERI = [
+  { fil: "billeder/1.jpg", tekst: "Værkstedet på H. C. Ørsteds Vej" },
+  { fil: "billeder/2.jpg", tekst: "Lakboksen" },
+  { fil: "billeder/3.jpg", tekst: "Færdiglakeret personbil" },
+  { fil: "billeder/4.jpg", tekst: "Lastbil klar til lak" },
+  { fil: "billeder/5.jpg", tekst: "Før og efter: skadesreparation" },
+  { fil: "billeder/6.jpg", tekst: "Detalje: spejlblank finish" },
+];
+const HERO_BILLEDE = "billeder/hero.jpg";
+
+function loadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+async function buildGallery() {
+  const el = document.getElementById("gallery");
+  const results = await Promise.all(GALLERI.map((g) => loadImage(g.fil)));
+  results.forEach((img, i) => {
+    const fig = document.createElement("figure");
+    if (img) {
+      img.alt = GALLERI[i].tekst;
+      img.loading = "lazy";
+      fig.appendChild(img);
+      const cap = document.createElement("figcaption");
+      cap.textContent = GALLERI[i].tekst;
+      fig.appendChild(cap);
+      img.addEventListener("click", () => openLightbox(img.src, img.alt));
+    } else {
+      fig.className = "ph";
+      fig.innerHTML = `<div><b>${GALLERI[i].tekst}</b>Billede kommer snart</div>`;
+    }
+    el.appendChild(fig);
+  });
+}
+
+function openLightbox(src, alt) {
+  let lb = document.querySelector(".lightbox");
+  if (!lb) {
+    lb = document.createElement("div");
+    lb.className = "lightbox";
+    lb.innerHTML = "<img alt=''>";
+    lb.addEventListener("click", () => lb.classList.remove("open"));
+    document.addEventListener("keydown", (e) => e.key === "Escape" && lb.classList.remove("open"));
+    document.body.appendChild(lb);
+  }
+  const img = lb.querySelector("img");
+  img.src = src;
+  img.alt = alt;
+  lb.classList.add("open");
+}
+
+async function heroPhoto() {
+  const img = await loadImage(HERO_BILLEDE);
+  if (!img) return;
+  const bg = document.querySelector(".hero__bg");
+  bg.style.backgroundImage = `url("${HERO_BILLEDE}")`;
+  bg.classList.add("has-photo");
+}
+
+function highlightToday() {
+  const row = document.querySelector(`#hours tr[data-d="${new Date().getDay()}"]`);
+  if (row) row.classList.add("today");
+}
+
+document.getElementById("year").textContent = new Date().getFullYear();
+highlightToday();
+buildGallery();
+heroPhoto();
+</script>
+</body>
+</html>
