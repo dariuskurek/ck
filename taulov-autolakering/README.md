@@ -15,7 +15,7 @@ Siden henter billeder fra mappen `billeder/`:
 
 | Fil | Bruges til |
 |---|---|
-| `billeder/hero.jpg` | Baggrund i toppen (valgfri, ellers vises en mørk gradient) |
+| `billeder/hero.jpg` | Polaroid-billedet i toppen (valgfri, ellers vises en pladsholder) |
 | `billeder/1.jpg` – `billeder/6.jpg` | Galleriet (billedtekster rettes øverst i `<script>` i `index.html`) |
 
 Billeder, der ikke findes, vises som pladsholdere. Hent fx billederne fra virksomhedens egen Google-virksomhedsprofil, men brug kun billeder, som virksomheden selv har taget eller har tilladelse til. Billeder fra anmeldelser tilhører den, der har taget dem.
