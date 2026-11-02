@@ -1,151 +1,361 @@
 <!doctype html>
 <html lang="da">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Taulov Autolakering – Autolakerer i Fredericia</title>
-  <meta name="description" content="Taulov Autolakering I/S – autolakering og karosseri­reparation af biler og lastbiler på H. C. Ørsteds Vej 8 i Taulov, Fredericia. Siden 1993.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23111418'/%3E%3Cpath d='M14 40c6-14 30-14 36 0' stroke='%23e63b2e' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taulov Autolakering – lakering af biler og lastbiler i Fredericia</title>
+<meta name="description" content="Lille lakeringsværksted i Taulov siden 1993. Vi lakerer personbiler, varebiler og lastbiler for private og firmaer. Få et gratis tilbud.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23c8352a'/%3E%3Ctext x='32' y='42' font-size='28' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ETA%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+  --paper: #fbf7ef;
+  --paper-2: #f3ecdd;
+  --kraft: #e9dcc3;
+  --ink: #2a2622;
+  --muted: #6b6259;
+  --red: #c8352a;
+  --red-d: #a8291f;
+  --blue: #2f5d8a;
+  --yellow: #fff2a8;
+  --line: #d9cdb6;
+  --hand: "Kalam", "Comic Sans MS", cursive;
+  --body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+body {
+  margin: 0; font-family: var(--body); color: var(--ink); line-height: 1.6; font-size: 17px;
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(rgba(120,90,40,.06) 1px, transparent 1px),
+    radial-gradient(rgba(120,90,40,.04) 1px, transparent 1px);
+  background-size: 22px 22px, 13px 13px;
+  background-position: 0 0, 7px 11px;
+}
+a { color: var(--blue); }
+img { max-width: 100%; display: block; }
+.wrap { width: min(1060px, 100% - 32px); margin-inline: auto; }
+h1, h2, h3 { font-family: var(--hand); font-weight: 700; line-height: 1.15; margin: 0 0 .4em; }
+h1 { font-size: clamp(2.3rem, 6vw, 3.8rem); }
+h2 { font-size: clamp(1.9rem, 4.5vw, 2.7rem); }
+h3 { font-size: 1.45rem; }
+p { margin: 0 0 1em; }
+.muted { color: var(--muted); }
+.small { font-size: .9rem; }
+.scribble { position: relative; white-space: nowrap; }
+.scribble::after {
+  content: ""; position: absolute; left: -2%; right: -2%; bottom: -.12em; height: .35em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M2 14 C40 4, 80 18, 120 8 S180 6, 198 12' stroke='%23c8352a' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+
+/* Knapper */
+.btn {
+  display: inline-block; font-family: var(--hand); font-weight: 700; font-size: 1.2rem;
+  background: var(--red); color: #fff; text-decoration: none; padding: .55rem 1.3rem;
+  border: 2px solid var(--ink); border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  box-shadow: 3px 3px 0 var(--ink); cursor: pointer; transition: transform .1s, box-shadow .1s;
+}
+.btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.btn--light { background: #fff; color: var(--ink); }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+/* Top */
+.topbar { position: sticky; top: 0; z-index: 30; background: rgba(251,247,239,.95); border-bottom: 2px dashed var(--line); }
+.topbar__inner { display: flex; align-items: center; gap: 18px; height: 62px; }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-family: var(--hand); font-size: 1.4rem; font-weight: 700; }
+.logo__badge { width: 38px; height: 38px; border-radius: 50%; background: var(--red); color: #fff; display: grid; place-items: center; font-size: 1rem; border: 2px solid var(--ink); transform: rotate(-8deg); }
+.nav { display: flex; gap: 18px; margin-left: auto; }
+.nav a { color: var(--ink); text-decoration: none; font-weight: 600; font-size: .95rem; }
+.nav a:hover { color: var(--red); text-decoration: underline wavy; }
+.topbar .btn { font-size: 1rem; padding: .3rem .9rem; }
+
+/* Hero */
+.hero { padding: clamp(40px, 7vw, 80px) 0 40px; }
+.hero__grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; }
+.hello { font-family: var(--hand); color: var(--red); font-size: 1.3rem; margin: 0 0 .3rem; transform: rotate(-2deg); display: inline-block; }
+.hero__lead { font-size: 1.15rem; max-width: 34em; }
+.hero__cta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 22px; }
+.hero__cta .or { font-family: var(--hand); font-size: 1.15rem; }
+.hero__cta .or a { color: var(--ink); font-weight: 700; }
+
+.polaroid { background: #fff; padding: 12px 12px 46px; box-shadow: 0 8px 22px rgba(60,40,10,.18); transform: rotate(2.5deg); position: relative; border: 1px solid #eee; }
+.polaroid .pic { aspect-ratio: 4/3; background: var(--kraft); display: grid; place-items: center; overflow: hidden; }
+.polaroid .pic img { width: 100%; height: 100%; object-fit: cover; }
+.polaroid .cap { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-family: var(--hand); font-size: 1.15rem; }
+.tape { position: absolute; width: 110px; height: 28px; background: rgba(255,236,150,.75); top: -14px; left: 50%; transform: translateX(-50%) rotate(-4deg); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+/* Sektioner */
+.section { padding: clamp(48px, 7vw, 84px) 0; }
+.section--kraft { background: var(--paper-2); border-top: 2px dashed var(--line); border-bottom: 2px dashed var(--line); }
+.center { text-align: center; }
+.intro { max-width: 40em; }
+.center .intro { margin-inline: auto; }
+
+/* Privat / Firma */
+.who { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 28px; }
+.note {
+  background: #fff; border: 2px solid var(--ink); padding: 26px 26px 22px; position: relative;
+  border-radius: 6px 18px 8px 14px / 14px 6px 18px 8px; box-shadow: 5px 5px 0 rgba(42,38,34,.12);
+}
+.note:nth-child(1) { transform: rotate(-.8deg); }
+.note:nth-child(2) { transform: rotate(.8deg); background: #fffbe6; }
+.note h3 { display: flex; align-items: center; gap: 10px; }
+.note .tag { font-family: var(--body); font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--ink); color: #fff; padding: 2px 8px; border-radius: 4px; }
+.checks { list-style: none; padding: 0; margin: 0 0 18px; }
+.checks li { padding-left: 30px; position: relative; margin-bottom: 8px; }
+.checks li::before { content: "✔"; position: absolute; left: 4px; top: -1px; color: var(--red); font-family: var(--hand); font-size: 1.2rem; font-weight: 700; }
+
+/* Ydelser */
+.services { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; margin-top: 26px; }
+.service { padding: 18px 20px; border: 2px dashed var(--line); border-radius: 12px; background: rgba(255,255,255,.6); }
+.service .ico { font-size: 1.8rem; }
+.service h3 { font-size: 1.3rem; margin: .2em 0 .25em; }
+.service p { margin: 0; color: var(--muted); font-size: .95rem; }
+
+/* Om */
+.about { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.signed { font-family: var(--hand); font-size: 1.5rem; color: var(--blue); transform: rotate(-2deg); display: inline-block; }
+.sticky { background: var(--yellow); padding: 22px 24px; box-shadow: 0 6px 14px rgba(60,40,10,.15); transform: rotate(-1.5deg); font-family: var(--hand); font-size: 1.25rem; line-height: 1.5; }
+.sticky ul { margin: 0; padding-left: 1.1em; }
+
+/* Galleri */
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 26px; margin-top: 28px; }
+.gallery .polaroid { padding: 10px 10px 40px; }
+.gallery .polaroid:nth-child(odd) { transform: rotate(-2deg); }
+.gallery .polaroid:nth-child(3n) { transform: rotate(1.5deg); }
+.gallery .polaroid img { cursor: zoom-in; }
+.ph { font-family: var(--hand); color: var(--muted); text-align: center; padding: 10px; font-size: 1.05rem; }
+.lightbox { position: fixed; inset: 0; background: rgba(20,15,10,.88); display: none; place-items: center; z-index: 100; padding: 16px; cursor: zoom-out; }
+.lightbox.open { display: grid; }
+.lightbox img { max-height: 90vh; border: 10px solid #fff; }
+
+/* Anmeldelser */
+.review-box { display: inline-block; background: #fff; border: 2px solid var(--ink); border-radius: 14px; padding: 26px 30px; box-shadow: 5px 5px 0 rgba(42,38,34,.12); max-width: 560px; }
+.stars { color: #e8a400; font-size: 1.8rem; letter-spacing: 3px; }
+
+/* Kontakt */
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.contact-list { list-style: none; padding: 0; margin: 0 0 22px; }
+.contact-list li { margin-bottom: 10px; }
+.contact-list b { display: inline-block; min-width: 82px; font-family: var(--hand); font-size: 1.15rem; }
+.hours { border-collapse: collapse; width: 100%; max-width: 360px; font-size: .97rem; }
+.hours th, .hours td { text-align: left; padding: 6px 0; border-bottom: 1px dashed var(--line); font-weight: 400; }
+.hours td { text-align: right; }
+.hours tr.today th, .hours tr.today td { font-weight: 800; color: var(--red); }
+.map { border: 2px solid var(--ink); border-radius: 12px; overflow: hidden; min-height: 340px; background: var(--kraft); box-shadow: 5px 5px 0 rgba(42,38,34,.12); }
+.map iframe { width: 100%; height: 100%; min-height: 340px; border: 0; display: block; }
+
+.footer { padding: 30px 0 40px; border-top: 2px dashed var(--line); font-size: .9rem; color: var(--muted); }
+.footer__inner { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+
+/* ===== TILBUDSPORTAL ===== */
+.portal { display: none; padding: 34px 0 70px; }
+body.show-portal .site { display: none; }
+body.show-portal .portal { display: block; }
+.back { font-family: var(--hand); font-size: 1.15rem; color: var(--ink); text-decoration: none; }
+.back:hover { color: var(--red); }
+.portal__head { margin: 14px 0 24px; }
+.portal__box { background: #fff; border: 2px solid var(--ink); border-radius: 16px; padding: clamp(18px, 4vw, 34px); box-shadow: 6px 6px 0 rgba(42,38,34,.12); max-width: 780px; }
+.steps { display: flex; gap: 8px; margin: 0 0 26px; padding: 0; list-style: none; counter-reset: s; }
+.steps li { flex: 1; text-align: center; font-family: var(--hand); font-size: 1.05rem; color: var(--muted); padding-bottom: 8px; border-bottom: 4px solid var(--paper-2); counter-increment: s; }
+.steps li::before { content: counter(s) ". "; }
+.steps li.active { color: var(--ink); border-color: var(--red); font-weight: 700; }
+.steps li.done { color: var(--ink); border-color: var(--ink); }
+.step { display: none; }
+.step.active { display: block; }
+.step h2 { font-size: 1.8rem; }
+fieldset { border: 0; padding: 0; margin: 0 0 22px; }
+legend, .label { font-weight: 800; margin-bottom: 8px; display: block; padding: 0; }
+.opt-hint { font-weight: 400; color: var(--muted); font-size: .9rem; }
+.choices { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.choices--big { grid-template-columns: 1fr 1fr; }
+.choice { position: relative; }
+.choice input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.choice span {
+  display: block; border: 2px solid var(--line); border-radius: 10px; padding: 12px 12px; text-align: center; cursor: pointer;
+  background: var(--paper); font-weight: 600; transition: border-color .15s, background .15s; height: 100%;
+}
+.choice span em { display: block; font-size: 1.7rem; font-style: normal; }
+.choices--big .choice span { padding: 20px 14px; font-size: 1.1rem; }
+.choices--big .choice small { display: block; font-weight: 400; color: var(--muted); font-size: .88rem; margin-top: 4px; }
+.choice input:checked + span { border-color: var(--red); background: #fdeeec; box-shadow: 3px 3px 0 var(--red); }
+.choice input:focus-visible + span { outline: 3px solid var(--blue); outline-offset: 2px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-weight: 800; margin-bottom: 5px; }
+input[type=text], input[type=tel], input[type=email], input[type=number], textarea, select {
+  width: 100%; font: inherit; padding: 10px 12px; border: 2px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink);
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--blue); background: #fff; }
+textarea { min-height: 130px; resize: vertical; }
+.reg { text-transform: uppercase; font-weight: 800; letter-spacing: .1em; max-width: 220px; border-left: 14px solid #1f4fa0 !important; }
+.firm-only { display: none; }
+.is-firm .firm-only { display: block; }
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 18px; text-align: center; background: var(--paper); cursor: pointer; }
+.drop:hover, .drop.over { border-color: var(--red); }
+.drop input { display: none; }
+.thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.thumbs figure { margin: 0; width: 84px; height: 84px; border-radius: 8px; overflow: hidden; position: relative; border: 2px solid var(--line); }
+.thumbs img { width: 100%; height: 100%; object-fit: cover; }
+.thumbs button { position: absolute; top: 2px; right: 2px; border: 0; background: rgba(0,0,0,.6); color: #fff; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; line-height: 1; }
+.nav-btns { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+.error { color: var(--red); font-weight: 700; min-height: 1.4em; margin: 6px 0 0; }
+.summary { background: var(--paper); border: 2px dashed var(--line); border-radius: 12px; padding: 16px 18px; white-space: pre-wrap; font-size: .95rem; font-family: ui-monospace, Menlo, Consolas, monospace; max-height: 340px; overflow: auto; }
+.done-box { text-align: center; }
+.done-box .big { font-size: 3.2rem; }
+.side-note { font-family: var(--hand); font-size: 1.15rem; background: var(--yellow); padding: 14px 18px; transform: rotate(-1deg); margin: 0 0 22px; max-width: 780px; box-shadow: 0 4px 10px rgba(60,40,10,.12); }
+
+@media (max-width: 860px) {
+  .nav { display: none; }
+  .topbar__inner { justify-content: space-between; }
+  .hero__grid, .who, .about, .contact-grid { grid-template-columns: 1fr; }
+  .hero .polaroid { max-width: 420px; margin: 10px auto 0; }
+}
+@media (max-width: 540px) {
+  .row, .choices--big { grid-template-columns: 1fr; }
+  .logo span:last-child { font-size: 1.15rem; }
+  .steps li { font-size: .9rem; }
+}
+</style>
 </head>
 <body>
 
 <header class="topbar">
   <div class="wrap topbar__inner">
-    <a href="#" class="logo" aria-label="Taulov Autolakering – til toppen">
-      <span class="logo__mark" aria-hidden="true"></span>
-      <span class="logo__text">Taulov <b>Autolakering</b></span>
-    </a>
-    <nav class="nav" aria-label="Hovedmenu">
-      <a href="#ydelser">Ydelser</a>
+    <a href="#" class="logo" data-home><span class="logo__badge">TA</span><span>Taulov Autolakering</span></a>
+    <nav class="nav" aria-label="Menu">
+      <a href="#privat-firma">Privat &amp; firma</a>
+      <a href="#ydelser">Det laver vi</a>
       <a href="#om">Om os</a>
-      <a href="#galleri">Galleri</a>
-      <a href="#anmeldelser">Anmeldelser</a>
+      <a href="#billeder">Billeder</a>
       <a href="#kontakt">Kontakt</a>
     </nav>
-    <a class="btn btn--small" href="tel:+4575563800">Ring 75 56 38 00</a>
+    <a class="btn" href="#tilbud">Gratis tilbud</a>
   </div>
 </header>
 
+<!-- ================= FORSIDE ================= -->
+<div class="site">
 <main>
-  <!-- HERO -->
   <section class="hero">
-    <div class="hero__bg" aria-hidden="true"></div>
-    <div class="wrap hero__inner">
-      <p class="eyebrow">Autolakerer i Taulov · Fredericia · siden 1993</p>
-      <h1>Lak, der ser ud som<br><span>den kom fra fabrikken.</span></h1>
-      <p class="hero__lead">Vi lakerer både personbiler og lastbiler. Fra en ridse i kofangeren til en helomlakering af en trækker: lokalt håndværk med over 30 års erfaring på H.&nbsp;C.&nbsp;Ørsteds Vej i Taulov.</p>
-      <div class="hero__cta">
-        <a class="btn" href="#kontakt">Få et tilbud</a>
-        <a class="btn btn--ghost" href="#ydelser">Se ydelser</a>
+    <div class="wrap hero__grid">
+      <div>
+        <p class="hello">Hej og velkommen 👋</p>
+        <h1>Vi giver din bil <span class="scribble">ny lak</span>, og lastbilen med.</h1>
+        <p class="hero__lead">Vi er et lille lakeringsværksted i Taulov, som har lakeret biler siden 1993. Ingen kæde og intet callcenter. Ring, og du får fat i dem, der faktisk står med sprøjtepistolen.</p>
+        <div class="hero__cta">
+          <a class="btn" href="#tilbud">Få et gratis tilbud</a>
+          <span class="or">eller ring på <a href="tel:+4575563800">75 56 38 00</a></span>
+        </div>
       </div>
-      <ul class="facts">
-        <li><strong>1993</strong><span>Grundlagt</span></li>
-        <li><strong>Bil &amp; lastbil</strong><span>Vi lakerer begge</span></li>
-        <li><strong>Taulov</strong><span>Tæt på motorvejen</span></li>
-      </ul>
+      <figure class="polaroid" style="margin:0">
+        <span class="tape" aria-hidden="true"></span>
+        <div class="pic" id="heroPic"><div class="ph">📷<br>Billede af værkstedet<br><span class="small">(billeder/hero.jpg)</span></div></div>
+        <figcaption class="cap">Værkstedet på H.&nbsp;C.&nbsp;Ørsteds Vej 8</figcaption>
+      </figure>
     </div>
   </section>
 
-  <!-- YDELSER -->
+  <section id="privat-firma" class="section section--kraft">
+    <div class="wrap">
+      <div class="center">
+        <h2>Privat eller firma? Vi hjælper begge.</h2>
+        <p class="intro muted">Vi får både familiebilen med en ridse i døren og vognmandens trækker, der skal se skarp ud igen. Det er det samme omhyggelige arbejde, bare i forskellige størrelser.</p>
+      </div>
+      <div class="who">
+        <article class="note">
+          <h3>🚗 Til private <span class="tag">Privat</span></h3>
+          <ul class="checks">
+            <li>Ridser, buler og stenslag</li>
+            <li>Kofangere og spejle, der har fået et skrab</li>
+            <li>Skader efter uheld. Vi kan også tage snakken med dit forsikringsselskab</li>
+            <li>Ærlig snak om, hvad der kan betale sig at lave</li>
+          </ul>
+          <a class="btn btn--light" href="#tilbud" data-type="privat">Tilbud som privat</a>
+        </article>
+        <article class="note">
+          <h3>🚛 Til firmaer <span class="tag">Erhverv</span></h3>
+          <ul class="checks">
+            <li>Lastbiler, trækkere, trailere og varebiler</li>
+            <li>Vi åbner kl. 6, så bilen kan afleveres før arbejdstid</li>
+            <li>Faste aftaler for vognparker og værksteder</li>
+            <li>Faktura til firmaet med CVR</li>
+          </ul>
+          <a class="btn btn--light" href="#tilbud" data-type="firma">Tilbud som firma</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <section id="ydelser" class="section">
     <div class="wrap">
-      <p class="eyebrow">Det laver vi</p>
-      <h2>Ydelser</h2>
-      <div class="cards">
-        <article class="card">
-          <div class="card__icon" aria-hidden="true">🚗</div>
-          <h3>Autolakering af personbiler</h3>
-          <p>Delopretning og lakering af enkelte paneler, eller en komplet omlakering. Vi matcher farven præcist til bilens originale lak.</p>
-        </article>
-        <article class="card">
-          <div class="card__icon" aria-hidden="true">🚛</div>
-          <h3>Lastbiler &amp; erhverv</h3>
-          <p>Lakering af lastbiler, førerhuse, trailere og varebiler. Vi har plads og udstyr til de store køretøjer.</p>
-        </article>
-        <article class="card">
-          <div class="card__icon" aria-hidden="true">🔧</div>
-          <h3>Karosseri­reparation</h3>
-          <p>Udbedring af buler, ridser og skader efter uheld, så karosseriet er klar til ny lak.</p>
-        </article>
-        <article class="card">
-          <div class="card__icon" aria-hidden="true">🛡️</div>
-          <h3>Undervognsbehandling</h3>
-          <p>Rustbeskyttelse af undervognen, der forlænger bilens levetid gennem danske vintre med salt og fugt.</p>
-        </article>
-        <article class="card">
-          <div class="card__icon" aria-hidden="true">🎯</div>
-          <h3>Spot-reparation</h3>
-          <p>Mindre ridser og stenslag udbedres lokalt. Hurtigt, og billigere end at lakere hele delen.</p>
-        </article>
-        <article class="card">
-          <div class="card__icon" aria-hidden="true">📋</div>
-          <h3>Forsikringsskader</h3>
-          <p>Har du haft en skade? Kontakt os, så hjælper vi med at få bilen vurderet og repareret.</p>
-        </article>
+      <h2>Det laver vi</h2>
+      <p class="intro muted">Kort fortalt: karosseri, lak og undervogn. Er du i tvivl om, hvorvidt vi kan hjælpe, så spørg bare.</p>
+      <div class="services">
+        <div class="service"><div class="ico">🎨</div><h3>Lakering</h3><p>Fra en enkelt dør til en helomlakering. Farven blandes, så den passer til resten af bilen.</p></div>
+        <div class="service"><div class="ico">🚛</div><h3>Lastbiler</h3><p>Førerhuse, kasser, trailere og hele trækkere. Der er plads til de store.</p></div>
+        <div class="service"><div class="ico">🔨</div><h3>Karosseri</h3><p>Buler og skader rettes ud, så underlaget er i orden, før der kommer lak på.</p></div>
+        <div class="service"><div class="ico">🎯</div><h3>Småskader</h3><p>Ridser og stenslag kan ofte klares lokalt, og det er billigere end at lakere hele delen.</p></div>
+        <div class="service"><div class="ico">🛡️</div><h3>Undervognsbehandling</h3><p>Rustbeskyttelse, så bilen klarer saltet og de danske vintre bedre.</p></div>
+        <div class="service"><div class="ico">📋</div><h3>Forsikringsskader</h3><p>Har du haft et uheld? Ring, så finder vi ud af, hvordan vi kommer videre.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- OM -->
-  <section id="om" class="section section--dark">
-    <div class="wrap split">
+  <section id="om" class="section section--kraft">
+    <div class="wrap about">
       <div>
-        <p class="eyebrow">Om os</p>
-        <h2>Et lille værksted med lang erfaring</h2>
-        <p>Taulov Autolakering I/S blev startet i marts 1993 og har siden da lakeret biler og lastbiler fra hele trekantområdet. Værkstedet drives af indehaverne <strong>Tommy Rauff Benzon</strong> og <strong>Jan Lykke Hansen</strong> sammen med et lille, fast hold af medarbejdere.</p>
-        <p>Vi ligger i erhvervsområdet i Taulov, tæt på motorvejen, så det er nemt at aflevere bilen på vej til arbejde. Vi åbner tidligt.</p>
+        <h2>Lidt om os</h2>
+        <p>Taulov Autolakering blev startet i marts 1993. Siden har vi passet vores værksted i erhvervsområdet i Taulov, lige ved motorvejen mellem Fredericia og Kolding.</p>
+        <p>Vi er et lille hold på fire mand. Det betyder, at du taler med dem, der laver arbejdet, og at vi kender de fleste af vores kunder ved navn. Mange af dem har været hos os i årevis.</p>
+        <p class="signed">Tommy &amp; Jan</p>
       </div>
-      <dl class="stats">
-        <div><dt>30+</dt><dd>års erfaring</dd></div>
-        <div><dt>4</dt><dd>faste medarbejdere</dd></div>
-        <div><dt>06:00</dt><dd>vi åbner tidligt</dd></div>
-        <div><dt>7000</dt><dd>Fredericia · Taulov</dd></div>
-      </dl>
+      <div class="sticky">
+        <strong>Godt at vide:</strong>
+        <ul>
+          <li>Åbent fra kl. 6 på hverdage</li>
+          <li>Fredag lukker vi kl. 12</li>
+          <li>Tilbud er altid gratis</li>
+          <li>Send gerne billeder af skaden, så går det hurtigere</li>
+        </ul>
+      </div>
     </div>
   </section>
 
-  <!-- GALLERI -->
-  <section id="galleri" class="section">
+  <section id="billeder" class="section">
     <div class="wrap">
-      <p class="eyebrow">Fra værkstedet</p>
-      <h2>Galleri</h2>
-      <p class="muted">Billeder fra værkstedet og færdige opgaver.</p>
+      <h2>Billeder fra værkstedet</h2>
+      <p class="muted">Lidt af det, vi har haft inde.</p>
       <div class="gallery" id="gallery"></div>
     </div>
   </section>
 
-  <!-- ANMELDELSER -->
-  <section id="anmeldelser" class="section section--tint">
+  <section class="section section--kraft center">
     <div class="wrap">
-      <p class="eyebrow">Hvad kunderne siger</p>
-      <h2>Anmeldelser</h2>
-      <div class="review-cta">
+      <h2>Hvad siger kunderne?</h2>
+      <div class="review-box">
         <div class="stars" aria-hidden="true">★★★★★</div>
-        <p>Se, hvad andre kunder skriver om os på Google, eller del din egen oplevelse.</p>
-        <div class="hero__cta">
-          <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Taulov+Autolakering+I%2FS+H.C.+%C3%98rsteds+Vej+8+7000+Fredericia">Læs anmeldelser på Google</a>
-        </div>
+        <p>Vi er ikke så gode til at rose os selv, så læs hellere, hvad andre skriver om os på Google.</p>
+        <a class="btn btn--light" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=Taulov+Autolakering+I%2FS+H.C.+%C3%98rsteds+Vej+8+7000+Fredericia">Se anmeldelser på Google</a>
       </div>
     </div>
   </section>
 
-  <!-- KONTAKT -->
   <section id="kontakt" class="section">
-    <div class="wrap split split--contact">
+    <div class="wrap contact-grid">
       <div>
-        <p class="eyebrow">Kontakt</p>
         <h2>Kom forbi eller ring</h2>
-        <ul class="contact">
-          <li><span>Adresse</span><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=H.C.+%C3%98rsteds+Vej+8+7000+Fredericia">H. C. Ørsteds Vej 8, Taulov<br>7000 Fredericia</a></li>
-          <li><span>Telefon</span><a href="tel:+4575563800">75 56 38 00</a></li>
-          <li><span>E-mail</span><a href="mailto:taulovautolak@mail.dk">taulovautolak@mail.dk</a></li>
-          <li><span>CVR</span>16843482</li>
+        <ul class="contact-list">
+          <li><b>Adresse</b> <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&amp;query=H.C.+%C3%98rsteds+Vej+8+7000+Fredericia">H. C. Ørsteds Vej 8, Taulov, 7000 Fredericia</a></li>
+          <li><b>Telefon</b> <a href="tel:+4575563800">75 56 38 00</a></li>
+          <li><b>Mail</b> <a href="mailto:taulovautolak@mail.dk">taulovautolak@mail.dk</a></li>
+          <li><b>CVR</b> 16843482</li>
         </ul>
-        <h3 class="hours-title">Åbningstider</h3>
+        <h3>Åbningstider</h3>
         <table class="hours" id="hours">
           <tr data-d="1"><th>Mandag</th><td>06:00 – 17:00</td></tr>
           <tr data-d="2"><th>Tirsdag</th><td>06:00 – 17:00</td></tr>
@@ -155,7 +365,7 @@
           <tr data-d="6"><th>Lørdag</th><td>Lukket</td></tr>
           <tr data-d="0"><th>Søndag</th><td>Lukket</td></tr>
         </table>
-        <p class="muted small">Ring gerne inden, hvis du vil være sikker på, at vi har tid.</p>
+        <p class="muted small" style="margin-top:10px">Ring gerne i forvejen, så vi ved, du kommer.</p>
       </div>
       <div class="map">
         <iframe title="Kort over Taulov Autolakering" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
@@ -164,14 +374,374 @@
     </div>
   </section>
 </main>
+</div>
+
+<!-- ================= TILBUDSPORTAL ================= -->
+<section class="portal" id="portal" aria-label="Tilbudsportal">
+  <div class="wrap">
+    <a href="#" class="back" data-home>← Tilbage til forsiden</a>
+    <div class="portal__head">
+      <h1 style="font-size:clamp(2rem,5vw,3rem)">Få et <span class="scribble">gratis</span> tilbud</h1>
+      <p class="muted" style="max-width:40em">Fortæl os, hvad der skal laves. Det tager 2–3 minutter. Vi kigger på det og vender tilbage, typisk inden for 1–2 hverdage. Det er helt uforpligtende.</p>
+    </div>
+
+    <form class="portal__box" id="quoteForm" novalidate>
+      <ol class="steps" id="steps">
+        <li class="active">Hvem er du?</li>
+        <li>Bil &amp; skade</li>
+        <li>Kontakt</li>
+      </ol>
+
+      <!-- TRIN 1 -->
+      <div class="step active" data-step="0">
+        <fieldset>
+          <legend>Er du privat eller firma?</legend>
+          <div class="choices choices--big">
+            <label class="choice"><input type="radio" name="kundetype" value="Privat" required><span><em>🏠</em>Privat<small>Min egen bil</small></span></label>
+            <label class="choice"><input type="radio" name="kundetype" value="Firma"><span><em>🏢</em>Firma<small>Firmabil, varebil eller lastbil</small></span></label>
+          </div>
+        </fieldset>
+        <div class="firm-only">
+          <div class="row">
+            <div class="field"><label for="firmanavn">Firmanavn</label><input type="text" id="firmanavn" name="firmanavn" autocomplete="organization"></div>
+            <div class="field"><label for="cvr">CVR <span class="opt-hint">(valgfrit)</span></label><input type="text" id="cvr" name="cvr" inputmode="numeric" maxlength="8"></div>
+          </div>
+          <fieldset>
+            <legend>Hvor mange køretøjer drejer det sig om?</legend>
+            <div class="choices">
+              <label class="choice"><input type="radio" name="antal" value="1"><span>1</span></label>
+              <label class="choice"><input type="radio" name="antal" value="2–5"><span>2–5</span></label>
+              <label class="choice"><input type="radio" name="antal" value="Flere end 5"><span>Flere end 5</span></label>
+              <label class="choice"><input type="radio" name="antal" value="Fast aftale"><span>Fast aftale</span></label>
+            </div>
+          </fieldset>
+        </div>
+        <fieldset>
+          <legend>Hvilket køretøj?</legend>
+          <div class="choices">
+            <label class="choice"><input type="radio" name="koeretoej" value="Personbil" required><span><em>🚗</em>Personbil</span></label>
+            <label class="choice"><input type="radio" name="koeretoej" value="Varebil"><span><em>🚐</em>Varebil</span></label>
+            <label class="choice"><input type="radio" name="koeretoej" value="Lastbil / trækker"><span><em>🚛</em>Lastbil</span></label>
+            <label class="choice"><input type="radio" name="koeretoej" value="Trailer / påhængsvogn"><span><em>🛻</em>Trailer</span></label>
+            <label class="choice"><input type="radio" name="koeretoej" value="Andet"><span><em>❓</em>Andet</span></label>
+          </div>
+        </fieldset>
+        <p class="error" data-error></p>
+        <div class="nav-btns"><span></span><button type="button" class="btn" data-next>Næste →</button></div>
+      </div>
+
+      <!-- TRIN 2 -->
+      <div class="step" data-step="1">
+        <div class="row">
+          <div class="field"><label for="regnr">Nummerplade <span class="opt-hint">(valgfrit)</span></label><input class="reg" type="text" id="regnr" name="regnr" placeholder="AB 12 345" maxlength="9"></div>
+          <div class="field"><label for="model">Mærke og model</label><input type="text" id="model" name="model" placeholder="fx VW Golf 2018 / Scania R450"></div>
+        </div>
+        <fieldset>
+          <legend>Hvad skal laves? <span class="opt-hint">(sæt gerne flere kryds)</span></legend>
+          <div class="choices">
+            <label class="choice"><input type="checkbox" name="opgave" value="Ridser"><span>Ridser</span></label>
+            <label class="choice"><input type="checkbox" name="opgave" value="Buler"><span>Buler</span></label>
+            <label class="choice"><input type="checkbox" name="opgave" value="Stenslag"><span>Stenslag</span></label>
+            <label class="choice"><input type="checkbox" name="opgave" value="Kofanger"><span>Kofanger</span></label>
+            <label class="choice"><input type="checkbox" name="opgave" value="Skade efter uheld"><span>Skade efter uheld</span></label>
+            <label class="choice"><input type="checkbox" name="opgave" value="Helomlakering"><span>Helomlakering</span></label>
+            <label class="choice"><input type="checkbox" name="opgave" value="Rust / undervogn"><span>Rust / undervogn</span></label>
+            <label class="choice"><input type="checkbox" name="opgave" value="Andet"><span>Andet</span></label>
+          </div>
+        </fieldset>
+        <div class="field">
+          <label for="beskrivelse">Fortæl med dine egne ord</label>
+          <textarea id="beskrivelse" name="beskrivelse" placeholder="Fx: Ridse på højre fordør ca. 30 cm, gået igennem lakken. Bilen er sølvgrå."></textarea>
+        </div>
+        <fieldset>
+          <legend>Er det en forsikringssag?</legend>
+          <div class="choices">
+            <label class="choice"><input type="radio" name="forsikring" value="Ja"><span>Ja</span></label>
+            <label class="choice"><input type="radio" name="forsikring" value="Nej"><span>Nej</span></label>
+            <label class="choice"><input type="radio" name="forsikring" value="Ved ikke"><span>Ved ikke</span></label>
+          </div>
+        </fieldset>
+        <div class="field">
+          <span class="label">Billeder af skaden <span class="opt-hint">(hjælper os meget)</span></span>
+          <label class="drop" id="drop">
+            <input type="file" id="files" accept="image/*" multiple>
+            📷 <b>Tryk for at vælge billeder</b> eller træk dem herind
+          </label>
+          <div class="thumbs" id="thumbs"></div>
+        </div>
+        <p class="error" data-error></p>
+        <div class="nav-btns"><button type="button" class="btn btn--light" data-prev>← Tilbage</button><button type="button" class="btn" data-next>Næste →</button></div>
+      </div>
+
+      <!-- TRIN 3 -->
+      <div class="step" data-step="2">
+        <div class="row">
+          <div class="field"><label for="navn">Dit navn</label><input type="text" id="navn" name="navn" autocomplete="name" required></div>
+          <div class="field"><label for="tlf">Telefon</label><input type="tel" id="tlf" name="tlf" autocomplete="tel" required></div>
+        </div>
+        <div class="field"><label for="email">E-mail <span class="opt-hint">(valgfrit)</span></label><input type="email" id="email" name="email" autocomplete="email"></div>
+        <fieldset>
+          <legend>Hvornår skal det gerne laves?</legend>
+          <div class="choices">
+            <label class="choice"><input type="radio" name="hvornaar" value="Hurtigst muligt"><span>Hurtigst muligt</span></label>
+            <label class="choice"><input type="radio" name="hvornaar" value="Inden for en måned"><span>Inden for en måned</span></label>
+            <label class="choice"><input type="radio" name="hvornaar" value="Jeg er fleksibel" checked><span>Jeg er fleksibel</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Hvordan vil du helst kontaktes?</legend>
+          <div class="choices">
+            <label class="choice"><input type="radio" name="kontaktvia" value="Telefon" checked><span>📞 Telefon</span></label>
+            <label class="choice"><input type="radio" name="kontaktvia" value="SMS"><span>💬 SMS</span></label>
+            <label class="choice"><input type="radio" name="kontaktvia" value="E-mail"><span>✉️ E-mail</span></label>
+          </div>
+        </fieldset>
+        <p class="error" data-error></p>
+        <div class="nav-btns"><button type="button" class="btn btn--light" data-prev>← Tilbage</button><button type="submit" class="btn">Send forespørgsel ✓</button></div>
+      </div>
+
+      <!-- FÆRDIG -->
+      <div class="step" data-step="3">
+        <div class="done-box">
+          <div class="big">🙌</div>
+          <h2>Tak! Nu mangler du kun at sende mailen.</h2>
+          <p>Dit mailprogram er åbnet med din forespørgsel. Tryk <b>Send</b> der. <span id="photoHint">Husk at <b>vedhæfte dine billeder</b> i mailen.</span></p>
+          <p class="muted small">Åbnede der ikke en mail? Kopiér teksten herunder og send den til <a href="mailto:taulovautolak@mail.dk">taulovautolak@mail.dk</a>, eller ring på <a href="tel:+4575563800">75 56 38 00</a>.</p>
+        </div>
+        <pre class="summary" id="summary"></pre>
+        <div class="nav-btns">
+          <button type="button" class="btn btn--light" id="copyBtn">📋 Kopiér tekst</button>
+          <a class="btn" id="mailAgain" href="#">✉️ Åbn mail igen</a>
+        </div>
+        <p class="center" style="margin-top:20px"><a href="#" class="back" id="newQuote">Start en ny forespørgsel</a></p>
+      </div>
+    </form>
+  </div>
+</section>
 
 <footer class="footer">
   <div class="wrap footer__inner">
     <span>© <span id="year">2026</span> Taulov Autolakering I/S · H. C. Ørsteds Vej 8 · 7000 Fredericia · CVR 16843482</span>
-    <a href="tel:+4575563800">75 56 38 00</a>
+    <span>Lavet med ❤️ og lidt for meget kaffe</span>
   </div>
 </footer>
 
-<script src="app.js"></script>
+<script>
+// ---------- Billeder ----------
+// Læg billeder i mappen "billeder/" ved siden af denne fil.
+const GALLERI = [
+  { fil: "billeder/1.jpg", tekst: "Lige ud af lakboksen" },
+  { fil: "billeder/2.jpg", tekst: "Trækker klar til lak" },
+  { fil: "billeder/3.jpg", tekst: "Før…" },
+  { fil: "billeder/4.jpg", tekst: "…og efter" },
+  { fil: "billeder/5.jpg", tekst: "Værkstedet" },
+  { fil: "billeder/6.jpg", tekst: "Spejlblank" },
+];
+const MAIL = "taulovautolak@mail.dk";
+
+function loadImage(src) {
+  return new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
+}
+async function buildGallery() {
+  const el = document.getElementById("gallery");
+  const imgs = await Promise.all(GALLERI.map((g) => loadImage(g.fil)));
+  imgs.forEach((img, i) => {
+    const fig = document.createElement("figure");
+    fig.className = "polaroid"; fig.style.margin = "0";
+    const pic = document.createElement("div"); pic.className = "pic";
+    if (img) {
+      img.alt = GALLERI[i].tekst; pic.appendChild(img);
+      img.addEventListener("click", () => openLightbox(img.src, img.alt));
+    } else {
+      pic.innerHTML = '<div class="ph">📷<br>Billede kommer</div>';
+    }
+    const cap = document.createElement("figcaption"); cap.className = "cap"; cap.textContent = GALLERI[i].tekst;
+    fig.append(pic, cap); el.appendChild(fig);
+  });
+  const hero = await loadImage("billeder/hero.jpg");
+  if (hero) { hero.alt = "Værkstedet"; const p = document.getElementById("heroPic"); p.innerHTML = ""; p.appendChild(hero); }
+}
+function openLightbox(src, alt) {
+  let lb = document.querySelector(".lightbox");
+  if (!lb) {
+    lb = document.createElement("div"); lb.className = "lightbox"; lb.innerHTML = "<img alt=''>";
+    lb.addEventListener("click", () => lb.classList.remove("open"));
+    document.addEventListener("keydown", (e) => e.key === "Escape" && lb.classList.remove("open"));
+    document.body.appendChild(lb);
+  }
+  const im = lb.querySelector("img"); im.src = src; im.alt = alt; lb.classList.add("open");
+}
+
+// ---------- Navigation: forside / portal ----------
+function route() {
+  const portal = location.hash === "#tilbud";
+  document.body.classList.toggle("show-portal", portal);
+  if (portal) window.scrollTo(0, 0);
+  else if (location.hash.length > 1) {
+    const t = document.getElementById(location.hash.slice(1));
+    if (t) t.scrollIntoView();
+  }
+}
+window.addEventListener("hashchange", route);
+document.querySelectorAll("[data-home]").forEach((a) => a.addEventListener("click", (e) => {
+  e.preventDefault(); history.pushState("", "", location.pathname + location.search); route(); window.scrollTo(0, 0);
+}));
+document.querySelectorAll("[data-type]").forEach((a) => a.addEventListener("click", () => {
+  const r = document.querySelector(`input[name=kundetype][value="${a.dataset.type === "firma" ? "Firma" : "Privat"}"]`);
+  r.checked = true; r.dispatchEvent(new Event("change", { bubbles: true }));
+}));
+
+// ---------- Tilbudsformular ----------
+const form = document.getElementById("quoteForm");
+const steps = [...form.querySelectorAll(".step")];
+const stepLabels = [...document.querySelectorAll("#steps li")];
+let current = 0;
+let photos = [];
+const DRAFT_KEY = "taulov-tilbud-kladde";
+
+function show(i) {
+  current = i;
+  steps.forEach((s, n) => s.classList.toggle("active", n === i));
+  stepLabels.forEach((l, n) => { l.classList.toggle("active", n === i); l.classList.toggle("done", n < i); });
+  document.getElementById("steps").style.display = i > 2 ? "none" : "";
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+const val = (n) => (form.elements[n] && form.elements[n].value || "").trim();
+const checked = (n) => [...form.querySelectorAll(`input[name="${n}"]:checked`)].map((x) => x.value);
+
+function validate(i) {
+  const errs = [];
+  if (i === 0) {
+    if (!checked("kundetype").length) errs.push("Vælg om du er privat eller firma.");
+    if (checked("kundetype")[0] === "Firma" && !val("firmanavn")) errs.push("Skriv firmanavnet.");
+    if (!checked("koeretoej").length) errs.push("Vælg køretøj.");
+  }
+  if (i === 1) {
+    if (!checked("opgave").length && val("beskrivelse").length < 5) errs.push("Sæt mindst ét kryds, eller skriv kort hvad der skal laves.");
+  }
+  if (i === 2) {
+    if (!val("navn")) errs.push("Skriv dit navn.");
+    if (val("tlf").replace(/\D/g, "").length < 8) errs.push("Skriv et telefonnummer (8 cifre).");
+    const em = val("email");
+    if (em && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) errs.push("E-mailadressen ser forkert ud.");
+  }
+  steps[i].querySelector("[data-error]").textContent = errs.join(" ");
+  return !errs.length;
+}
+
+form.addEventListener("click", (e) => {
+  if (e.target.closest("[data-next]") && validate(current)) show(current + 1);
+  if (e.target.closest("[data-prev]")) show(current - 1);
+});
+form.addEventListener("change", (e) => {
+  if (e.target.name === "kundetype") form.classList.toggle("is-firm", e.target.value === "Firma");
+  saveDraft();
+});
+form.addEventListener("input", saveDraft);
+form.elements.regnr.addEventListener("input", (e) => { e.target.value = e.target.value.toUpperCase(); });
+
+// Billeder
+const fileInput = document.getElementById("files");
+const drop = document.getElementById("drop");
+function addFiles(list) {
+  [...list].filter((f) => f.type.startsWith("image/")).forEach((f) => photos.push(f));
+  renderThumbs();
+}
+function renderThumbs() {
+  const t = document.getElementById("thumbs"); t.innerHTML = "";
+  photos.forEach((f, i) => {
+    const fig = document.createElement("figure");
+    const img = document.createElement("img"); img.src = URL.createObjectURL(f); img.alt = f.name;
+    const b = document.createElement("button"); b.type = "button"; b.textContent = "×"; b.title = "Fjern";
+    b.onclick = (e) => { e.preventDefault(); photos.splice(i, 1); renderThumbs(); };
+    fig.append(img, b); t.appendChild(fig);
+  });
+}
+fileInput.addEventListener("change", () => { addFiles(fileInput.files); fileInput.value = ""; });
+["dragover", "dragenter"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (e) => addFiles(e.dataTransfer.files));
+
+function buildText() {
+  const firm = checked("kundetype")[0] === "Firma";
+  const L = [];
+  L.push("TILBUDSFORESPØRGSEL – Taulov Autolakering", "");
+  L.push("Kundetype: " + (checked("kundetype")[0] || "-"));
+  if (firm) {
+    L.push("Firma: " + (val("firmanavn") || "-"));
+    if (val("cvr")) L.push("CVR: " + val("cvr"));
+    if (checked("antal").length) L.push("Antal køretøjer: " + checked("antal")[0]);
+  }
+  L.push("", "KØRETØJ");
+  L.push("Type: " + (checked("koeretoej")[0] || "-"));
+  if (val("regnr")) L.push("Nummerplade: " + val("regnr"));
+  if (val("model")) L.push("Mærke/model: " + val("model"));
+  L.push("", "OPGAVE");
+  L.push("Skal laves: " + (checked("opgave").join(", ") || "-"));
+  if (checked("forsikring").length) L.push("Forsikringssag: " + checked("forsikring")[0]);
+  if (val("beskrivelse")) L.push("Beskrivelse: " + val("beskrivelse"));
+  if (photos.length) L.push(`Billeder: ${photos.length} stk. (vedhæftet)`);
+  L.push("", "KONTAKT");
+  L.push("Navn: " + val("navn"));
+  L.push("Telefon: " + val("tlf"));
+  if (val("email")) L.push("E-mail: " + val("email"));
+  L.push("Foretrukken kontakt: " + (checked("kontaktvia")[0] || "-"));
+  L.push("Hvornår: " + (checked("hvornaar")[0] || "-"));
+  return L.join("\n");
+}
+function mailLink() {
+  const firm = checked("kundetype")[0] === "Firma";
+  const subj = `Tilbud: ${checked("koeretoej")[0] || "køretøj"}${val("regnr") ? " " + val("regnr") : ""} – ${firm ? val("firmanavn") : val("navn")}`;
+  return `mailto:${MAIL}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(buildText())}`;
+}
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  for (let i = 0; i < 3; i++) if (!validate(i)) { show(i); return; }
+  document.getElementById("summary").textContent = buildText();
+  document.getElementById("photoHint").style.display = photos.length ? "" : "none";
+  const link = mailLink();
+  document.getElementById("mailAgain").href = link;
+  show(3);
+  window.location.href = link;
+  try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
+});
+document.getElementById("copyBtn").addEventListener("click", async (e) => {
+  try { await navigator.clipboard.writeText(buildText()); e.target.textContent = "✓ Kopieret"; }
+  catch (_) { const r = document.createRange(); r.selectNodeContents(document.getElementById("summary")); getSelection().removeAllRanges(); getSelection().addRange(r); }
+});
+document.getElementById("newQuote").addEventListener("click", (e) => {
+  e.preventDefault(); form.reset(); photos = []; renderThumbs(); form.classList.remove("is-firm"); show(0);
+});
+
+// Kladde gemmes i browseren, så intet går tabt
+function saveDraft() {
+  const data = {};
+  [...form.elements].forEach((el) => {
+    if (!el.name || el.type === "file") return;
+    if (el.type === "checkbox" || el.type === "radio") { if (el.checked) (data[el.name] = data[el.name] || []).push(el.value); }
+    else data[el.name] = el.value;
+  });
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch (_) {}
+}
+function loadDraft() {
+  let data; try { data = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); } catch (_) {}
+  if (!data) return;
+  [...form.elements].forEach((el) => {
+    if (!el.name || !(el.name in data) || el.type === "file") return;
+    if (el.type === "checkbox" || el.type === "radio") el.checked = data[el.name].includes(el.value);
+    else el.value = data[el.name];
+  });
+  form.classList.toggle("is-firm", checked("kundetype")[0] === "Firma");
+}
+
+// Start
+document.getElementById("year").textContent = new Date().getFullYear();
+const today = document.querySelector(`#hours tr[data-d="${new Date().getDay()}"]`);
+if (today) today.classList.add("today");
+loadDraft();
+buildGallery();
+route();
+</script>
 </body>
 </html>
