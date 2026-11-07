@@ -7,7 +7,7 @@
 
   const STORE_KEY = 'sidequest.v1';
   const POINTS = { done: 100, bonus: 50, mission: 200, joker: 25, secret: 30 };
-  const DEFAULT_LOC = { name: 'København', lat: 55.6761, lon: 12.5683 };
+  const DEFAULT_LOC = { name: 'Fredericia', lat: 55.5657, lon: 9.7526 };
 
   // Typisk dansk klima pr. måned – bruges hvis vejret ikke kan hentes
   const CLIMATE = {
@@ -224,6 +224,7 @@
     if (!a.s.includes(slot.id)) return false;
     if (a.b !== '*' && a.b !== ctx.budget) return false;
     if (a.alc === 1 && !ctx.alc) return false;
+    if (a.city && a.city !== ctx.city) return false;
     if (a.season && !a.season.includes(ctx.season)) return false;
     if (a.months && !a.months.includes(ctx.month)) return false;
     if (a.win && !inWin(ctx.md, a.win)) return false;
@@ -238,6 +239,7 @@
     if (sw.nice) w *= a.env === 'inde' ? 0.5 : 2;
     if ((sw.wet || sw.t < 3) && a.env === 'inde') w *= 1.4;
     if (a.vild) w *= 1.8;
+    if (a.city && a.city === ctx.city) w *= ctx.alc && a.alc === 1 ? 12 : 8; // gå all in på lokale steder
     if (ctx.alc === 2) {
       if (a.alc === 1) w *= slot.id === 'morgen' ? 3 : 6;
       if (a.alc === 0) w *= 0.2;
@@ -257,10 +259,18 @@
     return list[list.length - 1]?.a;
   }
 
+  // Er planen i/ved Fredericia? (bynavn eller under 12 km fra centrum)
+  function cityOf(loc) {
+    if (!loc) return null;
+    if (/fredericia/i.test(loc.name || '')) return 'fredericia';
+    const dLat = (loc.lat - FREDERICIA.lat) * 111, dLon = (loc.lon - FREDERICIA.lon) * 63;
+    return Math.hypot(dLat, dLon) < 12 ? 'fredericia' : null;
+  }
+
   function makeCtx(plan) {
     const d = parseDate(plan.date);
     const snowDay = isSnowCode(plan.wx.daily.code) || Object.values(plan.wx.hourly).some((h) => isSnowCode(h.code));
-    return { budget: plan.budget, alc: plan.alc, season: seasonOf(plan.date), month: d.getMonth() + 1, md: mmdd(plan.date), snowDay };
+    return { budget: plan.budget, alc: plan.alc, season: seasonOf(plan.date), month: d.getMonth() + 1, md: mmdd(plan.date), snowDay, city: cityOf(plan.loc) };
   }
 
   const isBeer = (id) => actById(id)?.alc === 1;
@@ -291,7 +301,7 @@
       const slotsLeft = plan.slots.length - idx;
       const missing = minBeer - beerCount(plan);
       const chance = ctx.alc === 2
-        ? (slot.id === 'morgen' ? 0.5 : 0.85)
+        ? (slot.id === 'morgen' ? 0.75 : 0.9)
         : (['morgen', 'formiddag'].includes(slot.id) ? 0.1 : 0.4);
       if (beerPool.length && (missing >= slotsLeft || Math.random() < chance)) pool = beerPool;
     }
@@ -312,6 +322,7 @@
     const list = EPICS.filter((e) => {
       if (e.b !== '*' && e.b !== ctx.budget) return false;
       if (e.alc === 1 && !ctx.alc) return false;
+      if (e.city && e.city !== ctx.city) return false;
       if (e.sober && ctx.alc === 2) return false;
       if (e.season && !e.season.includes(ctx.season)) return false;
       if (e.env === 'ude' && (d.pp >= 60 || d.tmax < (e.minT ?? 5))) return false;
@@ -321,6 +332,7 @@
     return weightedPick(list.map((e) => {
       let w = 1;
       if (e.alc === 1) w *= ctx.alc === 2 ? 5 : 1.5;
+      if (e.city && e.city === ctx.city) w *= 30;
       if (e.sober && ctx.alc) w *= 0.4;
       if (d.pp >= 60 && e.env === 'inde') w *= 2;
       if (d.pp < 40 && e.env === 'inde' && e.b !== 'dyr') w *= 0.15; // hygge-hulen er til regnvejr
@@ -331,7 +343,7 @@
   }
 
   function buildEpicPlan(plan) {
-    const e = pickEpic(plan);
+    const e = (plan.forceEpic && epicById(plan.forceEpic)) || pickEpic(plan);
     let chs = e.ch.map((c, k) => ({ ...c, k }));
     const end = (list) => plan.start + list.reduce((s, c) => s + c.h, 0);
     // Starter dagen sent, droppes valgfrie kapitler – og til sidst kapitler fra midten
@@ -386,10 +398,10 @@
   }
   const totalBeers = (plan) => Object.values(plan.drinks || {}).reduce((s, d) => s + d.beer, 0);
 
-  function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop', people = [] }) {
+  function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop', people = [], forceEpic = null }) {
     const special = specialOf(date);
     const plan = {
-      date, budget, alc, loc, wx, start, mode, people: [...people], prepDone: {}, slots: buildSlots(start), startedEarly: false,
+      date, budget, alc, loc, wx, start, mode, forceEpic, people: [...people], prepDone: {}, slots: buildSlots(start), startedEarly: false,
       theme: special ? special.theme : alc === 2 ? pick(THEME_BEER) : `${pick(THEME_A)} ${pick(THEME_B)}`,
       mission: pick(alc ? [...MISSIONS, ...MISSIONS_ALC, ...MISSIONS_ALC] : MISSIONS), missionDone: false,
       jokers: 3, notified: [], createdAt: Date.now(), steps: [],
@@ -572,6 +584,19 @@
           ${special ? `<span class="chip hot">${special.icon} ${special.name}</span>` : ''}
         </div>
       </header>
+
+      <section class="card preset">
+        <div class="em-xl">🍻🏰</div>
+        <h2>Fredericia Day Drink</h2>
+        <p class="muted small">Ét tryk: en hel dag med øl i Fredericia – voldene, Landsoldaten, Kanalbyen, Lillebælt, bowling, Den Engelske Pub og Prinsessegade. Planen tilpasses vejret og jeres valg herunder (budget, deltagere, starttid).</p>
+        <div class="actions">
+          <button class="btn primary" data-action="preset" data-val="stop">🍻 Rul en day drink-dag</button>
+          <button class="btn ghost" data-action="preset" data-val="epic">🗺️ Fredericia-odysséen (heldagsmission)</button>
+        </div>
+        <p class="muted small">Kun 18+. Drik vand mellem øllene, spis ordentligt, og ingen kører bil.</p>
+      </section>
+
+      <p class="muted small center">…eller byg jeres egen dag:</p>
 
       <section class="card">
         <h2>1. Hvilken dag?</h2>
@@ -804,6 +829,7 @@
           <span class="chip">${sw.icon} ${sw.t}° · 💧${sw.pp}%</span>
           <span class="chip">${envTag(a)}</span>
           <span class="chip">💰 ${priceTag(a)}</span>
+          ${a.check ? '<span class="chip">ℹ️ Tjek åbningstider/program</span>' : ''}
         </div>
         ${rolesLine(step)}
         ${guideFor(a) ? `<details class="guide" open><summary>📖 Sådan gør I</summary>${guideList(guideFor(a))}</details>` : ''}
@@ -903,7 +929,7 @@
           <h3>${esc(a.t)}</h3>
           <p class="small">${esc(a.d)}</p>
           ${plan.alc && a.alcTip ? `<p class="small tip">${esc(a.alcTip)}</p>` : ''}
-          ${rolesLine(s, true)}<div class="chips small"><span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
+          ${rolesLine(s, true)}<div class="chips small"><span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${a.check ? '<span class="chip">ℹ️ Tjek åbent</span>' : ''}${a.city ? '<span class="chip hot">📍 Fredericia</span>' : ''}${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
           ${unlocked
             ? `<div class="quest small"><span class="quest-label">⚡ Udfordring</span> ${esc(a.q)}</div>${s.kaos ? `<div class="kaos small"><span class="quest-label">🌀 Kaos</span> ${esc(s.kaos)}</div>` : ''}`
             : `<div class="quest small locked">🔒 Udfordring og kaos-regel låses op kl. ${slot.time}</div>`}
@@ -1022,7 +1048,7 @@
     app.innerHTML = `<div class="loading"><div class="dice">🎲</div><p>Tjekker vejret i ${esc(st.loc.name)} og ruller terningerne…</p></div>`;
     const wx = await getWeather(st.loc, st.date);
     await new Promise((r) => setTimeout(r, 700)); // lidt spænding
-    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx, start: st.start, mode: st.mode, people: st.people });
+    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx, start: st.start, mode: st.mode, people: st.people, forceEpic: st.mode === 'epic' ? st.forceEpic : null });
     save();
     renderPlan();
     window.scrollTo({ top: 0 });
@@ -1173,6 +1199,7 @@
     switch (act) {
       case 'set':
         st[el.dataset.key] = ['alc', 'start'].includes(el.dataset.key) ? +el.dataset.val : el.dataset.val;
+        delete st.forceEpic;
         save(); renderSetup(); break;
       case 'startnow':
         store.plan.startedEarly = true; save(); renderPlan(); break;
@@ -1184,6 +1211,17 @@
           { timeout: 10000 });
         break;
       case 'generate': generate(); break;
+      case 'preset': {
+        st.loc = { ...FREDERICIA };
+        st.alc = 2;
+        st.mode = el.dataset.val;
+        st.forceEpic = el.dataset.val === 'epic' ? 'x-fredericia' : null;
+        st.budget = st.budget || 'billig';
+        if (st.start == null || st.start === 9) st.start = 11; // day drinking starter ved 11-tiden
+        if (st.date === todayISO() && nowHours() > st.start) st.start = Math.min(21, Math.ceil(nowHours() * 4) / 4);
+        save(); generate();
+        break;
+      }
       case 'complete': openComplete(i); break;
       case 'skip':
         if (confirm('Spring dette stop over? (0 point)')) { store.plan.steps[i].status = 'skipped'; save(); renderPlan(); }

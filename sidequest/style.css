@@ -236,3 +236,7 @@ input:focus, textarea:focus { border-color: var(--accent); }
 .cbtn.plus { background: var(--accent); color: #1a1222; }
 .water { color: #7dd3fc; margin-top: 6px; }
 .secret-box { margin: 14px 0; }
+
+/* v6: Fredericia day drink */
+.preset { text-align: center; border: 2px solid var(--accent); background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 18%, var(--card)), var(--card)); }
+.preset .actions { justify-content: center; }

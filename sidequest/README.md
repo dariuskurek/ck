@@ -2,6 +2,9 @@
 
 Åbn `index.html` (eller host mappen statisk, fx GitHub Pages) og få en komplet plan fra 09:00 til aften.
 
+## 🍻 Fredericia Day Drink
+Øverst i appen er en knap, der med ét tryk laver en hel day drink-dag i Fredericia (øl-dag, start ca. kl. 11). Der er 22 lokale aktiviteter med rigtige steder – Fredericia Vold, Landsoldaten, Kanalbyen (kunstvandring, SUP, parkour), Bunkermuseet, Madsby Legepark, bowling i Fredericia Idrætscenter/City Bowling, hvalsafari på Lillebælt, Den Engelske Pub, Tøjhuset, Fredericia Musicalteater, Ti Trin Ned og Freddie's Bar & Natklub – plus heldagsmissionen "Fredericia Day Drink Odyssé". Lokale aktiviteter vælges kun, når stedet er Fredericia (eller inden for 12 km). Steder med skiftende åbningstider er markeret "ℹ️ Tjek åbningstider".
+
 ## Sådan virker den
 1. **Vælg dag** (i dag / lørdag / søndag), **starttid** (fx 07:00, 14:00 eller "nu"), **type** (mange stop eller én heldagsmission), **budget** (billig eller dyr), **alkohol** (med eller uden, 18+) og **sted** (GPS eller by).
 2. Appen henter **vejrudsigten time for time** samt solop- og solnedgang fra [Open-Meteo](https://open-meteo.com) (gratis og uden API-nøgle).

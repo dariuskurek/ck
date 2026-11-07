@@ -247,6 +247,10 @@ input:focus, textarea:focus { border-color: var(--accent); }
 .water { color: #7dd3fc; margin-top: 6px; }
 .secret-box { margin: 14px 0; }
 
+/* v6: Fredericia day drink */
+.preset { text-align: center; border: 2px solid var(--accent); background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 18%, var(--card)), var(--card)); }
+.preset .actions { justify-content: center; }
+
 </style>
 </head>
 <body>
@@ -1238,6 +1242,179 @@ const SECRETS_ALC = [
   'Drik et glas vand, mens alle andre drikker øl – uden at det bliver opdaget. 💧',
 ];
 
+/* ═════════════ FREDERICIA – DAY DRINK ═════════════
+ * Lokale aktiviteter med rigtige steder i Fredericia. Vælges kun, når I er i/ved Fredericia.
+ *  city   'fredericia'
+ *  check  true = tjek åbningstider/program, før I går (vises i appen)
+ */
+const FREDERICIA = { lat: 55.5657, lon: 9.7526, name: 'Fredericia' };
+
+ACTIVITIES.push(
+  /* Morgen */
+  { id: 'fr-volden', s: ['morgen', 'formiddag'], city: 'fredericia', t: 'Morgenøl på Fredericia Vold',
+    d: 'Start day drinket på voldene, der omkranser den gamle bydel. Gå en runde med en kold øl og hør den gratis lydguide (8 korte fortællinger i appen Useeum). Stop ved Prinsessens Bastion og kig ud over Lillebælt.',
+    q: 'Find en kanon, og tag et gruppebillede, hvor I "affyrer" den med jeres øl.',
+    b: 'billig', kr: 40, env: 'mix', minT: -5, alc: 1, vild: true, map: 'Fredericia Vold Prinsessens Bastion' },
+  { id: 'fr-landsoldat', s: ['morgen', 'formiddag', 'eftermiddag'], city: 'fredericia', t: 'Skål med Landsoldaten',
+    d: 'Gå til Landsoldaten – byens vartegn fra 1858 ved Prinsens Port. Udbring dagens første officielle skål for den tapre soldat, og lov at holde ud hele dagen.',
+    q: 'Stil jer i samme positur som Landsoldaten, og hold den, mens I drikker en tår.',
+    b: 'billig', kr: 20, env: 'mix', minT: -8, alc: 1, map: 'Landsoldaten Fredericia' },
+  { id: 'fr-gothersgade-brunch', s: ['morgen'], city: 'fredericia', t: 'Brunch på Gothersgade',
+    d: 'Læg bunden! Find en café på Gothersgade (fx Café Vivaldi eller Café Magma), og bestil den største brunchtallerken. En dag med day drinking kræver en god start.',
+    q: 'Skål for dagen, før nogen rører maden – kaptajnen holder talen.',
+    b: '*', kr: 160, env: 'inde', check: true, alcTip: 'Mimosa eller morgenøl til brunchen 🥂🍺', map: 'café Gothersgade Fredericia' },
+
+  /* Formiddag */
+  { id: 'fr-kanalkunst', s: ['formiddag', 'eftermiddag'], city: 'fredericia', t: 'Kunst- og ølvandring i Kanalbyen',
+    d: 'Gå kunstvandringen i Kanalbyen ved havnen – fem værker lavet specielt til stedet, bl.a. HYDRA, som selv er en bygning. Én øl pr. kunstværk, og én anmelder pr. værk.',
+    q: 'Hver person skal "anmelde" et værk som en ægte kunstkritiker – med øl i hånden.',
+    b: 'billig', kr: 50, env: 'mix', minT: -5, alc: 1, map: 'Kanalbyen Fredericia HYDRA' },
+  { id: 'fr-sup', s: ['formiddag'], city: 'fredericia', t: 'SUP og kajak i Kanalbyen',
+    d: 'Lej SUP eller kajak i Kanalbyen, og padl rundt i kanalerne og ud mod havnen. Øllene venter, til I er tilbage på land.',
+    q: 'Padl under så mange broer som muligt – og tag et billede fra vandet.',
+    b: 'dyr', kr: 300, env: 'ude', minT: 14, season: ['forår', 'sommer', 'efterår'], sober: true, check: true, map: 'SUP Kanalbyen Fredericia' },
+  { id: 'fr-parkour', s: ['formiddag'], city: 'fredericia', t: 'Parkour-banen i Kanalbyen',
+    d: 'Gratis parkourpark i Kanalbyen ved containerbyen C-byen og byhaven Grow Your City. Opvarmning, før day drinket starter.',
+    q: 'Hver person laver et trick, de andre skal kopiere.',
+    b: 'billig', kr: 0, env: 'mix', minT: 0, sober: true, map: 'parkour Kanalbyen Fredericia' },
+  { id: 'fr-bunker', s: ['formiddag', 'eftermiddag'], city: 'fredericia', t: 'Bunkermuseet i Voldene',
+    d: 'Et dobbelt civilt beskyttelsesrum fra besættelsen, gemt inde i voldene. Gratis, men åbent på bestemte dage – tjek før I går. Alternativ: Museum Fredericia.',
+    q: 'Find den mærkeligste genstand i udstillingen, og opdigt dens historie.',
+    b: 'billig', kr: 0, env: 'inde', check: true, alcTip: 'Skål for befrielsen bagefter på voldene 🍺', map: 'Bunkermuseet Fredericia' },
+  { id: 'fr-hvalsafari', s: ['formiddag', 'eftermiddag'], city: 'fredericia', t: 'Hvalsafari på Lillebælt',
+    d: 'Lillebælt har en af verdens tætteste bestande af marsvin. Tag på hvalsafari med MS Marianne (tjek, om afgangen er fra Fredericia eller Middelfart, og om sæsonen er i gang).',
+    q: 'Den, der spotter det første marsvin, giver ikke næste omgang.',
+    b: 'dyr', kr: 250, env: 'mix', minT: 5, months: [5, 6, 7, 8, 9], check: true, alcTip: 'Skål for marsvinene, når I er tilbage i havn 🍺', map: 'MS Marianne hvalsafari' },
+  { id: 'fr-madsby', s: ['formiddag', 'eftermiddag'], city: 'fredericia', t: 'Voksen-OL i Madsby Legepark',
+    d: 'Madsby Legepark har gratis adgang hele året: klatrebaner, legepladser og dyr. Hold et voksen-OL på legepladsen. Eventyrminigolfen koster ekstra og har åbent fra påske til uge 42.',
+    q: 'Gennemfør en klatrebane på tid – dommeren tager tid.',
+    b: 'billig', kr: 50, env: 'mix', minT: 0, alcTip: 'Køletasken med på picnicbordet 🍺', map: 'Madsby Legepark Fredericia' },
+  { id: 'fr-bowling', s: ['formiddag', 'eftermiddag', 'aften'], city: 'fredericia', t: 'Øl-bowling i Fredericia',
+    d: 'Bowl i Fredericia Idrætscenter (10 bowlingbaner) eller City Bowling Fredericia (bowling, pool og airhockey). Øl-regler: strike = du giver en tår, rendesten = du tager en.',
+    q: 'Sejrsdans efter hver strike – jo mere pinlig, jo bedre.',
+    b: '*', kr: 200, env: 'inde', alc: 1, check: true, map: 'bowling Fredericia' },
+
+  /* Frokost */
+  { id: 'fr-havnefrokost', s: ['frokost'], city: 'fredericia', t: 'Frokost og øl ved Lillebælt',
+    d: 'Køb sandwich eller smørrebrød og et par kolde øl, og find en bænk ved vandet i Kanalbyen eller ved havnen. Udsigt over Lillebælt og broerne.',
+    q: 'Find et sted, hvor man kan se begge Lillebæltsbroer, og skål for dem.',
+    b: 'billig', kr: 120, env: 'mix', minT: -2, alc: 1, map: 'Kanalbyen Fredericia havn' },
+  { id: 'fr-pubfrokost', s: ['eftermiddag'], city: 'fredericia', t: 'Fadøl på Den Engelske Pub',
+    d: 'Fredericias klassiske pub med autentisk stemning og ofte livemusik. Bestil en pint, og spil en omgang dart eller pubspil, hvis de har det.',
+    q: 'Lær en engelsk skål, og brug den hver gang der skåles resten af dagen.',
+    b: '*', kr: 150, env: 'inde', alc: 1, check: true, map: 'Den Engelske Pub Fredericia' },
+  { id: 'fr-smoerrebroed', s: ['frokost'], city: 'fredericia', t: 'Lang frokost med snaps i centrum',
+    d: 'Find en frokostrestaurant eller kro i den gamle bydel. Sild, stjerneskud, fadøl og snaps – og mindst én tale.',
+    q: 'Bestil det stykke smørrebrød med det mærkeligste navn på menuen.',
+    b: 'dyr', kr: 300, env: 'inde', alc: 1, map: 'frokostrestaurant Fredericia' },
+
+  /* Eftermiddag */
+  { id: 'fr-crawl', s: ['eftermiddag', 'aften'], city: 'fredericia', t: 'Fredericia-crawl: Prinsessegade og Gothersgade',
+    d: 'Barcrawl gennem centrum. Start på Gothersgade, og arbejd jer over til Prinsessegade. Én øl pr. sted, terningen bestemmer retningen ved hvert hjørne.',
+    q: 'Få en bartender på hvert sted til at anbefale det næste sted.',
+    b: '*', kr: 250, env: 'mix', minT: -10, alc: 1, dark: true, vild: true, map: 'bar Prinsessegade Fredericia' },
+  { id: 'fr-vold-ol', s: ['eftermiddag'], city: 'fredericia', t: 'Vold-OL med øl',
+    d: 'Tag kubb, petanque eller en frisbee med op på voldene. Hold et OL i flere discipliner – taberen af hver disciplin tager en tår.',
+    q: 'Opfind en ny disciplin, der kun kan spilles på en vold.',
+    b: 'billig', kr: 50, env: 'ude', minT: 5, alc: 1, map: 'Fredericia Vold' },
+  { id: 'fr-solnedgang', s: ['eftermiddag'], city: 'fredericia', t: 'Solnedgangsøl på bastionen',
+    d: 'Gå op på Prinsessens Bastion (eller ned til vandet), og se solen gå ned over Lillebælt med en kold øl. Om vinteren går solen ned allerede ved 16-tiden.',
+    q: 'Tag et billede, præcis da solen rammer horisonten.',
+    b: 'billig', kr: 30, env: 'mix', minT: -5, alc: 1, map: 'Prinsessens Bastion Fredericia' },
+
+  /* Aftensmad */
+  { id: 'fr-titrinned', s: ['middag'], city: 'fredericia', t: 'Ti Trin Ned – gå all in',
+    d: 'Fredericias Michelin-restaurant på Toldkammeret ved Lillebælt. Smagsmenu og vinmenu. Svær at få bord – book i god tid.',
+    q: 'Find på et navn til hver ret, der er bedre end menukortets.',
+    b: 'dyr', kr: 1500, env: 'inde', check: true, alcTip: 'Tag vin- eller ølmenuen 🍷', map: 'Ti Trin Ned Fredericia' },
+  { id: 'fr-middag', s: ['middag'], city: 'fredericia', t: 'Burger og fadøl i centrum',
+    d: 'Find et burger- eller pubsted i centrum, og bestil den største burger med en stor fadøl. Day drinkere skal spise ordentligt!',
+    q: 'Spis burgeren uden kniv og gaffel og uden at spilde.',
+    b: 'billig', kr: 180, env: 'inde', alc: 1, map: 'burger Fredericia' },
+
+  /* Aften */
+  { id: 'fr-toejhuset', s: ['aften'], city: 'fredericia', t: 'Koncert eller stand-up i Tøjhuset',
+    d: 'Fredericias spillested i en gammel sukkerfabrik på Gothersgade 34. Omkring 200 arrangementer om året: koncerter, stand-up og events. Tjek programmet.',
+    q: 'Find en replik eller et omkvæd fra showet, I citerer resten af aftenen.',
+    b: '*', kr: 250, env: 'inde', check: true, alcTip: 'Fadøl i Tøjhusets bar 🍺', map: 'Tøjhuset Fredericia' },
+  { id: 'fr-musical', s: ['aften'], city: 'fredericia', t: 'Musical på Fredericia Musicalteater',
+    d: 'Danmarks musicalteater ligger på Prinsessegade 29. Tjek, hvad der spiller, og køb billetter. En drink i pausen er obligatorisk.',
+    q: 'Syng omkvædet fra aftenens største sang på vej ud.',
+    b: 'dyr', kr: 450, env: 'inde', check: true, alcTip: 'Drink i pausen 🍸', map: 'Fredericia Musicalteater' },
+  { id: 'fr-freddies', s: ['aften'], city: 'fredericia', t: 'Afslutning på Freddie’s Bar & Natklub',
+    d: 'Freddie’s på Prinsessegade 69: drinks, DJ og dans midt i byen. Dagens finale.',
+    q: 'Få DJ’en til at spille dagens "sang" (den, I har sunget hele dagen).',
+    b: '*', kr: 250, env: 'inde', alc: 1, dark: true, check: true, map: 'Freddies Bar Natklub Fredericia' },
+  { id: 'fr-engelske-aften', s: ['aften'], city: 'fredericia', t: 'Livemusik og pints på Den Engelske Pub',
+    d: 'Den Engelske Pub er kendt for livemusik og pub-stemning. Find et bord tæt på musikken, og hold pints-niveauet.',
+    q: 'Få bandet til at spille et ønske – eller giv dem en omgang.',
+    b: '*', kr: 200, env: 'inde', alc: 1, check: true, map: 'Den Engelske Pub Fredericia' },
+);
+
+EPICS.push(
+  { id: 'x-fredericia', t: 'Fredericia Day Drink Odyssé', icon: '🍻', b: '*', kr: 650, env: 'mix', minT: -5, alc: 1, city: 'fredericia',
+    d: 'Hele dagen i Fredericia med øl i hånden: voldene, Landsoldaten, Kanalbyen, Lillebælt, bowling og barerne på Prinsessegade. Vand mellem hvert kapitel!',
+    ch: [
+      { icon: '🍳', h: 1.25, t: 'Bunden lægges', d: 'Brunch på en café på Gothersgade. Lav et "Fredericia-pas" på et stykke papir – hvert kapitel giver et stempel (et billede, en underskrift, en kapsel).', q: 'Skål for dagen, før maden rører tallerkenen.', map: 'café Gothersgade Fredericia' },
+      { icon: '🏰', h: 1.5, t: 'Morgenøl på voldene', d: 'Gå på Fredericia Vold med en kold øl. Hør lydguiden i Useeum-appen, og stop ved Prinsessens Bastion med udsigt over Lillebælt.', q: 'Find en kanon og "affyr" den med jeres øl.', map: 'Fredericia Vold' },
+      { icon: '💂', h: 0.5, t: 'Skål med Landsoldaten', d: 'Find Landsoldaten ved Prinsens Port. Officiel skål og ed: "Vi holder ud til sidste øl!"', q: 'Stå i Landsoldatens positur i 30 sekunder.', map: 'Landsoldaten Fredericia' },
+      { icon: '🎨', h: 1.5, t: 'Kanalbyen og kunsten', d: 'Kunstvandring i Kanalbyen – fem værker, bl.a. HYDRA. Én øl pr. værk, og frokost på en bænk ved vandet.', q: 'Anmeld et kunstværk som en kunstkritiker.', map: 'Kanalbyen Fredericia' },
+      { icon: '🎳', h: 1.75, t: 'Øl-bowling', d: 'Bowling i Fredericia Idrætscenter eller City Bowling. Strike = giv en tår. Rendesten = tag en.', q: 'Sejrsdans efter hver strike.', map: 'bowling Fredericia', opt: true },
+      { icon: '🌅', h: 1, t: 'Solnedgang over Lillebælt', d: 'Op på bastionen eller ned til vandet med en øl, og se solen gå ned.', q: 'Billede af solen, der rammer vandet.', map: 'Prinsessens Bastion Fredericia' },
+      { icon: '🍔', h: 1.5, t: 'Day drinkerens aftensmad', d: 'Burger, pizza eller pubmad i centrum med en stor fadøl. Spis ordentligt – aftenen er lang.', q: 'Hold en takketale for dagens MVP.', map: 'restaurant Fredericia centrum' },
+      { icon: '🎸', h: 2, t: 'Den Engelske Pub', d: 'Pints og (måske) livemusik på Den Engelske Pub.', q: 'Lær en engelsk skål, og brug den resten af aftenen.', map: 'Den Engelske Pub Fredericia' },
+      { icon: '🪩', h: 2, t: 'Finale på Prinsessegade', d: 'Barcrawl på Prinsessegade, og slut på Freddie’s Bar & Natklub. Aftal hjemtransport!', q: 'Få DJ’en til at spille dagens sang.', map: 'Freddies Bar Natklub Fredericia' },
+    ] },
+);
+
+Object.assign(GUIDE, {
+  'fr-volden': ['Køb kolde øl (og vand) på vejen.', 'Gå op på voldene – fx ved Prinsens Port eller Danmarksgade.', 'Åbn Useeum-appen, og hør de 8 fortællinger undervejs.', 'Stop ved Prinsessens Bastion, og skål med udsigt over Lillebælt.'],
+  'fr-landsoldat': ['Find Landsoldaten ved Prinsens Port.', 'Kaptajnen udbringer dagens officielle skål.', 'Alle stiller sig i Landsoldatens positur.', 'Fotografen tager billedet – det er dagens "før"-billede.'],
+  'fr-gothersgade-brunch': ['Gå til Gothersgade, og vælg en café (tjek åbningstider).', 'Bestil stor brunch til alle.', 'Kaptajnen holder dagens åbningstale.', 'Drik et stort glas vand, før I går videre.'],
+  'fr-kanalkunst': ['Gå ned til Kanalbyen ved havnen.', 'Find de fem kunstværker – start ved HYDRA.', 'Ved hvert værk: én tår og én "anmeldelse" fra en af jer.', 'Dommeren kårer dagens bedste anmeldelse.'],
+  'fr-sup': ['Find udlejningen i Kanalbyen, og få redningsveste.', 'Øv 5 min tæt på land.', 'Padl rundt i kanalerne – tæl broer.', 'Øl først, når alle er tilbage på land.'],
+  'fr-parkour': ['Find parkourparken ved C-byen og Grow Your City.', 'Varm op i 5 min.', 'Hver person viser et trick, de andre kopierer.', 'Fotografen filmer i slow motion.'],
+  'fr-bunker': ['Tjek åbningstiden (bunkeren er kun åben visse dage).', 'Gå ind i voldene til bunkeren.', 'Hver person finder den mærkeligste genstand.', 'Opdigt genstandens historie over en øl bagefter.'],
+  'fr-hvalsafari': ['Book billetter og tjek afgangssted (Fredericia eller Middelfart).', 'Tag varmt tøj på – det blæser på vandet.', 'Hold øje med marsvin – de er små og hurtige.', 'Skål for marsvinene, når I er i havn igen.'],
+  'fr-madsby': ['Gå til Madsby Legepark (gratis adgang).', 'Klatrebane på tid – dommeren tager tid.', 'Legeplads-OL: gynge-længdespring, rutsjebane-race.', 'Besøg dyrene, og afslut ved et picnicbord.'],
+  'fr-bowling': ['Book bane i Fredericia Idrætscenter eller City Bowling.', 'Øl-regler: strike = giv en tår, rendesten = tag en.', 'Serie 2 med den "forkerte" hånd.', 'Taberen giver næste omgang.'],
+  'fr-havnefrokost': ['Køb frokost og øl i en butik eller bager på vejen.', 'Gå ned til vandet i Kanalbyen eller havnen.', 'Find en bænk med udsigt over Lillebælt.', 'Skål for broerne.'],
+  'fr-pubfrokost': ['Gå til Den Engelske Pub (tjek åbningstider).', 'Bestil en pint pr. person.', 'Spil dart eller et pubspil, hvis de har det.', 'Lær en engelsk skål ("Cheers, mate!").'],
+  'fr-smoerrebroed': ['Find en frokostrestaurant i den gamle bydel.', 'Bestil sild, stjerneskud, fadøl og snaps.', 'Mindst én tale.', 'Tag god tid – og vand mellem snapsene.'],
+  'fr-crawl': ['Start på Gothersgade.', 'Kaptajnen slår med terningen ved hvert hjørne: lige = højre, ulige = venstre.', 'Én øl pr. sted, vand imellem.', 'Arbejd jer over mod Prinsessegade.'],
+  'fr-vold-ol': ['Tag kubb, petanque eller frisbee og øl med op på voldene.', 'Hold 3 discipliner – dommeren noterer point.', 'Taberen af hver disciplin tager en tår.', 'Opfind en ny "vold-disciplin" til finalen.'],
+  'fr-solnedgang': ['Tjek solnedgangstiden (står i appens vejrlinje).', 'Gå op på Prinsessens Bastion eller ned til vandet.', 'Åbn øllene, når solen rammer horisonten.', 'Fotografen tager dagens bedste billede.'],
+  'fr-titrinned': ['Book bord i god tid (gerne uger før).', 'Klæd jer pænt på.', 'Tag vin- eller ølmenuen.', 'Telefonerne væk – fotografen må tage ét billede pr. ret.'],
+  'fr-middag': ['Find et burger- eller pubsted i centrum.', 'Bestil stor burger og fadøl.', 'Drik et glas vand til maden.', 'Kår dagens MVP ved bordet.'],
+  'fr-toejhuset': ['Tjek programmet på Tøjhuset, og køb billetter.', 'Mød op i god tid – Gothersgade 34.', 'Fadøl i baren før showet.', 'Stil jer forrest.'],
+  'fr-musical': ['Tjek, hvad der spiller, og køb billetter.', 'Prinsessegade 29.', 'Drink i pausen.', 'Syng omkvædet på vej ud.'],
+  'fr-freddies': ['Gå til Freddie’s på Prinsessegade 69.', 'Én drink pr. person, og ud på dansegulvet.', 'Bed DJ’en om dagens sang.', 'Aftal hjemtransport, før I går ind.'],
+  'fr-engelske-aften': ['Gå til Den Engelske Pub.', 'Find et bord tæt på musikken.', 'Én pint pr. sæt, vand imellem.', 'Giv bandet en omgang, hvis de spiller jeres ønske.'],
+});
+
+Object.assign(PREP, {
+  'fr-volden': { buy: ['Kolde øl – {3} stk', 'Vand – {1} fl.'], pack: ['Useeum-appen på telefonen', 'Køletaske'] },
+  'fr-landsoldat': { buy: ['Øl til skålen – {1} stk'] },
+  'fr-gothersgade-brunch': { book: 'Bord til brunch på Gothersgade (weekend er travl)' },
+  'fr-kanalkunst': { buy: ['Øl – {5} stk (én pr. kunstværk)'], pack: ['Køletaske'] },
+  'fr-sup': { pack: ['Skiftetøj', 'Vandtæt pose til telefonen'], book: 'SUP/kajak-leje i Kanalbyen' },
+  'fr-parkour': { pack: ['Træningstøj og sko'] },
+  'fr-bunker': { book: 'Tjek Bunkermuseets åbningsdage' },
+  'fr-hvalsafari': { pack: ['Varm jakke', 'Kikkert'], book: 'Hvalsafari med MS Marianne (tjek afgangssted)' },
+  'fr-madsby': { buy: ['Snacks og øl til picnic'], pack: ['Køletaske'] },
+  'fr-bowling': { book: 'Bowlingbane i Fredericia Idrætscenter eller City Bowling' },
+  'fr-havnefrokost': { buy: ['Sandwich/smørrebrød – {1} stk', 'Øl – {2} stk'] },
+  'fr-smoerrebroed': { book: 'Bord på frokostrestaurant' },
+  'fr-crawl': { buy: ['Kontanter/MobilePay'], pack: ['En terning'] },
+  'fr-vold-ol': { buy: ['Øl – {3} stk'], pack: ['Kubb, petanque eller frisbee', 'Køletaske'] },
+  'fr-solnedgang': { buy: ['Øl – {1} stk'], pack: ['Varm trøje'] },
+  'fr-titrinned': { pack: ['Pænt tøj'], book: 'Bord på Ti Trin Ned – bookes uger før' },
+  'fr-toejhuset': { book: 'Billetter til Tøjhuset (tjek programmet)' },
+  'fr-musical': { book: 'Billetter til Fredericia Musicalteater' },
+  'fr-freddies': { book: 'Aftal hjemtransport (taxa/bus)' },
+  'x-fredericia': { buy: ['Øl til voldene og Kanalbyen – {8} stk', 'Vand – {3} fl.', 'Kontanter/MobilePay'], pack: ['Køletaske', 'Papir og kuglepen til Fredericia-pas', 'Useeum-appen', 'En terning'], book: 'Bowlingbane + bord til brunch – og aftal hjemtransport' },
+});
+
 </script>
 <script>
 /* Sidequest – en tilfældig heldagsplan til weekenden
@@ -1249,7 +1426,7 @@ const SECRETS_ALC = [
 
   const STORE_KEY = 'sidequest.v1';
   const POINTS = { done: 100, bonus: 50, mission: 200, joker: 25, secret: 30 };
-  const DEFAULT_LOC = { name: 'København', lat: 55.6761, lon: 12.5683 };
+  const DEFAULT_LOC = { name: 'Fredericia', lat: 55.5657, lon: 9.7526 };
 
   // Typisk dansk klima pr. måned – bruges hvis vejret ikke kan hentes
   const CLIMATE = {
@@ -1466,6 +1643,7 @@ const SECRETS_ALC = [
     if (!a.s.includes(slot.id)) return false;
     if (a.b !== '*' && a.b !== ctx.budget) return false;
     if (a.alc === 1 && !ctx.alc) return false;
+    if (a.city && a.city !== ctx.city) return false;
     if (a.season && !a.season.includes(ctx.season)) return false;
     if (a.months && !a.months.includes(ctx.month)) return false;
     if (a.win && !inWin(ctx.md, a.win)) return false;
@@ -1480,6 +1658,7 @@ const SECRETS_ALC = [
     if (sw.nice) w *= a.env === 'inde' ? 0.5 : 2;
     if ((sw.wet || sw.t < 3) && a.env === 'inde') w *= 1.4;
     if (a.vild) w *= 1.8;
+    if (a.city && a.city === ctx.city) w *= ctx.alc && a.alc === 1 ? 12 : 8; // gå all in på lokale steder
     if (ctx.alc === 2) {
       if (a.alc === 1) w *= slot.id === 'morgen' ? 3 : 6;
       if (a.alc === 0) w *= 0.2;
@@ -1499,10 +1678,18 @@ const SECRETS_ALC = [
     return list[list.length - 1]?.a;
   }
 
+  // Er planen i/ved Fredericia? (bynavn eller under 12 km fra centrum)
+  function cityOf(loc) {
+    if (!loc) return null;
+    if (/fredericia/i.test(loc.name || '')) return 'fredericia';
+    const dLat = (loc.lat - FREDERICIA.lat) * 111, dLon = (loc.lon - FREDERICIA.lon) * 63;
+    return Math.hypot(dLat, dLon) < 12 ? 'fredericia' : null;
+  }
+
   function makeCtx(plan) {
     const d = parseDate(plan.date);
     const snowDay = isSnowCode(plan.wx.daily.code) || Object.values(plan.wx.hourly).some((h) => isSnowCode(h.code));
-    return { budget: plan.budget, alc: plan.alc, season: seasonOf(plan.date), month: d.getMonth() + 1, md: mmdd(plan.date), snowDay };
+    return { budget: plan.budget, alc: plan.alc, season: seasonOf(plan.date), month: d.getMonth() + 1, md: mmdd(plan.date), snowDay, city: cityOf(plan.loc) };
   }
 
   const isBeer = (id) => actById(id)?.alc === 1;
@@ -1533,7 +1720,7 @@ const SECRETS_ALC = [
       const slotsLeft = plan.slots.length - idx;
       const missing = minBeer - beerCount(plan);
       const chance = ctx.alc === 2
-        ? (slot.id === 'morgen' ? 0.5 : 0.85)
+        ? (slot.id === 'morgen' ? 0.75 : 0.9)
         : (['morgen', 'formiddag'].includes(slot.id) ? 0.1 : 0.4);
       if (beerPool.length && (missing >= slotsLeft || Math.random() < chance)) pool = beerPool;
     }
@@ -1554,6 +1741,7 @@ const SECRETS_ALC = [
     const list = EPICS.filter((e) => {
       if (e.b !== '*' && e.b !== ctx.budget) return false;
       if (e.alc === 1 && !ctx.alc) return false;
+      if (e.city && e.city !== ctx.city) return false;
       if (e.sober && ctx.alc === 2) return false;
       if (e.season && !e.season.includes(ctx.season)) return false;
       if (e.env === 'ude' && (d.pp >= 60 || d.tmax < (e.minT ?? 5))) return false;
@@ -1563,6 +1751,7 @@ const SECRETS_ALC = [
     return weightedPick(list.map((e) => {
       let w = 1;
       if (e.alc === 1) w *= ctx.alc === 2 ? 5 : 1.5;
+      if (e.city && e.city === ctx.city) w *= 30;
       if (e.sober && ctx.alc) w *= 0.4;
       if (d.pp >= 60 && e.env === 'inde') w *= 2;
       if (d.pp < 40 && e.env === 'inde' && e.b !== 'dyr') w *= 0.15; // hygge-hulen er til regnvejr
@@ -1573,7 +1762,7 @@ const SECRETS_ALC = [
   }
 
   function buildEpicPlan(plan) {
-    const e = pickEpic(plan);
+    const e = (plan.forceEpic && epicById(plan.forceEpic)) || pickEpic(plan);
     let chs = e.ch.map((c, k) => ({ ...c, k }));
     const end = (list) => plan.start + list.reduce((s, c) => s + c.h, 0);
     // Starter dagen sent, droppes valgfrie kapitler – og til sidst kapitler fra midten
@@ -1628,10 +1817,10 @@ const SECRETS_ALC = [
   }
   const totalBeers = (plan) => Object.values(plan.drinks || {}).reduce((s, d) => s + d.beer, 0);
 
-  function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop', people = [] }) {
+  function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop', people = [], forceEpic = null }) {
     const special = specialOf(date);
     const plan = {
-      date, budget, alc, loc, wx, start, mode, people: [...people], prepDone: {}, slots: buildSlots(start), startedEarly: false,
+      date, budget, alc, loc, wx, start, mode, forceEpic, people: [...people], prepDone: {}, slots: buildSlots(start), startedEarly: false,
       theme: special ? special.theme : alc === 2 ? pick(THEME_BEER) : `${pick(THEME_A)} ${pick(THEME_B)}`,
       mission: pick(alc ? [...MISSIONS, ...MISSIONS_ALC, ...MISSIONS_ALC] : MISSIONS), missionDone: false,
       jokers: 3, notified: [], createdAt: Date.now(), steps: [],
@@ -1814,6 +2003,19 @@ const SECRETS_ALC = [
           ${special ? `<span class="chip hot">${special.icon} ${special.name}</span>` : ''}
         </div>
       </header>
+
+      <section class="card preset">
+        <div class="em-xl">🍻🏰</div>
+        <h2>Fredericia Day Drink</h2>
+        <p class="muted small">Ét tryk: en hel dag med øl i Fredericia – voldene, Landsoldaten, Kanalbyen, Lillebælt, bowling, Den Engelske Pub og Prinsessegade. Planen tilpasses vejret og jeres valg herunder (budget, deltagere, starttid).</p>
+        <div class="actions">
+          <button class="btn primary" data-action="preset" data-val="stop">🍻 Rul en day drink-dag</button>
+          <button class="btn ghost" data-action="preset" data-val="epic">🗺️ Fredericia-odysséen (heldagsmission)</button>
+        </div>
+        <p class="muted small">Kun 18+. Drik vand mellem øllene, spis ordentligt, og ingen kører bil.</p>
+      </section>
+
+      <p class="muted small center">…eller byg jeres egen dag:</p>
 
       <section class="card">
         <h2>1. Hvilken dag?</h2>
@@ -2046,6 +2248,7 @@ const SECRETS_ALC = [
           <span class="chip">${sw.icon} ${sw.t}° · 💧${sw.pp}%</span>
           <span class="chip">${envTag(a)}</span>
           <span class="chip">💰 ${priceTag(a)}</span>
+          ${a.check ? '<span class="chip">ℹ️ Tjek åbningstider/program</span>' : ''}
         </div>
         ${rolesLine(step)}
         ${guideFor(a) ? `<details class="guide" open><summary>📖 Sådan gør I</summary>${guideList(guideFor(a))}</details>` : ''}
@@ -2145,7 +2348,7 @@ const SECRETS_ALC = [
           <h3>${esc(a.t)}</h3>
           <p class="small">${esc(a.d)}</p>
           ${plan.alc && a.alcTip ? `<p class="small tip">${esc(a.alcTip)}</p>` : ''}
-          ${rolesLine(s, true)}<div class="chips small"><span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
+          ${rolesLine(s, true)}<div class="chips small"><span class="chip">${envTag(a)}</span><span class="chip">💰 ${priceTag(a)}</span>${a.check ? '<span class="chip">ℹ️ Tjek åbent</span>' : ''}${a.city ? '<span class="chip hot">📍 Fredericia</span>' : ''}${b ? `<span class="chip" title="${esc(b.t)}">☔ Plan B: ${esc(b.t)}</span>` : ''}</div>
           ${unlocked
             ? `<div class="quest small"><span class="quest-label">⚡ Udfordring</span> ${esc(a.q)}</div>${s.kaos ? `<div class="kaos small"><span class="quest-label">🌀 Kaos</span> ${esc(s.kaos)}</div>` : ''}`
             : `<div class="quest small locked">🔒 Udfordring og kaos-regel låses op kl. ${slot.time}</div>`}
@@ -2264,7 +2467,7 @@ const SECRETS_ALC = [
     app.innerHTML = `<div class="loading"><div class="dice">🎲</div><p>Tjekker vejret i ${esc(st.loc.name)} og ruller terningerne…</p></div>`;
     const wx = await getWeather(st.loc, st.date);
     await new Promise((r) => setTimeout(r, 700)); // lidt spænding
-    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx, start: st.start, mode: st.mode, people: st.people });
+    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx, start: st.start, mode: st.mode, people: st.people, forceEpic: st.mode === 'epic' ? st.forceEpic : null });
     save();
     renderPlan();
     window.scrollTo({ top: 0 });
@@ -2415,6 +2618,7 @@ const SECRETS_ALC = [
     switch (act) {
       case 'set':
         st[el.dataset.key] = ['alc', 'start'].includes(el.dataset.key) ? +el.dataset.val : el.dataset.val;
+        delete st.forceEpic;
         save(); renderSetup(); break;
       case 'startnow':
         store.plan.startedEarly = true; save(); renderPlan(); break;
@@ -2426,6 +2630,17 @@ const SECRETS_ALC = [
           { timeout: 10000 });
         break;
       case 'generate': generate(); break;
+      case 'preset': {
+        st.loc = { ...FREDERICIA };
+        st.alc = 2;
+        st.mode = el.dataset.val;
+        st.forceEpic = el.dataset.val === 'epic' ? 'x-fredericia' : null;
+        st.budget = st.budget || 'billig';
+        if (st.start == null || st.start === 9) st.start = 11; // day drinking starter ved 11-tiden
+        if (st.date === todayISO() && nowHours() > st.start) st.start = Math.min(21, Math.ceil(nowHours() * 4) / 4);
+        save(); generate();
+        break;
+      }
       case 'complete': openComplete(i); break;
       case 'skip':
         if (confirm('Spring dette stop over? (0 point)')) { store.plan.steps[i].status = 'skipped'; save(); renderPlan(); }
