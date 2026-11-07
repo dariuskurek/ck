@@ -251,6 +251,16 @@ input:focus, textarea:focus { border-color: var(--accent); }
 .preset { text-align: center; border: 2px solid var(--accent); background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 18%, var(--card)), var(--card)); }
 .preset .actions { justify-content: center; }
 
+/* v7: assistent og robuste knapper */
+.assistant { border: 2px solid var(--accent2); }
+.assistant textarea { margin: 6px 0; }
+.examples .chip.pick { font-size: .8rem; white-space: normal; text-align: left; }
+.wishbox { background: var(--card2); border-radius: 12px; padding: 8px 10px; margin: 8px 0; }
+.adjust { margin-top: 14px; border-top: 1px solid rgba(255,255,255,.08); padding-top: 10px; }
+.adjust .row { margin-top: 4px; }
+.reply { color: var(--accent2); margin-top: 6px; }
+.modal input[readonly] { margin: 8px 0; font-size: .85rem; }
+
 </style>
 </head>
 <body>
@@ -1623,6 +1633,138 @@ Object.assign(PREP, {
     };
   }
 
+  /* ───────────── Assistent: forstår en beskrivelse af dagen ─────────────
+   * Kører lokalt i browseren (ingen data sendes nogen steder). Den genkender ønsker,
+   * budget, alkohol, starttid, deltagere og by i almindelig dansk tekst.
+   */
+  const INTERESTS = {
+    øl: { label: '🍺 øl', words: ['øl', 'bajer', 'fadøl', 'pint', 'bryghus', 'bodega', 'pub', 'beer', 'skål'] },
+    natur: { label: '🌲 natur', words: ['natur', 'skov', 'strand', 'bål', 'shelter', 'vandr', 'svampe', 'frisk luft', 'park'] },
+    mad: { label: '🍔 mad', words: ['mad$', 'maden$', 'spis', 'frokost', 'middag', 'burger', 'restaurant', 'brunch', 'pizza', 'sulten', 'sultne', 'tapas', 'smørrebrød', 'pølse'] },
+    kultur: { label: '🎨 kultur', words: ['kultur', 'museum', 'museet', 'kunst', 'historie$', 'historisk', 'teater', 'musical', 'koncert', 'tøjhuset', 'besættelsen'] },
+    musik: { label: '🎵 musik/fest', words: ['musik', 'koncert', 'livemusik', 'karaoke', 'jazz', 'band', 'dans', 'fest', 'natklub', ' dj', 'disco'] },
+    vand: { label: '🌊 vand', words: ['vand$', 'vandet$', 'kajak', 'sup', 'havbad', 'sauna', 'havn', 'svøm', 'dukkert', 'hvalsafari', 'lillebælt'] },
+    aktiv: { label: '🏃 aktiv', words: ['aktiv', 'sport', 'løb', 'træning', 'bowling', 'boulder', 'paintball', 'gokart', 'cykel', 'trampolin', 'klatr', 'parkour', 'bevæge'] },
+    spil: { label: '🎲 spil', words: ['spil', 'brætspil', 'quiz', 'beer pong', 'bowling', 'minigolf', 'konkurrence', 'dart', 'shuffleboard', 'kings cup'] },
+    hygge: { label: '🛋️ hygge', words: ['hygge', 'rolig', 'afslappet', 'chill', 'slappe af', 'café', 'film$', 'filmmaraton', 'gyserfilm', 'pudeborg', 'brætspil', 'kakao', 'pandekage'] },
+    adrenalin: { label: '⚡ adrenalin', words: ['adrenalin', 'faldskærm', 'rally', 'øksekast', 'paintball', 'escape', 'vr'] },
+    social: { label: '🤝 nye mennesker', words: ['fremmede', 'nye mennesker', 'social', 'lokale'] },
+    romantik: { label: '❤️ romantik', words: ['romantisk', 'date', 'kæreste', 'solnedgang', 'stjerne'] },
+  };
+  // Ordgrænse foran (og bagved, hvis ordet slutter med $), så "mad" ikke rammer "Mads"
+  const reCache = new Map();
+  function hit(text, w) {
+    if (!reCache.has(w)) {
+      const whole = w.endsWith('$');
+      const core = (whole ? w.slice(0, -1) : w).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      reCache.set(w, new RegExp(`(^|[^a-zæøå0-9])${core}${whole ? '(?![a-zæøå])' : ''}`));
+    }
+    return reCache.get(w).test(text);
+  }
+  function hitIndex(text, w) {
+    hit(text, w);
+    const m = reCache.get(w).exec(text);
+    return m ? m.index + m[1].length : -1;
+  }
+  const STOP = new Set('spille spiller morgen aften formiddag eftermiddag weekend lørdag søndag vi er og at det en et i på til med som har vil gerne have lave noget nogle der den de for af om men kan skal være måtte må room hele dagen dag lidt meget mere ikke uden ingen helst rigtig godt god gode fed fede sjov sjovt lyst bare også blive gøre kl klokken fra starter start'.split(' '));
+  const lc = (x) => String(x || '').toLowerCase();
+  const actTextCache = new Map();
+  function actText(a) {
+    if (!actTextCache.has(a.id)) actTextCache.set(a.id, lc([a.t, a.d, a.q, a.map, ...(GUIDE[a.id] || [])].join(' ')));
+    return actTextCache.get(a.id);
+  }
+  const epicText = (e) => lc([e.t, e.d, ...e.ch.flatMap((c) => [c.t, c.d])].join(' '));
+  const negated = (t, idx) => /(ikke|uden|ingen|hader|undgå)\s+(\S+\s+){0,3}$/.test(t.slice(Math.max(0, idx - 30), idx));
+
+  function parseWish(text) {
+    const raw = String(text || '').trim();
+    const t = ' ' + lc(raw) + ' ';
+    const P = { want: [], avoid: [], words: [], names: [] };
+    // Alkohol
+    if (/(uden|ingen|ikke)\s+(noget\s+)?(alkohol|øl|druk|sprut)|ædru|alkoholfri|skal køre|kører bil/.test(t)) P.alc = 0;
+    else if (/day ?drink|masser af øl|øl hele dagen|hele dagen.{0,20}øl|druk|bajere|øl-?dag|fulde|i hegnet|pub ?crawl/.test(t)) P.alc = 2;
+    else if (/\bøl|bajer|fadøl|\bvin\b|cocktail|drinks?\b|snaps|bodega|\bpub\b|alkohol/.test(t)) P.alc = 1;
+    // Budget
+    if (/billig|gratis|lavt budget|ingen penge|fattig|spar|studie|ikke koste/.test(t)) P.budget = 'billig';
+    else if (/\bdyr|luksus|all ?in|fancy|spendere|michelin|forkæl|ud over det sædvanlige/.test(t)) P.budget = 'dyr';
+    // Starttid
+    const tm = t.match(/(?:fra|starter|start|kl\.?|klokken|omkring)\s*(?:kl\.?\s*)?(\d{1,2})(?:[:.](\d{2}))?/);
+    if (tm) { const h = +tm[1] + (tm[2] ? +tm[2] / 60 : 0); if (h >= 5 && h <= 21) P.start = h; }
+    else if (/tidlig morgen|tidligt/.test(t)) P.start = 8;
+    else if (/eftermiddag/.test(t) && !/formiddag/.test(t)) P.start = 13;
+    else if (/i aften|kun aften/.test(t)) P.start = 18;
+    // Dag
+    if (/i morgen/.test(t)) P.date = 'imorgen';
+    else if (/i dag/.test(t)) P.date = 'idag';
+    // Type
+    if (/heldagsmission|én stor|en stor oplevelse|odyss|mission hele dagen|roadtrip|mystery/.test(t)) P.mode = 'epic';
+    if (/indenfor|indendørs|\binde\b/.test(t)) P.env = 'inde';
+    else if (/udenfor|udendørs|frisk luft|ude i/.test(t)) P.env = 'ude';
+    if (/vild|skør|crazy|sindssyg|grænse|ekstrem|kaos/.test(t)) P.vild = true;
+    // Deltagere: "vi er Anna, Mads og Sofie" / "vi er 4"
+    const nm = raw.match(/[Vv]i er\s+((?:[A-ZÆØÅ][a-zæøåé]+(?:\s*,\s*|\s+og\s+|\s+)?)+)/);
+    if (nm) P.names = nm[1].split(/\s*,\s*|\s+og\s+|\s+/).filter((x) => /^[A-ZÆØÅ]/.test(x)).slice(0, 12);
+    const cnt = t.match(/vi er (\d+|to|tre|fire|fem|seks|syv|otte)\b/);
+    if (cnt) P.count = { to: 2, tre: 3, fire: 4, fem: 5, seks: 6, syv: 7, otte: 8 }[cnt[1]] || +cnt[1];
+    // By: "i Fredericia", "i Aarhus"
+    const city = raw.match(/\b(?:i|ved|omkring|rundt i)\s+([A-ZÆØÅ][a-zæøå]+(?:\s[A-ZÆØÅ][a-zæøå]+)?)/);
+    if (city && !['Morgen', 'Dag', 'Aften'].includes(city[1])) P.city = city[1];
+    // Interesser (+ negationer)
+    for (const [key, g] of Object.entries(INTERESTS)) {
+      for (const w of g.words) {
+        const idx = hitIndex(t, w);
+        if (idx < 0) continue;
+        (negated(t, idx) ? P.avoid : P.want).push(key);
+        break;
+      }
+    }
+    P.want = [...new Set(P.want)].filter((k) => !P.avoid.includes(k) && !(k === 'øl' && P.alc === 0));
+    P.avoid = [...new Set(P.avoid)].filter((k) => !(k === 'øl' && P.alc === 0)); // alkoholfri sorterer allerede øl-stop fra
+    // Konkrete ord, der står i aktiviteternes titler (fx "bowling", "escape", "karaoke")
+    const titles = lc(ACTIVITIES.map((a) => a.t).join(' '));
+    const skip = new Set([...P.names.map(lc), lc(P.city), 'fredericia']);
+    P.words = [...new Set(t.split(/[^a-zæøå0-9-]+/).filter((w) => w.length >= 4 && !STOP.has(w) && !skip.has(w) && titles.includes(w) && !negated(t, t.indexOf(w))))];
+    return P;
+  }
+
+  function wishScore(a, P, text) {
+    if (!P) return 0;
+    const x = text || actText(a);
+    const title = lc(a.t);
+    let sc = 0;
+    for (const k of P.want) if (INTERESTS[k].words.some((w) => hit(x, w))) sc += INTERESTS[k].words.some((w) => hit(title, w)) ? 2 : 1;
+    for (const k of P.avoid) if (INTERESTS[k].words.some((w) => hit(x, w))) sc -= 3;
+    for (const w of P.words) { if (title.includes(w)) sc += 4; else if (x.includes(w)) sc += 1; }
+    if (P.vild && a.vild) sc += 1;
+    if (P.cheap && a.kr <= 60) sc += 1;
+    return sc;
+  }
+  const hasWishes = (P) => P && (P.want.length || P.avoid.length || P.words.length || P.vild || P.cheap);
+  function wishFactor(sc, P) {
+    if (!hasWishes(P)) return 1;
+    if (sc < 0) return 0.02;
+    if (sc === 0) return 0.15;
+    return (1 + sc) ** 3;
+  }
+
+  function wishChips(P) {
+    if (!P) return [];
+    const c = [];
+    if (P.alc != null) c.push(['🧃 Uden alkohol', '🍻 Med alkohol', '🍺 Øl-dag'][P.alc]);
+    if (P.budget) c.push(P.budget === 'dyr' ? '💎 Dyr' : '🪙 Billig');
+    if (P.start != null) c.push(`⏰ Fra ${hoursToClock(P.start)}`);
+    if (P.date) c.push(P.date === 'imorgen' ? '📅 I morgen' : '📅 I dag');
+    if (P.mode === 'epic') c.push('🗺️ Heldagsmission');
+    if (P.city) c.push(`📍 ${P.city}`);
+    if (P.names.length) c.push(`👥 ${P.names.join(', ')}`); else if (P.count) c.push(`👥 ${P.count} personer`);
+    if (P.env) c.push(P.env === 'inde' ? '🏠 Indendørs' : '🌳 Udendørs');
+    if (P.vild) c.push('🤪 Vildt');
+    P.want.forEach((k) => c.push(INTERESTS[k].label));
+    P.words.forEach((w) => c.push(`🔎 ${w}`));
+    P.avoid.forEach((k) => c.push(`🚫 ${INTERESTS[k].label.split(' ').slice(1).join(' ')}`));
+    return c;
+  }
+
   /* ───────────── Planlægning ───────────── */
   function fits(a, sw, ctx) {
     if (a.need === 'sne' && !ctx.snowDay) return false;
@@ -1640,7 +1782,7 @@ Object.assign(PREP, {
   }
 
   function eligible(a, slot, ctx) {
-    if (!a.s.includes(slot.id)) return false;
+    if (!(slot.kinds || [slot.id]).some((k) => a.s.includes(k))) return false;
     if (a.b !== '*' && a.b !== ctx.budget) return false;
     if (a.alc === 1 && !ctx.alc) return false;
     if (a.city && a.city !== ctx.city) return false;
@@ -1657,8 +1799,11 @@ Object.assign(PREP, {
     if (a.need) w *= 4;
     if (sw.nice) w *= a.env === 'inde' ? 0.5 : 2;
     if ((sw.wet || sw.t < 3) && a.env === 'inde') w *= 1.4;
-    if (a.vild) w *= 1.8;
-    if (a.city && a.city === ctx.city) w *= ctx.alc && a.alc === 1 ? 12 : 8; // gå all in på lokale steder
+    const wishes = hasWishes(ctx.prefs);
+    const wsc = wishes ? wishScore(a, ctx.prefs) : 0;
+    if (a.vild && (!wishes || ctx.prefs.vild)) w *= 1.8;
+    // Gå all in på lokale steder – men lad jeres egne ønsker veje tungest
+    if (a.city && a.city === ctx.city) w *= wishes ? (wsc > 0 ? 3 : 1) : ctx.alc && a.alc === 1 ? 12 : 8;
     if (ctx.alc === 2) {
       if (a.alc === 1) w *= slot.id === 'morgen' ? 3 : 6;
       if (a.alc === 0) w *= 0.2;
@@ -1666,6 +1811,10 @@ Object.assign(PREP, {
       if (a.alc === 1) w *= 2.5;
       if (a.alc === 0) w *= 0.3;
     }
+    if (wishes) w *= wishFactor(wsc, ctx.prefs);
+    if (ctx.prefs?.env === 'inde') w *= a.env === 'inde' ? 1.5 : 0.2;
+    if (ctx.prefs?.env === 'ude') w *= a.env !== 'inde' ? 1.5 : 0.4;
+    if (ctx.prefs?.want.includes('hygge') && a.vild) w *= 0.3;
     if (ctx.budget === 'dyr' && a.b === 'dyr') w *= 1.6;
     if (ctx.budget === 'billig' && a.kr === 0) w *= 1.2;
     return w;
@@ -1706,15 +1855,19 @@ Object.assign(PREP, {
     return true;
   }
 
-  function chooseFor(slot, plan, used, { indoorOnly = false, idx = plan.steps.length } = {}) {
+  function chooseFor(slot, plan, used, { indoorOnly = false, idx = plan.steps.length, kinds = null, prefs = null } = {}) {
     const ctx = makeCtx(plan);
+    ctx.prefs = prefs || plan.prefs || null;
+    if (kinds) slot = { ...slot, kinds };
     const sw = slotWeather(plan.wx, slot);
     const specials = plan.steps.filter((st, i) => i !== idx && actById(st.act)?.win).length;
-    const base = (a) => !used.has(a.id) && a.s.includes(slot.id) && (a.alc !== 1 || ctx.alc) && safeWithBeer(a, plan, idx);
+    const venues = new Set(plan.steps.filter((st, k) => k !== idx).map((st) => actById(st.act)?.map).filter(Boolean));
+    const base = (a) => !used.has(a.id) && !(a.map && venues.has(a.map)) && (slot.kinds || [slot.id]).some((k) => a.s.includes(k)) && (a.alc !== 1 || ctx.alc) && safeWithBeer(a, plan, idx);
     let pool = ACTIVITIES.filter((a) => base(a) && eligible(a, slot, ctx) && fits(a, sw, ctx) && (!indoorOnly || a.env === 'inde')
       && !(a.win && specials >= 2));
     // Øl-niveau: tving en vis andel øl-stop ind, og sørg for et minimum i løbet af dagen
-    if (ctx.alc && !indoorOnly) {
+    const P = ctx.prefs;
+    if (ctx.alc && !indoorOnly && (!hasWishes(P) || ctx.alc === 2 || P.want.includes('øl'))) {
       const beerPool = pool.filter((a) => a.alc === 1);
       const minBeer = ctx.alc === 2 ? 4 : 2;
       const slotsLeft = plan.slots.length - idx;
@@ -1757,6 +1910,7 @@ Object.assign(PREP, {
       if (d.pp < 40 && e.env === 'inde' && e.b !== 'dyr') w *= 0.15; // hygge-hulen er til regnvejr
       if (d.pp < 30 && d.tmax >= 12 && e.env !== 'inde') w *= 1.5;
       if (ctx.budget === 'dyr' && e.b === 'dyr') w *= 2;
+      if (plan.prefs) w *= wishFactor(wishScore(e, plan.prefs, epicText(e)), plan.prefs);
       return { a: e, w };
     }));
   }
@@ -1817,10 +1971,10 @@ Object.assign(PREP, {
   }
   const totalBeers = (plan) => Object.values(plan.drinks || {}).reduce((s, d) => s + d.beer, 0);
 
-  function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop', people = [], forceEpic = null }) {
+  function buildPlan({ date, budget, alc, loc, wx, start = 9, mode = 'stop', people = [], forceEpic = null, prefs = null, wish = '' }) {
     const special = specialOf(date);
     const plan = {
-      date, budget, alc, loc, wx, start, mode, forceEpic, people: [...people], prepDone: {}, slots: buildSlots(start), startedEarly: false,
+      date, budget, alc, loc, wx, start, mode, forceEpic, prefs, wish, people: [...people], prepDone: {}, slots: buildSlots(start), startedEarly: false,
       theme: special ? special.theme : alc === 2 ? pick(THEME_BEER) : `${pick(THEME_A)} ${pick(THEME_B)}`,
       mission: pick(alc ? [...MISSIONS, ...MISSIONS_ALC, ...MISSIONS_ALC] : MISSIONS), missionDone: false,
       jokers: 3, notified: [], createdAt: Date.now(), steps: [],
@@ -1838,7 +1992,32 @@ Object.assign(PREP, {
       }
       plan.steps.push(step);
     }
+    ensureWords(plan, used);
     return assignCaptains(plan);
+  }
+
+  // Har man nævnt noget konkret (fx "bowling" eller "karaoke"), så sørg for, at det kommer med
+  function ensureWords(plan, used) {
+    const P = plan.prefs;
+    if (!P || !P.words.length) return;
+    const ctx = makeCtx(plan);
+    const okFor = (a, slot, i, sw) => eligible(a, slot, { ...ctx, budget: a.b }) && fits(a, sw, ctx) && safeWithBeer(a, plan, i); // konkrete ønsker trumfer budget
+    for (const w of P.words) {
+      if (plan.steps.some((st) => actText(actById(st.act)).includes(w))) continue;
+      for (let i = 0; i < plan.steps.length; i++) {
+        const slot = plan.slots[i];
+        if (['frokost', 'middag'].includes(slot.id) && !INTERESTS.mad.words.some((m) => hit(w, m))) continue;
+        const sw = slotWeather(plan.wx, slot);
+        const acts = new Set(plan.steps.map((st) => st.act));
+        const venues = new Set(plan.steps.filter((st, k) => k !== i).map((st) => actById(st.act)?.map).filter(Boolean));
+        const free = (a) => !acts.has(a.id) && !(a.map && venues.has(a.map)) && okFor(a, slot, i, sw);
+        const cand = ACTIVITIES.find((a) => lc(a.t).includes(w) && free(a)) || ACTIVITIES.find((a) => actText(a).includes(w) && free(a));
+        if (cand) {
+          plan.steps.forEach((st) => { if (st.planB === cand.id) st.planB = null; }); // var den Plan B et andet sted, fjernes den dér
+          used.add(cand.id); plan.steps[i].act = cand.id; plan.steps[i].planB = null; break;
+        }
+      }
+    }
   }
 
   /* ───────────── Forberedelse: indkøb, pakning og booking ───────────── */
@@ -1962,6 +2141,50 @@ Object.assign(PREP, {
     setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3200);
   }
 
+  // Egen bekræftelsesdialog – confirm() blokeres i mange indbyggede filvisere
+  function ask(question, yes = 'Ja', no = 'Annullér') {
+    return new Promise((resolve) => {
+      const m = modal(`<h2>${esc(question)}</h2><div class="actions"><button class="btn primary" id="ay">${esc(yes)}</button><button class="btn ghost" id="an">${esc(no)}</button></div>`);
+      const done = (v) => { m.remove(); resolve(v); };
+      $('#ay', m).onclick = () => done(true);
+      $('#an', m).onclick = () => done(false);
+      m.addEventListener('click', (e) => { if (e.target === m) resolve(false); });
+    });
+  }
+
+  // Åbn et link i nyt vindue – virker det ikke (fx i en sandkasse), vis linket så man kan kopiere det
+  function openLink(url, label = 'linket', copyText = url) {
+    let w = null;
+    try { w = window.open(url, '_blank', 'noopener'); } catch { /* blokeret */ }
+    if (w) return;
+    try { if (window.top === window) { location.href = url; return; } } catch { /* cross-origin */ }
+    const m = modal(`<h2>Åbn ${esc(label)}</h2>
+      <p class="muted small">Din app/fremviser blokerede at åbne ${esc(label)} direkte. Tryk på linket (eller hold fingeren på det), eller kopiér søgningen og indsæt den i Google Maps.</p>
+      <p><a class="btn primary" href="${esc(url)}" target="_blank" rel="noopener">🗺️ ${esc(label)}</a></p>
+      <input readonly value="${esc(copyText)}" id="lnk">
+      <div class="actions"><button class="btn ghost" id="cp">📋 Kopiér</button><button class="btn ghost" id="cl">Luk</button></div>`);
+    $('#cp', m).onclick = () => copyText2(copyText, $('#lnk', m));
+    $('#cl', m).onclick = () => m.remove();
+  }
+
+  async function copyText2(text, inputEl) {
+    try { await navigator.clipboard.writeText(text); toast('📋 Kopieret'); return true; }
+    catch {
+      if (inputEl) { inputEl.focus(); inputEl.select(); try { document.execCommand('copy'); toast('📋 Kopieret'); return true; } catch { /* nej */ } }
+      toast('Markér teksten og kopiér den manuelt');
+      return false;
+    }
+  }
+
+  // Del tekst – med fallback til et vindue, hvor teksten kan kopieres
+  async function shareOrShow(text, title = 'Del') {
+    if (navigator.share) { try { await navigator.share({ text }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+    const m = modal(`<h2>${esc(title)}</h2><textarea id="sh" rows="10" readonly>${esc(text)}</textarea>
+      <div class="actions"><button class="btn primary" id="cp">📋 Kopiér</button><button class="btn ghost" id="cl">Luk</button></div>`);
+    $('#cp', m).onclick = () => copyText2(text, $('#sh', m));
+    $('#cl', m).onclick = () => m.remove();
+  }
+
   function modal(html) {
     const wrap = document.createElement('div');
     wrap.className = 'modal-wrap';
@@ -2003,6 +2226,16 @@ Object.assign(PREP, {
           ${special ? `<span class="chip hot">${special.icon} ${special.name}</span>` : ''}
         </div>
       </header>
+
+      <section class="card assistant">
+        <h2>🤖 Beskriv jeres dag</h2>
+        <p class="muted small">Skriv med dine egne ord, hvad I har lyst til. Så laver assistenten planen ud fra det – og opgaverne undervejs passer til jeres ønsker.</p>
+        <textarea id="wish" rows="3" placeholder="Fx: Vi er Anna, Mads og Sofie. Vi vil day drinke i Fredericia fra kl. 12, spille bowling og høre livemusik om aftenen. Billigt.">${esc(st.wish || '')}</textarea>
+        <div class="chips examples">
+          ${['Day drink i Fredericia fra kl 12 med bowling og livemusik', 'Rolig hyggedag uden alkohol, indendørs og billigt', 'Noget vildt med adrenalin og god mad, må gerne være dyrt', 'Natur og bål i morgen, vi er 4'].map((x) => `<button class="chip pick" data-action="example" data-val="${esc(x)}">${esc(x)}</button>`).join('')}
+        </div>
+        <button class="btn primary xl" data-action="wish">✨ Lav dagen ud fra det</button>
+      </section>
 
       <section class="card preset">
         <div class="em-xl">🍻🏰</div>
@@ -2102,6 +2335,7 @@ Object.assign(PREP, {
       st.start = Math.min(21, Math.max(5, hh + (mm || 0) / 60));
       save(); renderSetup();
     });
+    $('#wish').addEventListener('input', (e) => { st.wish = e.target.value; save(); });
     $('#personform').addEventListener('submit', (e) => {
       e.preventDefault();
       const names = $('#person').value.split(',').map((x) => x.trim()).filter(Boolean);
@@ -2167,6 +2401,7 @@ Object.assign(PREP, {
         ${plan.mode === 'epic' ? `<p class="epic-intro">${epicById(plan.epic).icon} <b>Heldagsmission: ${esc(epicById(plan.epic).t)}.</b> ${esc(epicById(plan.epic).d)}</p>` : ''}
         <p class="muted">${cap(fmtDate(plan.date))} · ⏰ fra kl. ${plan.slots[0].time} · 📍 ${esc(plan.loc.name)}</p>
         ${plan.people?.length ? `<p class="small">👥 ${plan.people.map(esc).join(' · ')}</p>` : ''}
+        ${plan.wish ? `<div class="wishbox"><span class="small">🤖 Ud fra: <i>“${esc(plan.wish)}”</i></span><div class="chips small">${wishChips(plan.prefs).map((c) => `<span class="chip">${esc(c)}</span>`).join('')}</div></div>` : ''}
         <div class="wxbar">
           <div class="wxbig">${dIcon}</div>
           <div>
@@ -2212,7 +2447,14 @@ Object.assign(PREP, {
   }
 
   function priceTag(a) { return a.id.includes('#') ? 'Inkl. i missionen' : a.kr === 0 ? 'Gratis' : `ca. ${a.kr} kr`; }
-  const mapLink = (a) => a.map ? `<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a.map + ' nær mig')}">🗺️ Find på kort</a>` : '';
+  function mapQuery(a) {
+    const loc = store.plan?.loc;
+    const city = loc && loc.name && loc.name !== 'Din position' ? loc.name.split(',')[0] : '';
+    if (city && a.map.toLowerCase().includes(city.toLowerCase())) return a.map;
+    return city ? `${a.map} ${city}` : `${a.map} nær mig`;
+  }
+  const mapsUrl = (q) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+  const mapLink = (a) => a.map ? `<a class="btn ghost sm" href="${mapsUrl(mapQuery(a))}" target="_blank" rel="noopener" data-action="map" data-q="${esc(mapQuery(a))}">🗺️ Find på kort</a>` : '';
   const envTag = (a) => ({ ude: '🌳 Udendørs', mix: '🧥 Ude/inde', inde: '🏠 Indendørs' }[a.env]);
 
   function renderNow(plan, ai) {
@@ -2265,6 +2507,11 @@ Object.assign(PREP, {
           ${mapLink(a)}
           <button class="btn ghost sm" data-action="skip" data-i="${ai}">⏭️ Spring over</button>
         </div>
+        <form class="adjust" id="adjustform" data-i="${ai}">
+          <label class="small muted" for="adjust">🤖 Passer det ikke? Skriv, hvad I hellere vil:</label>
+          <div class="row"><input id="adjust" placeholder="Fx: det regner · vi er sultne · mere øl · noget billigere" autocomplete="off"><button class="btn ghost" type="submit">Justér</button></div>
+          ${plan.lastReply ? `<p class="small reply">🤖 ${esc(plan.lastReply)}</p>` : ''}
+        </form>
       </section>`;
   }
 
@@ -2462,12 +2709,12 @@ Object.assign(PREP, {
     renderPlan();
   }
 
-  async function generate() {
+  async function generate(opts = {}) {
     const st = store.settings;
     app.innerHTML = `<div class="loading"><div class="dice">🎲</div><p>Tjekker vejret i ${esc(st.loc.name)} og ruller terningerne…</p></div>`;
     const wx = await getWeather(st.loc, st.date);
     await new Promise((r) => setTimeout(r, 700)); // lidt spænding
-    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx, start: st.start, mode: st.mode, people: st.people, forceEpic: st.mode === 'epic' ? st.forceEpic : null });
+    store.plan = buildPlan({ date: st.date, budget: st.budget, alc: st.alc, loc: st.loc, wx, start: st.start, mode: st.mode, people: st.people, forceEpic: st.mode === 'epic' ? st.forceEpic : null, prefs: opts.prefs || null, wish: opts.wish || '' });
     save();
     renderPlan();
     window.scrollTo({ top: 0 });
@@ -2609,6 +2856,45 @@ Object.assign(PREP, {
     });
   }
 
+  app.addEventListener('submit', (e) => {
+    if (e.target.id !== 'adjustform') return;
+    e.preventDefault();
+    const txt = $('#adjust').value.trim();
+    if (txt) adjustStep(+e.target.dataset.i, txt);
+  });
+
+  // Justér ét stop ud fra fri tekst ("det regner", "vi er sultne", "mere øl" …) – koster ikke en joker
+  function adjustStep(i, text) {
+    const plan = store.plan;
+    const slot = plan.slots[i];
+    const step = plan.steps[i];
+    const t = ' ' + lc(text) + ' ';
+    const P = parseWish(text);
+    const why = [];
+    const opts = { idx: i, prefs: P };
+    if (/regn|våd|vådt|koldt|fryser|blæs|storm|inde/.test(t)) { opts.indoorOnly = true; why.push('indendørs'); }
+    if (/sulten|sultne|mad|spise|frokost|aftensmad|middag/.test(t)) { opts.kinds = ['frokost', 'middag']; why.push('med mad'); }
+    if (/træt|trætte|rolig|slappe|chill|hygge|stille/.test(t)) { P.want.push('hygge'); why.push('roligere'); }
+    if (/billig|gratis|penge|spar/.test(t)) { P.cheap = true; why.push('billigere'); }
+    if (/mere øl|øl|bajer|fadøl|drik/.test(t) && plan.alc && !/uden|ingen|ikke/.test(t)) { P.want.push('øl'); why.push('med øl'); }
+    if (/vild|skør|kedelig|sjovere|noget andet/.test(t)) { P.vild = true; why.push('vildere'); }
+    if (/(uden|ingen|ikke mere|stop med)\s+(øl|alkohol)|ædru|pause/.test(t)) { P.avoid.push('øl'); why.push('uden øl'); }
+    P.want = [...new Set(P.want)];
+    const used = usedIds(plan, i);
+    used.add(step.act);
+    let a = chooseFor(slot, plan, used, opts);
+    if (P.avoid.includes('øl') && a && a.alc === 1) a = null;
+    if (!a) { plan.lastReply = 'Jeg kunne ikke finde noget, der passer bedre lige nu. Prøv at skrive det på en anden måde.'; save(); renderPlan(); return; }
+    const old = actById(step.act).t;
+    step.act = a.id;
+    step.planB = null;
+    if (a.env !== 'inde') { const b = chooseFor(slot, plan, new Set([...used, a.id]), { indoorOnly: true, idx: i }); if (b) step.planB = b.id; }
+    plan.lastReply = `Skiftet fra "${old}" til "${a.t}"${why.length ? ` (${why.join(', ')})` : ''}. Joker ikke brugt.`;
+    save();
+    toast('🤖 ' + a.t);
+    renderPlan();
+  }
+
   app.addEventListener('click', async (e) => {
     const el = e.target.closest('[data-action]');
     if (!el) return;
@@ -2630,6 +2916,39 @@ Object.assign(PREP, {
           { timeout: 10000 });
         break;
       case 'generate': generate(); break;
+      case 'example':
+        $('#wish').value = el.dataset.val; st.wish = el.dataset.val; save(); break;
+      case 'wish': {
+        const text = $('#wish').value.trim();
+        if (!text) { toast('Skriv lidt om, hvad I har lyst til 🙂'); $('#wish').focus(); break; }
+        const P = parseWish(text);
+        st.wish = text;
+        if (P.alc != null) st.alc = P.alc; else if (st.alc == null) st.alc = 0;
+        if (P.budget) st.budget = P.budget; else if (!st.budget) st.budget = 'billig';
+        if (P.start != null) st.start = P.start;
+        if (P.mode) st.mode = P.mode; else st.mode = 'stop';
+        delete st.forceEpic;
+        if (P.date) { const opts = weekendOptions(); const want = P.date === 'idag' ? todayISO() : isoDate(new Date(Date.now() + 864e5)); if (opts.some((o) => o.iso === want)) st.date = want; }
+        if (P.names.length) P.names.forEach((n) => { if (!st.people.includes(n)) st.people.push(n); });
+        if (P.city) {
+          if (/fredericia/i.test(P.city)) st.loc = { ...FREDERICIA };
+          else {
+            try {
+              const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?' + new URLSearchParams({ name: P.city, count: 1, language: 'da', countryCode: 'DK' }));
+              const hit = (await r.json()).results?.[0];
+              if (hit) st.loc = { name: hit.name, lat: hit.latitude, lon: hit.longitude };
+            } catch { /* behold nuværende sted */ }
+          }
+        }
+        if (st.date === todayISO() && st.start < nowHours() - 1) st.start = Math.min(21, Math.ceil(nowHours() * 4) / 4);
+        save();
+        generate({ prefs: P, wish: text });
+        break;
+      }
+      case 'map':
+        e.preventDefault();
+        openLink(mapsUrl(el.dataset.q), 'Google Maps', el.dataset.q);
+        break;
       case 'preset': {
         st.loc = { ...FREDERICIA };
         st.alc = 2;
@@ -2643,12 +2962,12 @@ Object.assign(PREP, {
       }
       case 'complete': openComplete(i); break;
       case 'skip':
-        if (confirm('Spring dette stop over? (0 point)')) { store.plan.steps[i].status = 'skipped'; save(); renderPlan(); }
+        if (await ask('Spring dette stop over? (0 point)', 'Spring over')) { store.plan.steps[i].status = 'skipped'; save(); renderPlan(); }
         break;
       case 'undo':
         Object.assign(store.plan.steps[i], { status: 'todo', bonus: false, doneAt: null }); save(); renderPlan(); break;
       case 'joker':
-        if (confirm(`Brug en joker og få en ny idé til ${store.plan.slots[i].label.toLowerCase()} kl. ${store.plan.slots[i].time}? (${store.plan.jokers} tilbage)`)) useJoker(i);
+        if (await ask(`Brug en joker og få en ny idé til ${store.plan.slots[i].label.toLowerCase()} kl. ${store.plan.slots[i].time}? (${store.plan.jokers} tilbage)`, '🃏 Brug joker')) useJoker(i);
         break;
       case 'planb': swapPlanB(i); break;
       case 'drink': {
@@ -2673,15 +2992,15 @@ Object.assign(PREP, {
         break;
       case 'shareprep': {
         const text = prepText(store.plan);
-        if (navigator.share) { try { await navigator.share({ text }); } catch { /* annulleret */ } }
-        else { await navigator.clipboard?.writeText(text); toast('📋 Listen er kopieret – indsæt den i gruppechatten.'); }
+        await shareOrShow(text, '📤 Send listen til gruppen');
         break;
       }
       case 'mission':
         store.plan.missionDone = el.checked; save(); if (el.checked) celebrate(); renderPlan(); break;
       case 'notify': {
         if (!('Notification' in window)) return toast('Notifikationer understøttes ikke her.');
-        const r = await Notification.requestPermission();
+        let r = 'denied';
+        try { r = await Notification.requestPermission(); } catch { /* blokeret */ }
         toast(r === 'granted' ? '🔔 Du får besked, når næste stop låses op (mens appen er åben i baggrunden).' : 'Notifikationer er slået fra.');
         break;
       }
@@ -2689,12 +3008,11 @@ Object.assign(PREP, {
       case 'back': renderPlan(); break;
       case 'share': {
         const text = shareText(store.plan);
-        if (navigator.share) { try { await navigator.share({ text }); } catch { /* annulleret */ } }
-        else { await navigator.clipboard?.writeText(text); toast('📋 Kopieret – indsæt hvor du vil.'); }
+        await shareOrShow(text, '📤 Del rapporten');
         break;
       }
       case 'new':
-        if (!store.plan || confirm('Starte en ny sidequest? Den nuværende plan slettes.')) {
+        if (!store.plan || await ask('Starte en ny sidequest? Den nuværende plan slettes.', 'Ja, ny sidequest')) {
           store.plan = null; save(); view = null; renderSetup(); window.scrollTo({ top: 0 });
         }
         break;

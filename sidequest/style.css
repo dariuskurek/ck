@@ -240,3 +240,13 @@ input:focus, textarea:focus { border-color: var(--accent); }
 /* v6: Fredericia day drink */
 .preset { text-align: center; border: 2px solid var(--accent); background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 18%, var(--card)), var(--card)); }
 .preset .actions { justify-content: center; }
+
+/* v7: assistent og robuste knapper */
+.assistant { border: 2px solid var(--accent2); }
+.assistant textarea { margin: 6px 0; }
+.examples .chip.pick { font-size: .8rem; white-space: normal; text-align: left; }
+.wishbox { background: var(--card2); border-radius: 12px; padding: 8px 10px; margin: 8px 0; }
+.adjust { margin-top: 14px; border-top: 1px solid rgba(255,255,255,.08); padding-top: 10px; }
+.adjust .row { margin-top: 4px; }
+.reply { color: var(--accent2); margin-top: 6px; }
+.modal input[readonly] { margin: 8px 0; font-size: .85rem; }
