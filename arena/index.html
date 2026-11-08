@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strikeline – Arena Shooter</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: "Segoe UI", system-ui, sans-serif; color: #fff; user-select: none; }
+  canvas#view { display: block; }
+  .hud { position: fixed; pointer-events: none; text-shadow: 0 1px 3px #000; }
+  #crosshair { left: 50%; top: 50%; width: 0; height: 0; }
+  #crosshair i { position: absolute; background: rgba(255,255,255,.9); box-shadow: 0 0 2px #000; }
+  #crosshair .t, #crosshair .b { width: 2px; height: 8px; left: -1px; }
+  #crosshair .l, #crosshair .r { width: 8px; height: 2px; top: -1px; }
+  #hitmarker { left: 50%; top: 50%; width: 24px; height: 24px; margin: -12px 0 0 -12px; opacity: 0; transition: opacity .15s; }
+  #hitmarker::before, #hitmarker::after { content: ""; position: absolute; left: 11px; top: 0; width: 2px; height: 24px; background: #fff; transform: rotate(45deg); box-shadow: 0 0 2px #000; }
+  #hitmarker::after { transform: rotate(-45deg); }
+  #hitmarker.kill::before, #hitmarker.kill::after { background: #ff4040; }
+  #ammo { right: 28px; bottom: 24px; text-align: right; }
+  #ammo .mag { font-size: 44px; font-weight: 700; }
+  #ammo .res { font-size: 20px; opacity: .7; }
+  #ammo .wname { font-size: 14px; letter-spacing: 2px; text-transform: uppercase; opacity: .85; }
+  #health { left: 28px; bottom: 28px; width: 220px; }
+  #health .bar { height: 8px; background: rgba(255,255,255,.15); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+  #health .fill { height: 100%; width: 100%; background: linear-gradient(90deg,#3ce07a,#a6f56b); transition: width .1s; }
+  #streak { left: 28px; bottom: 64px; font-size: 13px; line-height: 1.5; }
+  #streak .ready { color: #ffd34d; font-weight: 700; }
+  #score { left: 50%; top: 14px; transform: translateX(-50%); display: flex; gap: 10px; align-items: center; font-weight: 700; }
+  #score .team { padding: 4px 14px; border-radius: 4px; font-size: 22px; min-width: 64px; text-align: center; }
+  #score .blue { background: rgba(40,120,255,.75); }
+  #score .red { background: rgba(230,60,50,.75); }
+  #score .time { font-size: 16px; opacity: .9; min-width: 56px; text-align: center; }
+  #minimap { left: 18px; top: 18px; border: 2px solid rgba(255,255,255,.35); border-radius: 6px; background: rgba(10,15,20,.6); }
+  #killfeed { right: 18px; top: 18px; text-align: right; font-size: 14px; }
+  #killfeed div { background: rgba(0,0,0,.45); padding: 3px 8px; margin-bottom: 3px; border-radius: 3px; }
+  .cb { color: #6fa8ff; } .cr { color: #ff6d62; } .cy { color: #ffd34d; }
+  #popup { left: 50%; top: 58%; transform: translateX(-50%); font-size: 18px; font-weight: 700; color: #ffd34d; text-align: center; }
+  #popup div { animation: rise 1.4s forwards; }
+  @keyframes rise { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-36px); } }
+  #damage { inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(170,0,0,.75) 100%); opacity: 0; }
+  #dmgdir { left: 50%; top: 50%; width: 0; height: 0; }
+  #dmgdir div { position: absolute; width: 60px; height: 14px; margin: -7px 0 0 -30px; background: radial-gradient(ellipse, rgba(255,40,30,.9), transparent 70%); transition: opacity .8s; }
+  #center { inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; font-size: 28px; font-weight: 700; text-align: center; }
+  #scoreboard { left: 50%; top: 50%; transform: translate(-50%,-50%); background: rgba(10,14,20,.88); padding: 18px 24px; border-radius: 8px; display: none; min-width: 520px; }
+  #scoreboard table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  #scoreboard td, #scoreboard th { padding: 4px 10px; text-align: right; }
+  #scoreboard td:first-child, #scoreboard th:first-child { text-align: left; }
+  #scoreboard tr.me { background: rgba(255,211,77,.18); }
+  #scoreboard h3 { margin: 10px 0 4px; }
+  #menu { position: fixed; inset: 0; background: radial-gradient(ellipse at top, #1d2b3a, #06090d); display: flex; align-items: center; justify-content: center; z-index: 10; }
+  #menu .box { width: min(760px, 94vw); }
+  #menu h1 { font-size: 64px; letter-spacing: 8px; font-weight: 800; background: linear-gradient(90deg,#ffd34d,#ff7a3d); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #menu .sub { opacity: .7; margin-bottom: 26px; letter-spacing: 2px; }
+  #menu h2 { font-size: 14px; letter-spacing: 3px; opacity: .7; margin: 18px 0 8px; text-transform: uppercase; }
+  .classes { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .cls { border: 2px solid rgba(255,255,255,.15); border-radius: 8px; padding: 12px; cursor: pointer; background: rgba(255,255,255,.04); }
+  .cls.sel { border-color: #ffd34d; background: rgba(255,211,77,.1); }
+  .cls b { display: block; font-size: 16px; margin-bottom: 4px; }
+  .cls small { opacity: .7; line-height: 1.5; display: block; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .opt { border: 2px solid rgba(255,255,255,.15); border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+  .opt.sel { border-color: #ffd34d; }
+  #play { margin-top: 24px; padding: 14px 40px; font-size: 20px; font-weight: 800; letter-spacing: 3px; border: 0; border-radius: 6px; background: linear-gradient(90deg,#ffd34d,#ff7a3d); color: #111; cursor: pointer; }
+  .keys { margin-top: 18px; font-size: 13px; opacity: .6; line-height: 1.7; }
+  #paused { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.55); font-size: 24px; z-index: 5; cursor: pointer; flex-direction: column; gap: 10px; }
+</style>
+</head>
+<body>
+<canvas id="view"></canvas>
+
+<div class="hud" id="crosshair"><i class="t"></i><i class="b"></i><i class="l"></i><i class="r"></i></div>
+<div class="hud" id="hitmarker"></div>
+<div class="hud" id="damage"></div>
+<div class="hud" id="dmgdir"></div>
+<canvas class="hud" id="minimap" width="180" height="180"></canvas>
+<div class="hud" id="score"><div class="team blue" id="sBlue">0</div><div class="time" id="sTime">8:00</div><div class="team red" id="sRed">0</div></div>
+<div class="hud" id="killfeed"></div>
+<div class="hud" id="popup"></div>
+<div class="hud" id="streak"></div>
+<div class="hud" id="health">HEALTH<div class="bar"><div class="fill" id="hpFill"></div></div></div>
+<div class="hud" id="ammo"><div class="wname" id="wName"></div><span class="mag" id="aMag">30</span> <span class="res" id="aRes">/ 120</span></div>
+<div class="hud" id="center"></div>
+<div class="hud" id="scoreboard"></div>
+
+<div id="paused">PAUSED<small style="font-size:14px;opacity:.7">Click to resume · Esc to pause</small></div>
+
+<div id="menu">
+  <div class="box">
+    <h1>STRIKELINE</h1>
+    <div class="sub">5 v 5 TEAM DEATHMATCH · FREIGHT YARD</div>
+    <h2>Loadout</h2>
+    <div class="classes" id="classes"></div>
+    <h2>Bot difficulty</h2>
+    <div class="row" id="diff">
+      <div class="opt" data-v="0">Recruit</div><div class="opt sel" data-v="1">Regular</div><div class="opt" data-v="2">Veteran</div>
+    </div>
+    <button id="play">DEPLOY</button>
+    <div class="keys">
+      WASD move · Shift sprint · Space jump · C crouch · Mouse fire · Right-click aim<br>
+      R reload · 1/2 swap primary/sidearm · G frag grenade · 4 call in streak reward · Tab scoreboard
+    </div>
+  </div>
+</div>
+
+<script type="module" src="game.js"></script>
+</body>
+</html>
